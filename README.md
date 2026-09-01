@@ -1,50 +1,152 @@
-# Welcome to your Expo app 👋
+AXIS — Planeje viagens com quem importa
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Descrição--
 
-## Get started
+O Axis é um aplicativo mobile de planejamento de viagens em grupo. Ele resolve o problema da desorganização entre amigos que viajam juntos: roteiros bagunçados, gastos mal divididos e falta de sincronização entre os participantes. A proposta é centralizar tudo em um único lugar — destino, datas, atividades, orçamento e divisão de despesas — de forma simples e colaborativa.
 
-1. Install dependencies
+Objetivo--
 
-   ```bash
-   npm install
-   ```
+Permitir que grupos de amigos ou familiares planejem suas viagens dentro de um único aplicativo, com criação de itinerários (manual ou por IA), compartilhamento em tempo real entre os participantes e controle transparente de gastos.
 
-2. Start the app
+Tecnologias Utilizadas --
 
-   ```bash
-   npx expo start
-   ```
+Backend 
 
-In the output, you'll find options to open the app in a
+Node.js
+Express
+Firebase / Supabase (autenticação e banco de dados)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+Mobile
 
-## Get a fresh project
+React Native 
+Expo Router (navegação)
+expo-blur (efeito glass)
+expo-linear-gradient
 
-When you're ready, run:
+
+Funcionalidades
+
+Tela de boas-vindas com apresentação do aplicativo 
+Cadastro e login de usuário (e-mail/senha)
+Exploração de destinos e países populares
+Criação de roteiro de viagem com destino, atividades, datas e orçamento
+Geração de itinerário automática por Inteligência Artificial
+Código de convite para compartilhar a viagem com o grupo
+Controle de despesas com gráfico por categorias
+Divisão de gastos entre os participantes (igualmente ou personalizado)
+Perfil do usuário com configurações (notificações e tema claro ou escuro)
+
+## Estrutura do Projeto
 
 ```bash
-npm run reset-project
+axis-app/
+├── backend/
+│   ├── node_modules/
+│   ├── server.js
+│   ├── package.json
+│   ├── package-lock.json
+│   └── src/
+│       ├── routes/
+│       ├── controllers/
+│       └── services/
+│
+├── mobile/
+│   ├── app/
+│   │   ├── (public)/
+│   │   │   ├── index.tsx        # onboarding
+│   │   │   ├── login.tsx        # login
+│   │   │   └── register.tsx     # cadastro
+│   │   │
+│   │   ├── (logic)/
+│   │   │   ├── home.tsx         # explorar destinos
+│   │   │   ├── trips.tsx        # viagens
+│   │   │   ├── expenses.tsx     # despesas
+│   │   │   └── profile.tsx      # perfil
+│   │   │
+│   │   └── _layout.tsx
+│   │
+│   ├── components/
+│   │   ├── GlassCard.tsx
+│   │   ├── GlassButton.tsx
+│   │   └── GlassInput.tsx
+│   │
+│   ├── constants/
+│   │   └── theme.ts
+│   │
+│   ├── services/
+│   │   ├── api.ts
+│   │   └── supabase.ts
+│   │
+│   ├── assets/
+│   │   ├── images/
+│   │   └── fonts/
+│   │
+│   ├── app.json
+│   └── package.json
+│
+├── web/
+│   ├── public/
+│   │   ├── css/
+│   │   │   └── estilo.css
+│   │   ├── imagens/
+│   │   └── index.html
+│   └── README.md
+│
+└── README.md
 ```
+Como Executar
+Pré-requisitos
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Node.js instalado (versão 18 ou superior)
+Expo CLI instalado globalmente
+Aplicativo Expo Go no celular (iOS ou Android)
 
-## Learn more
+Passos
 
-To learn more about developing your project with Expo, look at the following resources:
+1. Clonar o repositório
+git clone https://github.com/laurazxk/axis-app.git   
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2. Entrar na pasta do projeto
+cd axis-app
 
-## Join the community
+3. Instalar as dependências
+npm install
 
-Join our community of developers creating universal apps.
+4. Iniciar o projeto
+npx expo start
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Após rodar o último comando, escaneie o QR code com o aplicativo Expo Go para visualizar o app no celular.
+
+Deploy
+
+Deploy Backend (Render):  https://axis-travel-app.onrender.com
+Deploy Frontend (Vercel): https://axis-app-bay.vercel.app/
+
+
+Aplicativo Mobile
+
+O aplicativo é desenvolvido com React Native + Expo. Para testar:
+
+
+Instale o app Expo Go na loja do seu celular (App Store ou Google Play)
+Clone o repositório e rode npx expo start
+Escaneie o QR code gerado no terminal com o Expo Go
+
+
+Futuramente será disponibilizado um APK para instalação direta no Android ou IOS.
+
+Integrantes
+
+Julia Bandeira, Laura Marques, Laila Camile e Kyara Murayama
+
+
+Pitch
+
+O Axis foi desenvolvido para resolver um problema real: quem já tentou organizar uma viagem em grupo sabe que é caos. Mensagens perdidas, planilhas confusas, brigas por dinheiro. O Axis resolve isso com um app intuitivo que reúne roteiro, grupo e finanças em um só lugar — com a ajuda de inteligência artificial para montar o itinerário perfeito. Nossa proposta é simples: você foca em viver a viagem, a gente cuida do planejamento.
+
+
+Links Importantes
+
+Repositório GitHub: 
+Protótipo: https://axisapp2tw.vercel.app
