@@ -223,7 +223,7 @@ export default function HomeScreen() {
                 (
                     filter === "Pontos turísticos" &&
                     (
-                        destination.category === "Ponto turístico"
+                        destination.category === "Ponto Turístico"
                     )
                 )
 
