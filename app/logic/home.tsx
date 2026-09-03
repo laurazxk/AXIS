@@ -221,14 +221,6 @@ export default function HomeScreen() {
                 ||
 
                 (
-                    filter === "Países" &&
-                    !destination.category.includes("Monumento") &&
-                    !destination.category.includes("História")
-                )
-
-                ||
-
-                (
                     filter === "Pontos turísticos" &&
                     (
                         destination.category === "Monumento" ||
