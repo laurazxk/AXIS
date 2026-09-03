@@ -28,15 +28,15 @@ const destinations = [
         id: "torre-eiffel",
         title: "Torre Eiffel",
         location: "Paris, França",
-        category: "Monumento",
+        category: "Cidade",
         image: require("../../assets/images/torreeiffel.jpg"),
     },
 
     {
         id: "coliseu",
         title: "Coliseu",
-        location: "Roma, Itália",
-        category: "História",
+        location: "Coliseu, Itália",
+        category: "Ponto Turístico",
         image: require("../../assets/images/coliseu.jpg"),
     },
 
@@ -44,7 +44,7 @@ const destinations = [
         id: "big-ben",
         title: "Big Ben",
         location: "Londres, Inglaterra",
-        category: "Monumento",
+        category: "Cidade",
         image: require("../../assets/images/bigben.jpg"),
     },
 
@@ -60,7 +60,7 @@ const destinations = [
         id: "cristo-redentor",
         title: "Cristo Redentor",
         location: "Rio de Janeiro, Brasil",
-        category: "Ponto turístico",
+        category: "Cidade",
         image: require("../../assets/images/cristo.jpg"),
     },
 
@@ -68,7 +68,7 @@ const destinations = [
         id: "burj-khalifa",
         title: "Burj Khalifa",
         location: "Dubai, Emirados Árabes",
-        category: "Arquitetura",
+        category: "Cidade",
         image: require("../../assets/images/burjkhalifa.jpg"),
     },
 
@@ -76,7 +76,7 @@ const destinations = [
         id: "santorini",
         title: "Santorini",
         location: "Santorini, Grécia",
-        category: "Paisagem",
+        category: "Ponto Turístico",
         image: require("../../assets/images/santorini.jpg"),
     },
 
@@ -84,7 +84,7 @@ const destinations = [
         id: "taj-mahal",
         title: "Taj Mahal",
         location: "Agra, Índia",
-        category: "Monumento",
+        category: "Ponto Turístico",
         image: require("../../assets/images/tajmahal.jpg"),
     },
 
@@ -92,7 +92,7 @@ const destinations = [
         id: "machu-picchu",
         title: "Machu Picchu",
         location: "Machu Picchu, Peru",
-        category: "História",
+        category: "Ponto Turístico",
         image: require("../../assets/images/machupicchu.jpg"),
     },
 
@@ -100,7 +100,7 @@ const destinations = [
         id: "sydney",
         title: "Sydney",
         location: "Sydney, Austrália",
-        category: "Arquitetura",
+        category: "Cidade",
         image: require("../../assets/images/sydney.jpg"),
     },
 
@@ -223,7 +223,6 @@ export default function HomeScreen() {
                 (
                     filter === "Pontos turísticos" &&
                     (
-                        destination.category === "Monumento" ||
                         destination.category === "Ponto turístico"
                     )
                 )
