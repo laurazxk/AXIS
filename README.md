@@ -1,152 +1,262 @@
-AXIS — Planeje viagens com quem importa
+# AXIS — Planeje viagens com quem importa
 
-Descrição--
+## Descrição
 
-O Axis é um aplicativo mobile de planejamento de viagens em grupo. Ele resolve o problema da desorganização entre amigos que viajam juntos: roteiros bagunçados, gastos mal divididos e falta de sincronização entre os participantes. A proposta é centralizar tudo em um único lugar — destino, datas, atividades, orçamento e divisão de despesas — de forma simples e colaborativa.
+O **Axis** é um aplicativo mobile de planejamento de viagens em grupo. Ele resolve o problema da desorganização entre amigos que viajam juntos: roteiros bagunçados, gastos mal divididos e falta de sincronização entre os participantes.
 
-Objetivo--
+A proposta é centralizar tudo em um único lugar — destino, datas, atividades, orçamento e divisão de despesas — de forma simples e colaborativa.
 
-Permitir que grupos de amigos ou familiares planejem suas viagens dentro de um único aplicativo, com criação de itinerários (manual ou por IA), compartilhamento em tempo real entre os participantes e controle transparente de gastos.
+## Objetivo
 
-Tecnologias Utilizadas --
+Permitir que grupos de amigos ou familiares planejem suas viagens dentro de um único aplicativo, com criação de itinerários, organização de destinos e controle de despesas.
 
-Backend 
+## Tecnologias Utilizadas
 
-Node.js
-Express
-Firebase / Supabase (autenticação e banco de dados)
+### Mobile
 
+- React Native
+- Expo
+- Expo Router
+- TypeScript
+- expo-blur
+- expo-linear-gradient
+- expo-image
+- expo-haptics
+- expo-symbols
 
-Mobile
+### Desenvolvimento
 
-React Native 
-Expo Router (navegação)
-expo-blur (efeito glass)
-expo-linear-gradient
+- Node.js
+- npm
+- Git
+- GitHub
 
+### Deploy
 
-Funcionalidades
+- Vercel
+- Render
 
-Tela de boas-vindas com apresentação do aplicativo 
-Cadastro e login de usuário (e-mail/senha)
-Exploração de destinos e países populares
-Criação de roteiro de viagem com destino, atividades, datas e orçamento
-Geração de itinerário automática por Inteligência Artificial
-Código de convite para compartilhar a viagem com o grupo
-Controle de despesas com gráfico por categorias
-Divisão de gastos entre os participantes (igualmente ou personalizado)
-Perfil do usuário com configurações (notificações e tema claro ou escuro)
+## Funcionalidades
+
+- Tela de splash do aplicativo
+- Telas de apresentação do Axis
+- Cadastro de usuário
+- Login de usuário
+- Exploração de destinos
+- Exploração de países populares
+- Visualização de informações de países
+- Visualização de informações de destinos
+- Criação de roteiro de viagem
+- Organização de atividades
+- Definição de datas e orçamento
+- Controle de despesas
+- Divisão de gastos entre participantes
+- Área de viagens
+- Perfil do usuário
+- Navegação entre as principais áreas do aplicativo
+- Interface adaptada para dispositivos móveis
 
 ## Estrutura do Projeto
 
-```bash
-axis-app/
-├── backend/
-│   ├── node_modules/
-│   ├── server.js
-│   ├── package.json
-│   ├── package-lock.json
-│   └── src/
-│       ├── routes/
-│       ├── controllers/
-│       └── services/
-│
-├── mobile/
-│   ├── app/
-│   │   ├── (public)/
-│   │   │   ├── index.tsx        # onboarding
-│   │   │   ├── login.tsx        # login
-│   │   │   └── register.tsx     # cadastro
-│   │   │
-│   │   ├── (logic)/
-│   │   │   ├── home.tsx         # explorar destinos
-│   │   │   ├── trips.tsx        # viagens
-│   │   │   ├── expenses.tsx     # despesas
-│   │   │   └── profile.tsx      # perfil
-│   │   │
-│   │   └── _layout.tsx
+```text
+AXIS/
+├── app/
+│   ├── logic/
+│   │   ├── _layout.tsx
+│   │   ├── country.tsx
+│   │   ├── country/
+│   │   │   └── [id].tsx
+│   │   ├── destination.tsx
+│   │   ├── destination/
+│   │   │   └── [id].tsx
+│   │   ├── expenses.tsx
+│   │   ├── home.tsx
+│   │   ├── profile.tsx
+│   │   └── trips.tsx
 │   │
-│   ├── components/
-│   │   ├── GlassCard.tsx
-│   │   ├── GlassButton.tsx
-│   │   └── GlassInput.tsx
-│   │
-│   ├── constants/
-│   │   └── theme.ts
-│   │
-│   ├── services/
-│   │   ├── api.ts
-│   │   └── supabase.ts
-│   │
-│   ├── assets/
-│   │   ├── images/
-│   │   └── fonts/
-│   │
-│   ├── app.json
-│   └── package.json
-│
-├── web/
 │   ├── public/
-│   │   ├── css/
-│   │   │   └── estilo.css
-│   │   ├── imagens/
-│   │   └── index.html
-│   └── README.md
+│   │   ├── discover.tsx
+│   │   ├── login.tsx
+│   │   ├── plan.tsx
+│   │   ├── plan-2.tsx
+│   │   ├── plan-3.tsx
+│   │   ├── plan-4.tsx
+│   │   └── register.tsx
+│   │
+│   ├── _layout.tsx
+│   └── index.tsx
 │
+├── assets/
+│   └── images/
+│       ├── bigben.jpg
+│       ├── burjkhalifa.jpg
+│       ├── coliseu.jpg
+│       ├── cristo.jpg
+│       ├── france.jpg
+│       ├── greece.jpg
+│       ├── italy.jpg
+│       ├── japan.jpg
+│       ├── libertystatue.jpg
+│       ├── logo.png
+│       ├── machupicchu.jpg
+│       ├── perfil.jpg
+│       ├── planeje 1.png
+│       ├── planeje 2.png
+│       ├── planeje 3.png
+│       ├── planeje 4.png
+│       ├── portugal.jpg
+│       ├── santorini.jpg
+│       ├── sk.jpg
+│       ├── spain.jpg
+│       ├── switzerland.jpg
+│       ├── sydney.jpg
+│       ├── tajmahal.jpg
+│       ├── torreeiffel.jpg
+│       ├── uk.jpg
+│       └── usa.jpg
+│
+├── components/
+│   ├── external-link.tsx
+│   ├── GlassBottomNav.tsx
+│   ├── haptic-tab.tsx
+│   ├── hello-wave.tsx
+│   ├── parallax-scroll-view.tsx
+│   ├── themed-text.tsx
+│   ├── themed-view.tsx
+│   └── ui/
+│       ├── collapsible.tsx
+│       ├── icon-symbol.ios.tsx
+│       └── icon-symbol.tsx
+│
+├── constants/
+│   └── theme.ts
+│
+├── hooks/
+│   ├── use-color-scheme.ts
+│   ├── use-color-scheme.web.ts
+│   └── use-theme-color.ts
+│
+├── scripts/
+│   └── reset-project.js
+│
+├── .gitignore
+├── app.json
+├── eslint.config.js
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+├── vercel.json
 └── README.md
-```
+
 Como Executar
 Pré-requisitos
 
-Node.js instalado (versão 18 ou superior)
-Expo CLI instalado globalmente
-Aplicativo Expo Go no celular (iOS ou Android)
+Antes de executar o projeto, é necessário ter instalado:
 
-Passos
+Node.js versão 18 ou superior
+npm
+Expo
+Aplicativo Expo Go no celular, caso queira testar no dispositivo físico
 
 1. Clonar o repositório
-git clone https://github.com/laurazxk/axis-app.git   
-
+git clone https://github.com/laurazxk/AXIS.git
 2. Entrar na pasta do projeto
-cd axis-app
-
+cd AXIS
 3. Instalar as dependências
 npm install
-
 4. Iniciar o projeto
 npx expo start
 
-Após rodar o último comando, escaneie o QR code com o aplicativo Expo Go para visualizar o app no celular.
+Após executar o comando, será exibido um QR Code no terminal.
 
-Deploy
+Para testar no celular, abra o Expo Go e escaneie o QR Code.
 
-Deploy Backend (Render):  https://axis-travel-app.onrender.com
-Deploy Frontend (Vercel): https://axis-app-bay.vercel.app/
+Também é possível executar o projeto em um navegador utilizando a opção correspondente disponibilizada pelo Expo.
 
+Fluxo de Navegação
 
+O aplicativo possui um fluxo inicial de apresentação para o usuário.
+
+Splash
+   ↓
+Apresentação
+   ↓
+Plan
+   ↓
+Plan 2
+   ↓
+Plan 3
+   ↓
+Plan 4
+   ↓
+Home
+
+Após finalizar as telas de apresentação, o usuário é direcionado para a Home principal do Axis, onde pode explorar destinos e países.
+
+A partir da Home, o usuário pode acessar:
+
+Home
+ ├── Destinos
+ │    └── Detalhes do destino
+ │
+ ├── Países
+ │    └── Detalhes do país
+ │
+ ├── Viagens
+ │
+ ├── Despesas
+ │
+ └── Perfil
 Aplicativo Mobile
 
-O aplicativo é desenvolvido com React Native + Expo. Para testar:
+O Axis é desenvolvido utilizando React Native + Expo.
 
+Para testar o aplicativo:
 
-Instale o app Expo Go na loja do seu celular (App Store ou Google Play)
-Clone o repositório e rode npx expo start
-Escaneie o QR code gerado no terminal com o Expo Go
-
-
-Futuramente será disponibilizado um APK para instalação direta no Android ou IOS.
-
-Integrantes
-
-Julia Bandeira, Laura Marques, Laila Camile e Kyara Murayama
-
-
-Pitch
-
-O Axis foi desenvolvido para resolver um problema real: quem já tentou organizar uma viagem em grupo sabe que é caos. Mensagens perdidas, planilhas confusas, brigas por dinheiro. O Axis resolve isso com um app intuitivo que reúne roteiro, grupo e finanças em um só lugar — com a ajuda de inteligência artificial para montar o itinerário perfeito. Nossa proposta é simples: você foca em viver a viagem, a gente cuida do planejamento.
-
+Instale o aplicativo Expo Go na App Store ou Google Play.
+Clone o repositório.
+Entre na pasta do projeto.
+Execute:
+npm install
+npx expo start
+Escaneie o QR Code utilizando o Expo Go.
+Deploy
+Frontend — Vercel
 
 Links Importantes
 
-Repositório GitHub: 
-Protótipo: https://axisapp2tw.vercel.app
+Repositório GitHub: https://github.com/laurazxk/AXIS
+
+Deploy Vercel: https://axis-alpha-eight.vercel.app/
+
+Deploy Render: https://axis-14ov.onrender.com
+
+Protótipo
+
+site apresentando: https://axisapp2tw.vercel.app
+figma: https://www.figma.com/design/63TQRcoanS9PuaG0fYvoIy/Axis-prot%C3%B3tipo?node-id=0-1&t=RaJ1OQYpsrp9BYkv-1
+
+Futuras Implementações
+
+Entre as melhorias planejadas para o projeto estão:
+
+Integração completa com banco de dados
+Sincronização das viagens em tempo real
+Integração completa com autenticação
+Geração de itinerários utilizando Inteligência Artificial
+Sistema de convite para participantes
+Maior integração entre planejamento e despesas
+Geração de APK para Android
+Publicação do aplicativo para iOS
+
+Integrantes
+Julia Bandeira
+Laura Marques
+Laila Camile
+Kyara Murayama
+
+Pitch
+
+O Axis foi desenvolvido para resolver um problema real: quem já tentou organizar uma viagem em grupo sabe que pode ser um caos.
+Mensagens perdidas, planilhas confusas, gastos desorganizados e dificuldade para decidir o que fazer são problemas comuns durante o planejamento de uma viagem.
+O Axis resolve isso com um aplicativo intuitivo que reúne roteiro, destinos, grupo e finanças em um só lugar.
