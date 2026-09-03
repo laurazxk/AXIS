@@ -186,16 +186,16 @@ export default function CountryScreen() {
                 <Text style={styles.errorText}>
                     País não encontrado.
                 </Text>
-
-                <Pressable
-                    onPress={() => router.back()}
-                >
-
-                    <Text style={styles.backText}>
-                        Voltar
-                    </Text>
-
-                </Pressable>
+<Pressable
+    style={styles.backButton}
+    onPress={() => router.replace("/logic/home")}
+>
+    <MaterialIcons
+        name="arrow-back"
+        size={25}
+        color="#ffffff"
+    />
+</Pressable>
 
             </View>
         );
