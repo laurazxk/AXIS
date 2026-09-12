@@ -10,17 +10,15 @@ import {
 
 import { router } from "expo-router";
 
-
 export default function Discover() {
-
     return (
-
         <ImageBackground
-            source={require("../../assets/images/discover.jpg")}
+            source={require("../../assets/images/france.jpg")}
             style={styles.container}
             resizeMode="cover"
         >
 
+            {/* Escurece um pouco a imagem para facilitar a leitura */}
             <View style={styles.overlay} />
 
             <View style={styles.bottomCard}>
@@ -37,9 +35,7 @@ export default function Discover() {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() =>
-                        router.push("/public/plan")
-                    }
+                    onPress={() => router.push("/public/plan")}
                 >
                     <Text style={styles.buttonText}>
                         Começar
@@ -49,11 +45,8 @@ export default function Discover() {
             </View>
 
         </ImageBackground>
-
     );
-
 }
-
 
 const styles = StyleSheet.create({
 
