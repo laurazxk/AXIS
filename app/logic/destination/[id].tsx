@@ -513,20 +513,14 @@ const styles = StyleSheet.create({
 
     hero: {
         width: "100%",
-
-        height:
-            Math.min(
-                height * 0.54,
-                470
-            ),
-
+        height: height * 0.54,
         position: "relative",
     },
 
     heroImage: {
         width: "100%",
 
-        height: "100%",
+        height: "110%",
     },
 
     heroGradient: {
@@ -545,7 +539,7 @@ const styles = StyleSheet.create({
     backButton: {
         position: "absolute",
 
-        top: 18,
+        top: 50,
 
         left: 16,
 
@@ -601,22 +595,20 @@ const styles = StyleSheet.create({
 
     details: {
         backgroundColor: "#f7f7f7",
-
+    
         marginTop: -2,
-
+    
         borderTopLeftRadius: 35,
-
         borderTopRightRadius: 35,
+    
+        paddingHorizontal: 42,
+        paddingTop: 45,
+        paddingBottom: 45,
 
-        paddingHorizontal: 22,
-
-        paddingTop: 24,
-
-        paddingBottom: 28,
     },
 
     title: {
-        fontSize: 23,
+        fontSize: 29,
 
         fontWeight: "800",
 
@@ -624,47 +616,37 @@ const styles = StyleSheet.create({
     },
 
     location: {
-        marginTop: 5,
+        marginTop: 8,
 
-        fontSize: 11,
+        fontSize: 1,
 
         color: "#777777",
     },
 
     description: {
-        marginTop: 17,
-
-        fontSize: 12,
-
-        lineHeight: 18,
-
+        marginTop: 28,
+        fontSize: 16,
+        lineHeight: 24,
         color: "#777777",
     },
-
 
     /* RATING */
 
     rating: {
         flexDirection: "row",
-
         alignItems: "center",
-
-        marginTop: 19,
+        marginTop: 28,
     },
-
+    
     stars: {
-        fontSize: 15,
-
+        fontSize: 20,
         color: "#333333",
-
         letterSpacing: 1,
     },
-
+    
     ratingText: {
-        marginLeft: 10,
-
-        fontSize: 10,
-
+        marginLeft: 14,
+        fontSize: 15,
         color: "#555555",
     },
 
@@ -672,55 +654,54 @@ const styles = StyleSheet.create({
     /* BOTTOM */
 
     bottom: {
-        marginTop: 58,
-
+        marginTop: 60,
+    
         flexDirection: "row",
-
+    
         alignItems: "center",
-
+    
         justifyContent: "space-between",
     },
-
+    
     price: {
-        fontSize: 17,
-
+        fontSize: 24,
+    
         fontWeight: "800",
-
+    
         color: "#303030",
     },
-
+    
     perPerson: {
-        marginTop: 3,
-
-        fontSize: 9,
-
+        marginTop: 4,
+    
+        fontSize: 14,
+    
         color: "#999999",
     },
-
+    
     routeButton: {
         minWidth: 150,
-
-        height: 43,
-
-        paddingHorizontal: 16,
-
-        borderRadius: 23,
-
+    
+        height: 58,
+    
+        paddingHorizontal: 15,
+    
+        borderRadius: 30,
+    
         backgroundColor: "#000000",
-
+    
         alignItems: "center",
-
+    
         justifyContent: "center",
     },
-
+    
     routeButtonText: {
         color: "#ffffff",
-
-        fontSize: 10,
-
+    
+        fontSize: 15,
+    
         fontWeight: "600",
     },
-
 
     /* ERROR */
 

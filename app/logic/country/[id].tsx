@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
     View,
@@ -9,6 +9,8 @@ import {
     Pressable,
     Dimensions,
     StatusBar,
+    NativeSyntheticEvent,
+    NativeScrollEvent,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -18,7 +20,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 
 
-const { height } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
 
 /* =========================================================
@@ -34,9 +36,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra a arte, a cultura e a história em um só lugar. Explore Paris, seus monumentos, museus e a famosa gastronomia francesa.",
 
-        image: require(
-            "../../../assets/images/france.jpg"
-        ),
+        images: [
+            require("../../../assets/images/france1.jpg"),
+            require("../../../assets/images/france2.jpg"),
+            require("../../../assets/images/france3.jpg"),
+        ],
     },
 
 
@@ -177,6 +181,10 @@ export default function CountryScreen() {
         countries[id];
 
 
+    // Controla qual imagem da França está aparecendo
+    const [activeImage, setActiveImage] = useState(0);
+
+
     if (!country) {
 
         return (
@@ -186,20 +194,44 @@ export default function CountryScreen() {
                 <Text style={styles.errorText}>
                     País não encontrado.
                 </Text>
-<Pressable
-    style={styles.backButton}
-    onPress={() => router.replace("/logic/home")}
->
-    <MaterialIcons
-        name="arrow-back"
-        size={25}
-        color="#ffffff"
-    />
-</Pressable>
+
+                <Pressable
+                    style={styles.backButton}
+                    onPress={() =>
+                        router.replace("/logic/home")
+                    }
+                >
+
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={25}
+                        color="#ffffff"
+                    />
+
+                </Pressable>
 
             </View>
         );
     }
+
+
+    const isFrance = id === "franca";
+
+
+    const handleScroll = (
+        event: NativeSyntheticEvent<NativeScrollEvent>
+    ) => {
+
+        if (!isFrance) return;
+
+        const offsetX =
+            event.nativeEvent.contentOffset.x;
+
+        const index =
+            Math.round(offsetX / width);
+
+        setActiveImage(index);
+    };
 
 
     return (
@@ -220,33 +252,57 @@ export default function CountryScreen() {
                 }
             >
 
+
                 {/* =================================================
                     IMAGEM
                 ================================================= */}
 
                 <View style={styles.hero}>
 
-                    <Image
-                        source={country.image}
+                    {isFrance ? (
 
-                        style={styles.image}
+<ScrollView
+horizontal
+pagingEnabled
+showsHorizontalScrollIndicator={false}
+onScroll={handleScroll}
+scrollEventThrottle={16}
+style={styles.imageSlider}
+bounces={false}
+>
+{country.images.map(
+    (image: any, index: number) => (
+        <Image
+            key={index}
+            source={image}
+            style={styles.image}
+            resizeMode="cover"
+        />
+    )
+)}
+</ScrollView>
 
-                        resizeMode="cover"
-                    />
+                    ) : (
+
+                        <Image
+                            source={country.image}
+                            style={styles.image}
+                            resizeMode="cover"
+                        />
+
+                    )}
 
 
                     {/* ESCURECIMENTO */}
 
                     <LinearGradient
-                        colors={[
-                            "rgba(0,0,0,0.05)",
-                            "rgba(0,0,0,0.80)",
-                        ]}
-
-                        style={
-                            styles.overlay
-                        }
-                    />
+    pointerEvents="none"
+    colors={[
+        "rgba(0,0,0,0.05)",
+        "rgba(0,0,0,0.80)",
+    ]}
+    style={styles.overlay}
+/>
 
 
                     {/* VOLTAR */}
@@ -281,7 +337,9 @@ export default function CountryScreen() {
                                 styles.visitText
                             }
                         >
+
                             {country.title}
+
                         </Text>
 
 
@@ -290,7 +348,9 @@ export default function CountryScreen() {
                                 styles.countryName
                             }
                         >
+
                             {country.country}
+
                         </Text>
 
 
@@ -299,7 +359,9 @@ export default function CountryScreen() {
                                 styles.description
                             }
                         >
+
                             {country.description}
+
                         </Text>
 
                     </View>
@@ -311,28 +373,53 @@ export default function CountryScreen() {
                         style={styles.dots}
                     >
 
-                        <View
-                            style={[
-                                styles.dot,
-                                styles.activeDot,
-                            ]}
-                        />
+                        {isFrance ? (
 
-                        <View
-                            style={styles.dot}
-                        />
+                            // França = 3 imagens = 3 pontinhos
+                            country.images.map(
+                                (_: any, index: number) => (
 
-                        <View
-                            style={styles.dot}
-                        />
+                                    <View
+                                        key={index}
+                                        style={[
+                                            styles.dot,
+                                            index === activeImage &&
+                                                styles.activeDot,
+                                        ]}
+                                    />
 
-                        <View
-                            style={styles.dot}
-                        />
+                                )
+                            )
 
-                        <View
-                            style={styles.dot}
-                        />
+                        ) : (
+
+                            // Outros países continuam com os 5 pontinhos
+                            <>
+                                <View
+                                    style={[
+                                        styles.dot,
+                                        styles.activeDot,
+                                    ]}
+                                />
+
+                                <View
+                                    style={styles.dot}
+                                />
+
+                                <View
+                                    style={styles.dot}
+                                />
+
+                                <View
+                                    style={styles.dot}
+                                />
+
+                                <View
+                                    style={styles.dot}
+                                />
+                            </>
+
+                        )}
 
                     </View>
 
@@ -357,6 +444,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#000000",
     },
 
+
     scrollContent: {
         flexGrow: 1,
     },
@@ -374,11 +462,20 @@ const styles = StyleSheet.create({
         position: "relative",
     },
 
-    image: {
+
+    imageSlider: {
         width: "100%",
 
         height: "100%",
     },
+
+
+    image: {
+        width: width,
+
+        height: "100%",
+    },
+
 
     overlay: {
         position: "absolute",
@@ -395,7 +492,7 @@ const styles = StyleSheet.create({
     backButton: {
         position: "absolute",
 
-        top: 18,
+        top: 50,
 
         left: 16,
 
@@ -426,6 +523,7 @@ const styles = StyleSheet.create({
         bottom: 82,
     },
 
+
     visitText: {
         color: "#ffffff",
 
@@ -435,6 +533,7 @@ const styles = StyleSheet.create({
 
         lineHeight: 32,
     },
+
 
     countryName: {
         color: "#ffffff",
@@ -447,6 +546,7 @@ const styles = StyleSheet.create({
 
         marginTop: 2,
     },
+
 
     description: {
         color:
@@ -480,6 +580,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
 
+
     dot: {
         width: 6,
 
@@ -490,6 +591,7 @@ const styles = StyleSheet.create({
         backgroundColor:
             "rgba(255,255,255,0.45)",
     },
+
 
     activeDot: {
         backgroundColor: "#ffffff",
@@ -508,11 +610,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#f7f7f7",
     },
 
+
     errorText: {
         fontSize: 18,
 
         color: "#333333",
     },
+
 
     backText: {
         marginTop: 20,
