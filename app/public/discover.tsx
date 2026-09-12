@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+    ImageBackground,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -14,7 +15,13 @@ export default function Discover() {
 
     return (
 
-        <View style={styles.container}>
+        <ImageBackground
+            source={require("../assets/images/discover.jpg")}
+            style={styles.container}
+            resizeMode="cover"
+        >
+
+            <View style={styles.overlay} />
 
             <View style={styles.bottomCard}>
 
@@ -23,12 +30,10 @@ export default function Discover() {
                     ao redor do mundo
                 </Text>
 
-
                 <Text style={styles.description}>
                     Planeje, organize e viva experiências
                     inesquecíveis em grupo.
                 </Text>
-
 
                 <TouchableOpacity
                     style={styles.button}
@@ -36,16 +41,14 @@ export default function Discover() {
                         router.push("/public/plan")
                     }
                 >
-
                     <Text style={styles.buttonText}>
                         Começar
                     </Text>
-
                 </TouchableOpacity>
 
             </View>
 
-        </View>
+        </ImageBackground>
 
     );
 
@@ -55,74 +58,48 @@ export default function Discover() {
 const styles = StyleSheet.create({
 
     container: {
-
         flex: 1,
-
         justifyContent: "flex-end",
-
-        backgroundColor: "#FFFFFF",
-
     },
 
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "rgba(0, 0, 0, 0.30)",
+    },
 
     bottomCard: {
-
         paddingHorizontal: 28,
-
         paddingBottom: 50,
-
         paddingTop: 30,
-
     },
-
 
     title: {
-
         fontSize: 28,
-
         fontWeight: "800",
-
         lineHeight: 34,
-
         marginBottom: 14,
-
+        color: "#FFFFFF",
     },
-
 
     description: {
-
         fontSize: 16,
-
         lineHeight: 24,
-
         marginBottom: 28,
-
+        color: "#FFFFFF",
     },
-
 
     button: {
-
         height: 56,
-
         borderRadius: 28,
-
         alignItems: "center",
-
         justifyContent: "center",
-
-        backgroundColor: "#000000",
-
+        backgroundColor: "#FFFFFF",
     },
 
-
     buttonText: {
-
-        color: "#FFFFFF",
-
+        color: "#000000",
         fontSize: 16,
-
         fontWeight: "700",
-
     },
 
 });
