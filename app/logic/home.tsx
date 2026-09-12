@@ -202,9 +202,9 @@ export default function HomeScreen() {
     const filteredDestinations = useMemo(() => {
 
         const term = search.trim().toLowerCase();
-
+    
         return destinations.filter((destination) => {
-
+    
             const matchesSearch =
                 !term ||
                 destination.title
@@ -213,34 +213,43 @@ export default function HomeScreen() {
                 destination.location
                     .toLowerCase()
                     .includes(term);
-
-
+    
             const matchesFilter =
-                filter === "Tudo"
-
-                ||
-
-                (
-                    filter === "Pontos turísticos" &&
-                    (
-                        destination.category === "Ponto Turístico"
-                    )
-                )
-
-                ||
-
+                filter === "Tudo" ||
                 (
                     filter === "Cidades" &&
                     destination.category === "Cidade"
+                ) ||
+                (
+                    filter === "Pontos turísticos" &&
+                    destination.category === "Ponto Turístico"
                 );
-
-
+    
             return matchesSearch && matchesFilter;
-
+    
         });
-
+    
     }, [search, filter]);
+    const filteredCountries = useMemo(() => {
 
+        const term = search.trim().toLowerCase();
+    
+        return countries.filter((country) => {
+    
+            const matchesSearch =
+                !term ||
+                country.name
+                    .toLowerCase()
+                    .includes(term) ||
+                country.continent
+                    .toLowerCase()
+                    .includes(term);
+    
+            return matchesSearch;
+    
+        });
+    
+    }, [search]);
 
     return (
 
@@ -363,7 +372,6 @@ export default function HomeScreen() {
 
                         {[
                             "Tudo",
-                            "Países",
                             "Cidades",
                             "Pontos turísticos",
                         ].map((item) => (
@@ -508,8 +516,7 @@ export default function HomeScreen() {
                         contentContainerStyle={styles.cardsContainer}
                     >
 
-                        {countries.map((country) => (
-
+                        {filteredCountries.map((country) => (
                             <Pressable
                                 key={country.id}
 
@@ -654,7 +661,7 @@ const styles = StyleSheet.create({
 
     headerTitle: {
 
-        fontSize: 17,
+        fontSize: 1,
 
         fontWeight: "700",
 
@@ -837,16 +844,16 @@ const styles = StyleSheet.create({
 
         paddingRight: 10,
 
-        gap: 20,
+        gap: 10,
 
     },
 
 
     destinationCard: {
 
-        width: 145,
+        width: 160,
 
-        height: 190,
+        height: 205,
 
         backgroundColor: "#ffffff",
 
@@ -890,9 +897,9 @@ const styles = StyleSheet.create({
 
     destinationImage: {
 
-        width: 135,
+        width: 150,
 
-        height: 137,
+        height: 145,
 
         margin: 5,
 

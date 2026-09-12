@@ -51,9 +51,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra o futuro e a tradição em um só lugar. Conheça templos históricos, cidades modernas e paisagens incríveis.",
 
-        image: require(
-            "../../../assets/images/japan.jpg"
-        ),
+        images: [
+            require("../../../assets/images/japan1.jpg"),
+            require("../../../assets/images/japan2.jpg"),
+            require("../../../assets/images/japan3.jpg"),
+        ],
     },
 
 
@@ -64,9 +66,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra história, cultura e sabores em um só lugar. Explore cidades históricas, monumentos e a famosa culinária italiana.",
 
-        image: require(
-            "../../../assets/images/italy.jpg"
-        ),
+        images: [
+            require("../../../assets/images/italy1.jpg"),
+            require("../../../assets/images/italy2.jpg"),
+            require("../../../assets/images/italy3.jpg"),
+        ],
     },
 
 
@@ -77,9 +81,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra a cultura, a arquitetura e as belas paisagens da Espanha. Conheça cidades vibrantes, praias e monumentos históricos.",
 
-        image: require(
-            "../../../assets/images/spain.jpg"
-        ),
+        images: [
+            require("../../../assets/images/spain1.jpg"),
+            require("../../../assets/images/spain2.jpg"),
+            require("../../../assets/images/spain3.jpg"),
+        ],
     },
 
 
@@ -90,9 +96,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra cidades históricas, belas paisagens e a cultura portuguesa. Explore lugares encantadores e conheça a gastronomia local.",
 
-        image: require(
-            "../../../assets/images/portugal.jpg"
-        ),
+        images: [
+            require("../../../assets/images/portugal1.jpg"),
+            require("../../../assets/images/portugal2.jpg"),
+            require("../../../assets/images/portugal3.jpg"),
+        ],
     },
 
 
@@ -103,9 +111,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra grandes cidades, paisagens incríveis e atrações famosas. Conheça lugares como Nova York, Los Angeles e Las Vegas.",
 
-        image: require(
-            "../../../assets/images/usa.jpg"
-        ),
+        images: [
+            require("../../../assets/images/usa1.jpg"),
+            require("../../../assets/images/usa2.jpg"),
+            require("../../../assets/images/usa3.jpg"),
+        ],
     },
 
 
@@ -116,9 +126,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra a história, a cultura e as paisagens do Reino Unido. Explore Londres e seus famosos monumentos.",
 
-        image: require(
-            "../../../assets/images/uk.jpg"
-        ),
+        images: [
+            require("../../../assets/images/uk1.jpg"),
+            require("../../../assets/images/uk2.jpg"),
+            require("../../../assets/images/uk3.jpg"),
+        ],
     },
 
 
@@ -129,9 +141,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra uma mistura de tradição e modernidade. Conheça a cultura, a gastronomia e as grandes cidades sul-coreanas.",
 
-        image: require(
-            "../../../assets/images/sk.jpg"
-        ),
+        images: [
+            require("../../../assets/images/sk1.jpg"),
+            require("../../../assets/images/sk2.jpg"),
+            require("../../../assets/images/sk3.jpg"),
+        ],
     },
 
 
@@ -142,9 +156,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra ilhas paradisíacas, construções históricas e paisagens incríveis. Explore lugares como Santorini e Atenas.",
 
-        image: require(
-            "../../../assets/images/greece.jpg"
-        ),
+        images: [
+            require("../../../assets/images/greece1.jpg"),
+            require("../../../assets/images/greece2.jpg"),
+            require("../../../assets/images/greece3.jpg"),
+        ],
     },
 
 
@@ -155,9 +171,11 @@ const countries: Record<string, any> = {
         description:
             "Descubra montanhas, lagos e cidades encantadoras. A Suíça combina paisagens naturais impressionantes com paisagens incríveis.",
 
-        image: require(
-            "../../../assets/images/switzerland.jpg"
-        ),
+        images: [
+            require("../../../assets/images/switzerland1.jpg"),
+            require("../../../assets/images/switzerland2.jpg"),
+            require("../../../assets/images/switzerland3.jpg"),
+        ],
     },
 
 };
@@ -171,17 +189,14 @@ export default function CountryScreen() {
 
     const router = useRouter();
 
-    const params =
-        useLocalSearchParams();
+    const params = useLocalSearchParams();
 
-    const id =
-        String(params.id || "japao");
+    const id = String(params.id || "japao");
 
-    const country =
-        countries[id];
+    const country = countries[id];
 
 
-    // Controla qual imagem da França está aparecendo
+    // Controla a imagem atual
     const [activeImage, setActiveImage] = useState(0);
 
 
@@ -215,14 +230,13 @@ export default function CountryScreen() {
     }
 
 
-    const isFrance = id === "franca";
-
+    /* =========================================================
+       DETECTA QUAL IMAGEM ESTÁ APARECENDO
+    ========================================================= */
 
     const handleScroll = (
         event: NativeSyntheticEvent<NativeScrollEvent>
     ) => {
-
-        if (!isFrance) return;
 
         const offsetX =
             event.nativeEvent.contentOffset.x;
@@ -246,70 +260,62 @@ export default function CountryScreen() {
 
             <ScrollView
                 showsVerticalScrollIndicator={false}
-
                 contentContainerStyle={
                     styles.scrollContent
                 }
             >
 
-
                 {/* =================================================
-                    IMAGEM
+                    IMAGENS / CARROSSEL
                 ================================================= */}
 
                 <View style={styles.hero}>
 
-                    {isFrance ? (
+                    <ScrollView
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}
+                        style={styles.imageSlider}
+                    >
 
-<ScrollView
-horizontal
-pagingEnabled
-showsHorizontalScrollIndicator={false}
-onScroll={handleScroll}
-scrollEventThrottle={16}
-style={styles.imageSlider}
-bounces={false}
->
-{country.images.map(
-    (image: any, index: number) => (
-        <Image
-            key={index}
-            source={image}
-            style={styles.image}
-            resizeMode="cover"
-        />
-    )
-)}
-</ScrollView>
+                        {country.images.map(
+                            (image: any, index: number) => (
 
-                    ) : (
+                                <Image
+                                    key={index}
+                                    source={image}
+                                    style={styles.image}
+                                    resizeMode="cover"
+                                />
 
-                        <Image
-                            source={country.image}
-                            style={styles.image}
-                            resizeMode="cover"
-                        />
+                            )
+                        )}
 
-                    )}
+                    </ScrollView>
 
 
-                    {/* ESCURECIMENTO */}
+                    {/* =================================================
+                        GRADIENTE
+                    ================================================= */}
 
                     <LinearGradient
-    pointerEvents="none"
-    colors={[
-        "rgba(0,0,0,0.05)",
-        "rgba(0,0,0,0.80)",
-    ]}
-    style={styles.overlay}
-/>
+                        pointerEvents="none"
+                        colors={[
+                            "rgba(0,0,0,0.05)",
+                            "rgba(0,0,0,0.80)",
+                        ]}
+                        style={styles.overlay}
+                    />
 
 
-                    {/* VOLTAR */}
+                    {/* =================================================
+                        BOTÃO VOLTAR
+                    ================================================= */}
 
                     <Pressable
                         style={styles.backButton}
-
                         onPress={() =>
                             router.back()
                         }
@@ -324,101 +330,57 @@ bounces={false}
                     </Pressable>
 
 
-                    {/* TEXTO */}
+                    {/* =================================================
+                        TEXTO
+                    ================================================= */}
 
                     <View
-                        style={
-                            styles.countryText
-                        }
+                        style={styles.countryText}
                     >
 
                         <Text
-                            style={
-                                styles.visitText
-                            }
+                            style={styles.visitText}
                         >
-
                             {country.title}
-
                         </Text>
 
 
                         <Text
-                            style={
-                                styles.countryName
-                            }
+                            style={styles.countryName}
                         >
-
                             {country.country}
-
                         </Text>
 
 
                         <Text
-                            style={
-                                styles.description
-                            }
+                            style={styles.description}
                         >
-
                             {country.description}
-
                         </Text>
 
                     </View>
 
 
-                    {/* DOTS */}
+                    {/* =================================================
+                        PONTINHOS
+                    ================================================= */}
 
-                    <View
-                        style={styles.dots}
-                    >
+                    <View style={styles.dots}>
 
-                        {isFrance ? (
+                        {country.images.map(
+                            (_: any, index: number) => (
 
-                            // França = 3 imagens = 3 pontinhos
-                            country.images.map(
-                                (_: any, index: number) => (
-
-                                    <View
-                                        key={index}
-                                        style={[
-                                            styles.dot,
-                                            index === activeImage &&
-                                                styles.activeDot,
-                                        ]}
-                                    />
-
-                                )
-                            )
-
-                        ) : (
-
-                            // Outros países continuam com os 5 pontinhos
-                            <>
                                 <View
+                                    key={index}
                                     style={[
                                         styles.dot,
-                                        styles.activeDot,
+
+                                        index === activeImage &&
+                                            styles.activeDot,
                                     ]}
                                 />
 
-                                <View
-                                    style={styles.dot}
-                                />
-
-                                <View
-                                    style={styles.dot}
-                                />
-
-                                <View
-                                    style={styles.dot}
-                                />
-
-                                <View
-                                    style={styles.dot}
-                                />
-                            </>
-
+                            )
                         )}
 
                     </View>
@@ -440,7 +402,6 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
-
         backgroundColor: "#000000",
     },
 
@@ -465,14 +426,12 @@ const styles = StyleSheet.create({
 
     imageSlider: {
         width: "100%",
-
         height: "100%",
     },
 
 
     image: {
         width: width,
-
         height: "100%",
     },
 
@@ -487,7 +446,9 @@ const styles = StyleSheet.create({
     },
 
 
-    /* VOLTAR */
+    /* =================================================
+       VOLTAR
+    ================================================= */
 
     backButton: {
         position: "absolute",
@@ -511,7 +472,9 @@ const styles = StyleSheet.create({
     },
 
 
-    /* TEXTO */
+    /* =================================================
+       TEXTO
+    ================================================= */
 
     countryText: {
         position: "absolute",
@@ -562,7 +525,9 @@ const styles = StyleSheet.create({
     },
 
 
-    /* DOTS */
+    /* =================================================
+       PONTINHOS
+    ================================================= */
 
     dots: {
         position: "absolute",
@@ -598,7 +563,9 @@ const styles = StyleSheet.create({
     },
 
 
-    /* ERRO */
+    /* =================================================
+       ERRO
+    ================================================= */
 
     errorContainer: {
         flex: 1,
@@ -615,15 +582,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
 
         color: "#333333",
-    },
-
-
-    backText: {
-        marginTop: 20,
-
-        color: "#555555",
-
-        fontWeight: "700",
     },
 
 });

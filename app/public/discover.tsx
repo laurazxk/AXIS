@@ -10,7 +10,11 @@ import {
 
 import { router } from "expo-router";
 
+import { LinearGradient } from "expo-linear-gradient";
+
+
 export default function Discover() {
+
     return (
         <ImageBackground
             source={require("../../assets/images/discover.jpg")}
@@ -18,8 +22,22 @@ export default function Discover() {
             resizeMode="cover"
         >
 
-            {/* Escurece um pouco a imagem para facilitar a leitura */}
-            <View style={styles.overlay} />
+            {/* ESCURECIMENTO DA PARTE INFERIOR */}
+            <LinearGradient
+                colors={[
+                    "transparent",
+                    "rgba(0,0,0,0.20)",
+                    "rgba(0,0,0,0.75)",
+                    "rgba(0,0,0,0.95)",
+                ]}
+                locations={[
+                    0,
+                    0.45,
+                    0.75,
+                    1,
+                ]}
+                style={styles.gradient}
+            />
 
             <View style={styles.bottomCard}>
 
@@ -35,7 +53,9 @@ export default function Discover() {
 
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => router.push("/public/plan")}
+                    onPress={() =>
+                        router.push("/public/plan")
+                    }
                 >
                     <Text style={styles.buttonText}>
                         Começar
@@ -48,17 +68,23 @@ export default function Discover() {
     );
 }
 
+
 const styles = StyleSheet.create({
 
     container: {
         flex: 1,
         justifyContent: "flex-end",
     },
+    
 
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "rgba(0, 0, 0, 0.30)",
+    gradient: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: "70%",
     },
+
 
     bottomCard: {
         paddingHorizontal: 28,
@@ -66,13 +92,15 @@ const styles = StyleSheet.create({
         paddingTop: 30,
     },
 
+
     title: {
         fontSize: 28,
         fontWeight: "800",
         lineHeight: 34,
         marginBottom: 14,
-        color: "#FFFFFF",
+        color: "#FFffff",
     },
+
 
     description: {
         fontSize: 16,
@@ -81,6 +109,7 @@ const styles = StyleSheet.create({
         color: "#FFFFFF",
     },
 
+
     button: {
         height: 56,
         borderRadius: 28,
@@ -88,6 +117,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "#FFFFFF",
     },
+
 
     buttonText: {
         color: "#000000",
