@@ -16,7 +16,7 @@ export default function Discover() {
     return (
 
         <ImageBackground
-            source={require("../assets/images/discover.jpg")}
+            source={require("../../assets/images/discover.jpg")}
             style={styles.container}
             resizeMode="cover"
         >
