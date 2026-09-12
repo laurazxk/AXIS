@@ -11,6 +11,8 @@ import {
     StatusBar,
 } from "react-native";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
@@ -194,9 +196,11 @@ export default function HomeScreen() {
 
     const router = useRouter();
 
+    const insets = useSafeAreaInsets();
+
     const [search, setSearch] = useState("");
 
-    const [filter, setFilter] = useState("Tudo");
+    const [filter, setFilter] = useState("Tudo"); 
 
 
     const filteredDestinations = useMemo(() => {
@@ -262,9 +266,14 @@ export default function HomeScreen() {
 
 
             <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
+    showsVerticalScrollIndicator={false}
+    contentContainerStyle={[
+        styles.scrollContent,
+        {
+            paddingTop: insets.top + 8,
+        },
+    ]}
+>
 
 
                 {/* =================================================
@@ -295,7 +304,7 @@ export default function HomeScreen() {
                         style={styles.profileButton}
 
                         onPress={() =>
-                            router.push("/logic/profile")
+                            router.push("/")
                         }
                     >
 
@@ -661,7 +670,7 @@ const styles = StyleSheet.create({
 
     headerTitle: {
 
-        fontSize: 1,
+        fontSize: 17,
 
         fontWeight: "700",
 

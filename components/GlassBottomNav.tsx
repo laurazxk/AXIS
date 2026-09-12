@@ -15,7 +15,7 @@ export default function GlassBottomNav() {
     const pathname = usePathname();
 
     const isHome =
-        pathname === "/";
+        pathname.includes("/logic/home");
 
     const isTrips =
         pathname.includes("/logic/trips");
@@ -64,7 +64,7 @@ export default function GlassBottomNav() {
 
                 <Pressable
                     style={styles.navItem}
-                    onPress={() => router.push("/")}
+                    onPress={() => router.push("/logic/home")}
                 >
                     <View
                         style={[
@@ -89,7 +89,7 @@ export default function GlassBottomNav() {
 
                 <Pressable
                     style={styles.navItem}
-                    onPress={() => router.push("/logic/expenses")}
+                    onPress={() => router.push("/logic/home")}
                 >
                     <View
                         style={[
@@ -114,7 +114,7 @@ export default function GlassBottomNav() {
 
                 <Pressable
                     style={styles.navItem}
-                    onPress={() => router.push("/logic/profile")}
+                    onPress={() => router.push("/logic/home")}
                 >
                     <View
                         style={[
