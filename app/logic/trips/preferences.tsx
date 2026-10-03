@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 
 import {
@@ -6,172 +7,164 @@ import {
     StyleSheet,
     Pressable,
     ScrollView,
+    StatusBar,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import { MaterialIcons } from "@expo/vector-icons";
-
 import { useRouter } from "expo-router";
 
+import { tripDraft } from "./tripDraft";
 
 const interests = [
-    "Cultura",
-    "Gastronomia",
-    "Praia",
-    "Natureza",
-    "História",
-    "Compras",
-    "Vida noturna",
-    "Fotografia",
+    { name: "Gastronomia", emoji: "🍕" },
+    { name: "Praias", emoji: "🏖️" },
+    { name: "Cultura", emoji: "🌎" },
+    { name: "Museus", emoji: "🏛️" },
+    { name: "Natureza", emoji: "🌲" },
+    { name: "Compras", emoji: "🛍️" },
+    { name: "Aventura", emoji: "🎢" },
+    { name: "Vida noturna", emoji: "🎉" },
+    { name: "História", emoji: "📜" },
+    { name: "Arte", emoji: "🎨" },
+    { name: "Fotografia", emoji: "📸" },
+    { name: "Esportes", emoji: "⚽" },
+    { name: "Relaxamento", emoji: "🧘" },
+    { name: "Arquitetura", emoji: "🏰" },
+    { name: "Trilhas", emoji: "🥾" },
+    { name: "Parques", emoji: "🎡" },
 ];
 
-
 export default function Preferences() {
-
     const router = useRouter();
-
     const insets = useSafeAreaInsets();
 
-    const [selected, setSelected] = useState<string[]>([]);
-
+    const [selected, setSelected] = useState<string[]>(
+        [...tripDraft.interests]
+    );
 
     function toggleInterest(item: string) {
-
-        if (selected.includes(item)) {
-
-            setSelected(
-                selected.filter(
-                    interest => interest !== item
-                )
-            );
-
-        } else {
-
-            setSelected([
-                ...selected,
-                item,
-            ]);
-
-        }
-
+        setSelected(current =>
+            current.includes(item)
+                ? current.filter(value => value !== item)
+                : [...current, item]
+        );
     }
 
+    function continueToBudget() {
+        tripDraft.interests = [...selected];
+
+        router.push("/logic/trips/budget");
+    }
 
     return (
-
         <View style={styles.container}>
+            <StatusBar
+                barStyle="dark-content"
+                backgroundColor="#f7f7f7"
+            />
 
-<ScrollView
-    showsVerticalScrollIndicator={false}
-    contentContainerStyle={[
-        styles.content,
-        {
-            paddingTop: insets.top + 8,
-        },
-    ]}
->
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.content,
+                    { paddingTop: insets.top + 8 },
+                ]}
+            >
+                <View style={styles.header}>
+                    <Pressable
+                        style={styles.backButton}
+                        onPress={() => router.back()}
+                    >
+                        <MaterialIcons
+                            name="arrow-back"
+                            size={24}
+                            color="#303030"
+                        />
+                    </Pressable>
 
-                <Pressable
-                    style={styles.backButton}
-                    onPress={() => router.back()}
-                >
+                    <Text style={styles.headerTitle}>
+                        Preferências
+                    </Text>
 
-                    <MaterialIcons
-                        name="arrow-back"
-                        size={24}
-                        color="#303030"
-                    />
+                    <View style={styles.headerSpace} />
+                </View>
 
-                </Pressable>
-
-                
-
-
-                <Text style={styles.step}>
-                    2 DE 4
-                </Text>
-
+                <Text style={styles.step}>ETAPA 3 DE 4</Text>
 
                 <Text style={styles.title}>
                     O que você pretende fazer?
                 </Text>
 
-
                 <Text style={styles.subtitle}>
-                    Selecione seus interesses para
-                    personalizarmos sua viagem.
+                    Selecione seus interesses para personalizarmos
+                    sua experiência.
                 </Text>
 
-
                 <View style={styles.interests}>
-
-                    {interests.map((item) => {
-
-                        const active =
-                            selected.includes(item);
+                    {interests.map(item => {
+                        const active = selected.includes(item.name);
 
                         return (
-
                             <Pressable
-                                key={item}
-                                onPress={() =>
-                                    toggleInterest(item)
-                                }
+                                key={item.name}
+                                onPress={() => toggleInterest(item.name)}
                                 style={[
                                     styles.interest,
-                                    active &&
-                                    styles.interestActive,
+                                    active && styles.interestActive,
                                 ]}
                             >
+                                <Text style={styles.emoji}>
+                                    {item.emoji}
+                                </Text>
 
                                 <Text
                                     style={[
                                         styles.interestText,
-                                        active &&
-                                        styles.interestTextActive,
+                                        active && styles.interestTextActive,
                                     ]}
                                 >
-                                    {item}
+                                    {item.name}
                                 </Text>
 
+                                {active && (
+                                    <MaterialIcons
+                                        name="check-circle"
+                                        size={15}
+                                        color="#ffffff"
+                                    />
+                                )}
                             </Pressable>
-
                         );
-
                     })}
-
                 </View>
 
+                <Text style={styles.selectionHint}>
+                    {selected.length === 0
+                        ? "Você pode escolher várias opções."
+                        : `${selected.length} interesses selecionados`}
+                </Text>
 
                 <Pressable
-    style={styles.button}
-    onPress={() => {
-        console.log("CLICOU NO CONTINUAR");
-        router.push("/logic/trips/budget");
-    }}
->
-    <Text style={styles.buttonText}>
-        Continuar
-    </Text>
+                    style={styles.button}
+                    onPress={continueToBudget}
+                >
+                    <Text style={styles.buttonText}>
+                        Continuar
+                    </Text>
 
-    <MaterialIcons
-        name="arrow-forward"
-        size={20}
-        color="#ffffff"
-    />
-</Pressable>
-
+                    <MaterialIcons
+                        name="arrow-forward"
+                        size={20}
+                        color="#ffffff"
+                    />
+                </Pressable>
             </ScrollView>
-
         </View>
-
     );
 }
 
-
 const styles = StyleSheet.create({
-
     container: {
         flex: 1,
         backgroundColor: "#f7f7f7",
@@ -182,12 +175,29 @@ const styles = StyleSheet.create({
         paddingBottom: 50,
     },
 
+    header: {
+        height: 58,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+    },
+
     backButton: {
-        width: 42,
-        height: 42,
-        marginTop: 18,
+        width: 40,
+        height: 40,
         alignItems: "center",
         justifyContent: "center",
+    },
+
+    headerTitle: {
+        fontSize: 17,
+        fontWeight: "700",
+        color: "#8492a8",
+    },
+
+    headerSpace: {
+        width: 40,
+        height: 40,
     },
 
     step: {
@@ -214,38 +224,58 @@ const styles = StyleSheet.create({
     },
 
     interests: {
-        marginTop: 32,
+        marginTop: 30,
         flexDirection: "row",
         flexWrap: "wrap",
+        justifyContent: "space-between",
         gap: 10,
     },
 
     interest: {
-        paddingHorizontal: 18,
-        height: 42,
-        borderRadius: 22,
+        width: "48%",
+        minHeight: 53,
+        paddingHorizontal: 10,
+        borderRadius: 17,
         backgroundColor: "#ffffff",
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
+        gap: 7,
+        borderWidth: 1,
+        borderColor: "#eeeeee",
+        elevation: 2,
     },
 
     interestActive: {
         backgroundColor: "#303030",
+        borderColor: "#303030",
+    },
+
+    emoji: {
+        fontSize: 19,
     },
 
     interestText: {
-        fontSize: 13,
-        color: "#555555",
+        fontSize: 11,
         fontWeight: "600",
+        color: "#555555",
+        flexShrink: 1,
     },
 
     interestTextActive: {
         color: "#ffffff",
     },
 
+    selectionHint: {
+        marginTop: 18,
+        fontSize: 12,
+        color: "#999999",
+        textAlign: "center",
+    },
+
     button: {
         height: 56,
-        marginTop: 50,
+        marginTop: 30,
         borderRadius: 28,
         backgroundColor: "#303030",
         flexDirection: "row",
@@ -259,5 +289,4 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: "700",
     },
-
 });

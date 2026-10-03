@@ -7,6 +7,7 @@ import {
     Switch,
     Text,
     View,
+    ScrollView,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -31,11 +32,13 @@ export default function ProfileScreen() {
                 backgroundColor="#f7f7f7"
             />
 
-            <View
-                style={[
-                    styles.content,
+            <ScrollView
+                style={styles.content}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.scrollContent,
                     {
-                        paddingTop: insets.top,
+                        paddingTop: insets.top + 8,
                     },
                 ]}
             >
@@ -181,7 +184,9 @@ export default function ProfileScreen() {
 
                 </View>
 
-            </View>
+                <View style={styles.bottomSpace} />
+
+            </ScrollView>
 
 
             {/* NAVEGAÇÃO INFERIOR */}
@@ -202,6 +207,10 @@ const styles = StyleSheet.create({
 
     content: {
         flex: 1,
+    },
+
+    scrollContent: {
+        paddingBottom: 30,
     },
 
     header: {
@@ -317,6 +326,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         color: "#333333",
+    },
+
+    bottomSpace: {
+        height: 120,
     },
 
 });
