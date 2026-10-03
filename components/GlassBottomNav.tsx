@@ -114,7 +114,7 @@ export default function GlassBottomNav() {
 
                 <Pressable
                     style={styles.navItem}
-                    onPress={() => router.push("/logic/home")}
+                    onPress={() => router.push("/logic/profile")}
                 >
                     <View
                         style={[
