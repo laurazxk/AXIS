@@ -16,55 +16,64 @@ import { LinearGradient } from "expo-linear-gradient";
 export default function Discover() {
 
     return (
-        <ImageBackground
-            source={require("../../assets/images/discover.jpg")}
-            style={styles.container}
-            resizeMode="cover"
-        >
+        <View style={styles.container}>
 
-            {/* ESCURECIMENTO DA PARTE INFERIOR */}
-            <LinearGradient
-                colors={[
-                    "transparent",
-                    "rgba(0,0,0,0.20)",
-                    "rgba(0,0,0,0.75)",
-                    "rgba(0,0,0,0.95)",
-                ]}
-                locations={[
-                    0,
-                    0.45,
-                    0.75,
-                    1,
-                ]}
-                style={styles.gradient}
-            />
+            <ImageBackground
+                source={require("../../assets/images/discover.jpg")}
+                style={styles.backgroundImage}
+                resizeMode="cover"
+                imageStyle={styles.image}
+            >
 
-            <View style={styles.bottomCard}>
+                {/* ESCURECIMENTO DA PARTE INFERIOR */}
 
-                <Text style={styles.title}>
-                    Descubra os melhores lugares
-                    ao redor do mundo
-                </Text>
+                <LinearGradient
+                    colors={[
+                        "transparent",
+                        "rgba(0,0,0,0.20)",
+                        "rgba(0,0,0,0.75)",
+                        "rgba(0,0,0,0.95)",
+                    ]}
+                    locations={[
+                        0,
+                        0.45,
+                        0.75,
+                        1,
+                    ]}
+                    style={styles.gradient}
+                />
 
-                <Text style={styles.description}>
-                    Planeje, organize e viva experiências
-                    inesquecíveis em grupo.
-                </Text>
 
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() =>
-                        router.push("/public/plan")
-                    }
-                >
-                    <Text style={styles.buttonText}>
-                        Começar
+                <View style={styles.bottomCard}>
+
+                    <Text style={styles.title}>
+                        Descubra os melhores lugares
+                        ao redor do mundo
                     </Text>
-                </TouchableOpacity>
 
-            </View>
 
-        </ImageBackground>
+                    <Text style={styles.description}>
+                        Planeje, organize e viva experiências
+                        inesquecíveis em grupo.
+                    </Text>
+
+
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() =>
+                            router.push("/public/plan")
+                        }
+                    >
+                        <Text style={styles.buttonText}>
+                            Começar
+                        </Text>
+                    </TouchableOpacity>
+
+                </View>
+
+            </ImageBackground>
+
+        </View>
     );
 }
 
@@ -73,15 +82,29 @@ const styles = StyleSheet.create({
 
     container: {
         flex: 1,
+        backgroundColor: "#000000",
+    },
+
+
+    backgroundImage: {
+        flex: 1,
         justifyContent: "flex-end",
     },
-    
+
+
+    image: {
+        width: "100%",
+        height: "100%",
+    },
+
 
     gradient: {
         position: "absolute",
+
         left: 0,
         right: 0,
         bottom: 0,
+
         height: "70%",
     },
 
@@ -98,7 +121,7 @@ const styles = StyleSheet.create({
         fontWeight: "800",
         lineHeight: 34,
         marginBottom: 14,
-        color: "#FFffff",
+        color: "#FFFFFF",
     },
 
 
