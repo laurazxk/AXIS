@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
     View,
@@ -9,7 +9,6 @@ import {
     Pressable,
     Dimensions,
     StatusBar,
-    Alert,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -18,8 +17,10 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { LinearGradient } from "expo-linear-gradient";
 
+import { tripDraft } from "../trips/tripDraft";
 
-const { height } = Dimensions.get("window");
+
+const { width, height } = Dimensions.get("window");
 
 
 /* =========================================================
@@ -30,11 +31,20 @@ const destinations: Record<string, any> = {
 
     "torre-eiffel": {
         title: "Torre Eiffel",
-        location: "Paris, França",
 
-        image: require(
-            "../../../assets/images/torreeiffel.jpg"
-        ),
+        city: "Paris",
+
+        country: "França",
+
+        countryCode: "FR",
+
+        currency: "EUR",
+
+        images: [
+            require("../../../assets/images/torreeiffel1.jpg"),
+            require("../../../assets/images/torreeiffel2.jpg"),
+            require("../../../assets/images/torreeiffel3.jpg"),
+        ],
 
         description:
             "Conheça um dos monumentos mais famosos do mundo e aproveite a atmosfera encantadora de Paris.",
@@ -49,11 +59,20 @@ const destinations: Record<string, any> = {
 
     "coliseu": {
         title: "Coliseu",
-        location: "Roma, Itália",
 
-        image: require(
-            "../../../assets/images/coliseu.jpg"
-        ),
+        city: "Roma",
+
+        country: "Itália",
+
+        countryCode: "IT",
+
+        currency: "EUR",
+
+        images: [
+            require("../../../assets/images/coliseu1.jpg"),
+            require("../../../assets/images/coliseu2.jpg"),
+            require("../../../assets/images/coliseu3.jpg"),
+        ],
 
         description:
             "Explore um dos maiores símbolos da Roma Antiga e conheça de perto sua história milenar.",
@@ -68,11 +87,20 @@ const destinations: Record<string, any> = {
 
     "big-ben": {
         title: "Big Ben",
-        location: "Londres, Inglaterra",
 
-        image: require(
-            "../../../assets/images/bigben.jpg"
-        ),
+        city: "Londres",
+
+        country: "Reino Unido",
+
+        countryCode: "GB",
+
+        currency: "GBP",
+
+        images: [
+            require("../../../assets/images/bigben1.jpg"),
+            require("../../../assets/images/bigben2.jpg"),
+            require("../../../assets/images/bigben3.jpg"),
+        ],
 
         description:
             "Visite um dos principais símbolos de Londres e descubra a história e a cultura britânica.",
@@ -87,11 +115,20 @@ const destinations: Record<string, any> = {
 
     "estatua-liberdade": {
         title: "Estátua da Liberdade",
-        location: "Nova York, EUA",
 
-        image: require(
-            "../../../assets/images/libertystatue.jpg"
-        ),
+        city: "Nova York",
+
+        country: "Estados Unidos",
+
+        countryCode: "US",
+
+        currency: "USD",
+
+        images: [
+            require("../../../assets/images/libertystatue1.jpg"),
+            require("../../../assets/images/libertystatue2.jpg"),
+            require("../../../assets/images/libertystatue3.jpg"),
+        ],
 
         description:
             "Conheça um dos maiores símbolos dos Estados Unidos e admire a vista de Nova York.",
@@ -106,11 +143,20 @@ const destinations: Record<string, any> = {
 
     "cristo-redentor": {
         title: "Cristo Redentor",
-        location: "Rio de Janeiro, Brasil",
 
-        image: require(
-            "../../../assets/images/cristo.jpg"
-        ),
+        city: "Rio de Janeiro",
+
+        country: "Brasil",
+
+        countryCode: "BR",
+
+        currency: "BRL",
+
+        images: [
+            require("../../../assets/images/cristo1.jpg"),
+            require("../../../assets/images/cristo2.jpg"),
+            require("../../../assets/images/cristo3.jpg"),
+        ],
 
         description:
             "Visite um dos cartões-postais mais famosos do Brasil e aproveite uma vista incrível do Rio de Janeiro.",
@@ -125,11 +171,20 @@ const destinations: Record<string, any> = {
 
     "burj-khalifa": {
         title: "Burj Khalifa",
-        location: "Dubai, Emirados Árabes",
 
-        image: require(
-            "../../../assets/images/burjkhalifa.jpg"
-        ),
+        city: "Dubai",
+
+        country: "Emirados Árabes",
+
+        countryCode: "AE",
+
+        currency: "AED",
+
+        images: [
+            require("../../../assets/images/burjkhalifa1.jpg"),
+            require("../../../assets/images/burjkhalifa2.jpg"),
+            require("../../../assets/images/burjkhalifa3.jpg"),
+        ],
 
         description:
             "Conheça o edifício mais alto do mundo e tenha uma experiência inesquecível em Dubai.",
@@ -144,11 +199,20 @@ const destinations: Record<string, any> = {
 
     santorini: {
         title: "Santorini",
-        location: "Santorini, Grécia",
 
-        image: require(
-            "../../../assets/images/santorini.jpg"
-        ),
+        city: "Santorini",
+
+        country: "Grécia",
+
+        countryCode: "GR",
+
+        currency: "EUR",
+
+        images: [
+            require("../../../assets/images/santorini1.jpg"),
+            require("../../../assets/images/santorini2.jpg"),
+            require("../../../assets/images/santorini3.jpg"),
+        ],
 
         description:
             "Descubra as paisagens paradisíacas, casas brancas e o famoso pôr do sol de Santorini.",
@@ -163,11 +227,20 @@ const destinations: Record<string, any> = {
 
     "taj-mahal": {
         title: "Taj Mahal",
-        location: "Agra, Índia",
 
-        image: require(
-            "../../../assets/images/tajmahal.jpg"
-        ),
+        city: "Agra",
+
+        country: "Índia",
+
+        countryCode: "IN",
+
+        currency: "INR",
+
+        images: [
+            require("../../../assets/images/tajmahal1.jpg"),
+            require("../../../assets/images/tajmahal2.jpg"),
+            require("../../../assets/images/tajmahal3.jpg"),
+        ],
 
         description:
             "Conheça uma das construções mais impressionantes da Índia e um dos monumentos mais famosos do mundo.",
@@ -182,11 +255,20 @@ const destinations: Record<string, any> = {
 
     "machu-picchu": {
         title: "Machu Picchu",
-        location: "Machu Picchu, Peru",
 
-        image: require(
-            "../../../assets/images/machupicchu.jpg"
-        ),
+        city: "Machu Picchu",
+
+        country: "Peru",
+
+        countryCode: "PE",
+
+        currency: "PEN",
+
+        images: [
+            require("../../../assets/images/machupicchu1.jpg"),
+            require("../../../assets/images/machupicchu2.jpg"),
+            require("../../../assets/images/machupicchu3.jpg"),
+        ],
 
         description:
             "Explore as antigas ruínas incas cercadas pelas impressionantes montanhas dos Andes.",
@@ -201,11 +283,20 @@ const destinations: Record<string, any> = {
 
     sydney: {
         title: "Sydney",
-        location: "Sydney, Austrália",
 
-        image: require(
-            "../../../assets/images/sydney.jpg"
-        ),
+        city: "Sydney",
+
+        country: "Austrália",
+
+        countryCode: "AU",
+
+        currency: "AUD",
+
+        images: [
+            require("../../../assets/images/sydney1.jpg"),
+            require("../../../assets/images/sydney2.jpg"),
+            require("../../../assets/images/sydney3.jpg"),
+        ],
 
         description:
             "Conheça uma das cidades mais famosas da Austrália, com belas praias, arquitetura e paisagens.",
@@ -238,6 +329,10 @@ export default function DestinationScreen() {
         destinations[id];
 
 
+    const [currentImage, setCurrentImage] =
+        useState(0);
+
+
     if (!destination) {
 
         return (
@@ -248,16 +343,18 @@ export default function DestinationScreen() {
                     Destino não encontrado.
                 </Text>
 
-              <Pressable
-    style={styles.backButton}
-    onPress={() => router.replace("/logic/home")}
->
-    <MaterialIcons
-        name="arrow-back"
-        size={25}
-        color="#ffffff"
-    />
-</Pressable>
+                <Pressable
+                    style={styles.backButton}
+                    onPress={() =>
+                        router.replace("/logic/home")
+                    }
+                >
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={25}
+                        color="#ffffff"
+                    />
+                </Pressable>
 
             </View>
         );
@@ -284,20 +381,52 @@ export default function DestinationScreen() {
 
 
                 {/* =================================================
-                    IMAGEM
+                    CARROSSEL
                 ================================================= */}
 
                 <View style={styles.hero}>
 
-                    <Image
-                        source={
-                            destination.image
-                        }
 
-                        style={styles.heroImage}
+                    <ScrollView
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        nestedScrollEnabled
 
-                        resizeMode="cover"
-                    />
+                        onMomentumScrollEnd={(event) => {
+
+                            const index =
+                                Math.round(
+                                    event.nativeEvent
+                                        .contentOffset.x /
+                                    width
+                                );
+
+                            setCurrentImage(index);
+                        }}
+
+                        style={styles.heroCarousel}
+                    >
+
+                        {destination.images.map(
+                            (image: any, index: number) => (
+
+                                <Image
+                                    key={index}
+
+                                    source={image}
+
+                                    style={
+                                        styles.heroImage
+                                    }
+
+                                    resizeMode="cover"
+                                />
+
+                            )
+                        )}
+
+                    </ScrollView>
 
 
                     {/* GRADIENTE */}
@@ -337,28 +466,22 @@ export default function DestinationScreen() {
 
                     <View style={styles.dots}>
 
-                        <View
-                            style={[
-                                styles.dot,
-                                styles.dotActive,
-                            ]}
-                        />
+                        {destination.images.map(
+                            (_: any, index: number) => (
 
-                        <View
-                            style={styles.dot}
-                        />
+                                <View
+                                    key={index}
 
-                        <View
-                            style={styles.dot}
-                        />
+                                    style={[
+                                        styles.dot,
 
-                        <View
-                            style={styles.dot}
-                        />
+                                        index === currentImage &&
+                                            styles.dotActive,
+                                    ]}
+                                />
 
-                        <View
-                            style={styles.dot}
-                        />
+                            )
+                        )}
 
                     </View>
 
@@ -387,7 +510,8 @@ export default function DestinationScreen() {
                             styles.location
                         }
                     >
-                        {destination.location}
+                        {destination.city},{" "}
+                        {destination.country}
                     </Text>
 
 
@@ -458,17 +582,48 @@ export default function DestinationScreen() {
                         </View>
 
 
+                        {/* =================================================
+                            ADICIONAR AO ROTEIRO
+                        ================================================= */}
+
                         <Pressable
                             style={
                                 styles.routeButton
                             }
 
-                            onPress={() =>
-                                Alert.alert(
-                                    "Axis",
-                                    `${destination.title} foi adicionado ao roteiro!`
-                                )
-                            }
+                            onPress={() => {
+
+                                /*
+                                 * IMPORTANTE:
+                                 *
+                                 * Aqui não salvamos o nome
+                                 * do ponto turístico.
+                                 *
+                                 * Exemplo:
+                                 * Torre Eiffel -> Paris
+                                 *
+                                 * Assim, a tela "Nova Viagem"
+                                 * recebe uma cidade válida
+                                 * do catálogo.
+                                 */
+
+                                tripDraft.destination =
+                                    destination.city;
+
+                                tripDraft.country =
+                                    destination.country;
+
+                                tripDraft.countryCode =
+                                    destination.countryCode;
+
+                                tripDraft.localCurrency =
+                                    destination.currency;
+
+                                router.push(
+                                    "/logic/trips/create"
+                                );
+
+                            }}
                         >
 
                             <Text
@@ -513,12 +668,20 @@ const styles = StyleSheet.create({
 
     hero: {
         width: "100%",
+
         height: height * 0.54,
+
         position: "relative",
     },
 
-    heroImage: {
+    heroCarousel: {
         width: "100%",
+
+        height: "100%",
+    },
+
+    heroImage: {
+        width: width,
 
         height: "110%",
     },
@@ -595,16 +758,15 @@ const styles = StyleSheet.create({
 
     details: {
         backgroundColor: "#f7f7f7",
-    
+
         marginTop: -2,
-    
+
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
-    
+
         paddingHorizontal: 42,
         paddingTop: 45,
         paddingBottom: 45,
-
     },
 
     title: {
@@ -618,35 +780,45 @@ const styles = StyleSheet.create({
     location: {
         marginTop: 8,
 
-        fontSize: 1,
+        fontSize: 14,
 
         color: "#777777",
     },
 
     description: {
         marginTop: 28,
+
         fontSize: 16,
+
         lineHeight: 24,
+
         color: "#777777",
     },
+
 
     /* RATING */
 
     rating: {
         flexDirection: "row",
+
         alignItems: "center",
+
         marginTop: 28,
     },
-    
+
     stars: {
         fontSize: 20,
+
         color: "#333333",
+
         letterSpacing: 1,
     },
-    
+
     ratingText: {
         marginLeft: 14,
+
         fontSize: 15,
+
         color: "#555555",
     },
 
@@ -655,53 +827,54 @@ const styles = StyleSheet.create({
 
     bottom: {
         marginTop: 60,
-    
+
         flexDirection: "row",
-    
+
         alignItems: "center",
-    
+
         justifyContent: "space-between",
     },
-    
+
     price: {
         fontSize: 24,
-    
+
         fontWeight: "800",
-    
+
         color: "#303030",
     },
-    
+
     perPerson: {
         marginTop: 4,
-    
+
         fontSize: 14,
-    
+
         color: "#999999",
     },
-    
+
     routeButton: {
         minWidth: 150,
-    
+
         height: 58,
-    
+
         paddingHorizontal: 15,
-    
+
         borderRadius: 30,
-    
+
         backgroundColor: "#000000",
-    
+
         alignItems: "center",
-    
+
         justifyContent: "center",
     },
-    
+
     routeButtonText: {
         color: "#ffffff",
-    
+
         fontSize: 15,
-    
+
         fontWeight: "600",
     },
+
 
     /* ERROR */
 
@@ -721,12 +894,7 @@ const styles = StyleSheet.create({
         color: "#333333",
     },
 
-    backText: {
-        marginTop: 20,
-
-        color: "#555555",
-
-        fontWeight: "700",
-    },
-
 });
+
+
+

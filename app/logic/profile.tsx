@@ -47,19 +47,11 @@ export default function ProfileScreen() {
 
                 <View style={styles.header}>
 
-                    <Pressable style={styles.menuButton}>
-                        <MaterialIcons
-                            name="menu"
-                            size={27}
-                            color="#8492a8"
-                        />
-                    </Pressable>
+                
 
                     <Text style={styles.headerTitle}>
                         Meu Perfil
                     </Text>
-
-                    <View style={styles.headerSpace} />
 
                 </View>
 
@@ -214,30 +206,24 @@ const styles = StyleSheet.create({
     },
 
     header: {
-        height: 65,
+        height: 58,
         paddingHorizontal: 24,
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "space-between",
-    },
-
-    menuButton: {
-        width: 40,
-        height: 40,
-        alignItems: "center",
         justifyContent: "center",
     },
-
+    
     headerTitle: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        textAlign: "center",
         fontSize: 17,
         fontWeight: "700",
         color: "#8492a8",
     },
-
-    headerSpace: {
-        width: 40,
-        height: 40,
-    },
+    
+    
 
     profileCard: {
         marginHorizontal: 25,
@@ -307,14 +293,19 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
 
+
     settingRow: {
-        minHeight: 62,
+        minHeight: 60,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         borderBottomWidth: 1,
         borderBottomColor: "#f0f0f0",
     },
+
+
+
+
 
     settingInfo: {
         flexDirection: "row",

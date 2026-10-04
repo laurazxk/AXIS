@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 import {
@@ -52,6 +51,8 @@ export default function Preferences() {
     }
 
     function continueToBudget() {
+        if (selected.length === 0) return;
+
         tripDraft.interests = [...selected];
 
         router.push("/logic/trips/budget");
@@ -64,13 +65,21 @@ export default function Preferences() {
                 backgroundColor="#f7f7f7"
             />
 
+            {/* TELA INTEIRA COM ROLAGEM */}
+
             <ScrollView
-                showsVerticalScrollIndicator={false}
+                style={styles.scrollView}
                 contentContainerStyle={[
                     styles.content,
-                    { paddingTop: insets.top + 8 },
+                    {
+                        paddingTop: insets.top + 8,
+                        paddingBottom: selected.length > 0 ? 80 : 16,
+                    },
                 ]}
+                showsVerticalScrollIndicator={false}
             >
+                {/* CABEÇALHO */}
+
                 <View style={styles.header}>
                     <Pressable
                         style={styles.backButton}
@@ -90,7 +99,11 @@ export default function Preferences() {
                     <View style={styles.headerSpace} />
                 </View>
 
-                <Text style={styles.step}>ETAPA 3 DE 4</Text>
+                {/* TÍTULOS */}
+
+                <Text style={styles.step}>
+                    ETAPA 3 DE 4
+                </Text>
 
                 <Text style={styles.title}>
                     O que você pretende fazer?
@@ -100,6 +113,8 @@ export default function Preferences() {
                     Selecione seus interesses para personalizarmos
                     sua experiência.
                 </Text>
+
+                {/* OPÇÕES DE INTERESSES */}
 
                 <View style={styles.interests}>
                     {interests.map(item => {
@@ -121,7 +136,8 @@ export default function Preferences() {
                                 <Text
                                     style={[
                                         styles.interestText,
-                                        active && styles.interestTextActive,
+                                        active &&
+                                            styles.interestTextActive,
                                     ]}
                                 >
                                     {item.name}
@@ -139,27 +155,45 @@ export default function Preferences() {
                     })}
                 </View>
 
+                {/* CONTAGEM DE SELEÇÕES */}
+
                 <Text style={styles.selectionHint}>
                     {selected.length === 0
                         ? "Você pode escolher várias opções."
                         : `${selected.length} interesses selecionados`}
                 </Text>
-
-                <Pressable
-                    style={styles.button}
-                    onPress={continueToBudget}
-                >
-                    <Text style={styles.buttonText}>
-                        Continuar
-                    </Text>
-
-                    <MaterialIcons
-                        name="arrow-forward"
-                        size={20}
-                        color="#ffffff"
-                    />
-                </Pressable>
             </ScrollView>
+
+            {/* BOTÃO FIXO, FORA DA ROLAGEM */}
+
+            {selected.length > 0 && (
+                <View
+                    style={[
+                        styles.footer,
+                        {
+                            paddingBottom: Math.max(
+                                insets.bottom,
+                                12
+                            ),
+                        },
+                    ]}
+                >
+                    <Pressable
+                        style={styles.button}
+                        onPress={continueToBudget}
+                    >
+                        <Text style={styles.buttonText}>
+                            Continuar
+                        </Text>
+
+                        <MaterialIcons
+                            name="arrow-forward"
+                            size={20}
+                            color="#ffffff"
+                        />
+                    </Pressable>
+                </View>
+            )}
         </View>
     );
 }
@@ -170,9 +204,12 @@ const styles = StyleSheet.create({
         backgroundColor: "#f7f7f7",
     },
 
+    scrollView: {
+        flex: 1,
+    },
+
     content: {
         paddingHorizontal: 28,
-        paddingBottom: 50,
     },
 
     header: {
@@ -267,15 +304,20 @@ const styles = StyleSheet.create({
     },
 
     selectionHint: {
-        marginTop: 18,
+        marginTop: 10,
         fontSize: 12,
         color: "#999999",
         textAlign: "center",
     },
+    footer: {
+        flexShrink: 0,
+        paddingHorizontal: 28,
+        paddingTop: 10,
+        backgroundColor: "#f7f7f7",
+    },
 
     button: {
         height: 56,
-        marginTop: 30,
         borderRadius: 28,
         backgroundColor: "#303030",
         flexDirection: "row",

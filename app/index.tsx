@@ -19,7 +19,7 @@ export default function SplashScreen() {
 
             router.replace("/public/discover");
 
-        }, 3000);
+        }, 2500);
 
         return () => clearTimeout(timer);
 

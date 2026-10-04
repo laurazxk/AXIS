@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 
 import {
@@ -8,8 +7,9 @@ import {
     Pressable,
     ScrollView,
     StatusBar,
+    FlatList,
+    Modal,
     TextInput,
-    Alert,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,196 +18,774 @@ import { useRouter } from "expo-router";
 
 import { tripDraft } from "./tripDraft";
 
+type Activity = {
+    id: number;
+    day: number;
+    time: string;
+    title: string;
+    completed: boolean;
+};
+
+const HOURS = Array.from(
+    { length: 24 },
+    (_, index) => index
+);
+
+const MINUTES = Array.from(
+    { length: 60 },
+    (_, index) => index
+);
+
+const ITEM_HEIGHT = 44;
+
 export default function ItineraryScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
     const [selectedDay, setSelectedDay] = useState(1);
-    const [activity, setActivity] = useState("");
 
-    const [activities, setActivities] = useState<
-        { id: number; day: number; title: string }[]
-    >([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
 
-    const totalDays = Math.max(1, tripDraft.duration || 1);
+    const [timeModalVisible, setTimeModalVisible] =
+        useState(false);
+
+    const [selectedActivityId, setSelectedActivityId] =
+        useState<number | null>(null);
+
+    const [pickerHour, setPickerHour] = useState(9);
+    const [pickerMinute, setPickerMinute] = useState(0);
+
+    const totalDays = Math.max(
+        1,
+        Math.floor(Number(tripDraft.duration) || 1)
+    );
+
+    const dayActivities = activities.filter(
+        item => item.day === selectedDay
+    );
+
+    function updateActivity(
+        id: number,
+        field: "time" | "title",
+        value: string
+    ) {
+        setActivities(current =>
+            current.map(item =>
+                item.id === id
+                    ? {
+                          ...item,
+                          [field]: value,
+                      }
+                    : item
+            )
+        );
+    }
 
     function addActivity() {
-        if (!activity.trim()) {
-            Alert.alert(
-                "Adicione uma atividade",
-                "Digite o nome da atividade antes de continuar."
-            );
-            return;
-        }
+        const newActivity: Activity = {
+            id: Date.now(),
+            day: selectedDay,
+            time: "09:00",
+            title: "",
+            completed: false,
+        };
 
         setActivities(current => [
             ...current,
-            {
-                id: Date.now(),
-                day: selectedDay,
-                title: activity.trim(),
-            },
+            newActivity,
         ]);
+    }
 
-        setActivity("");
+    function deleteActivity(id: number) {
+        setActivities(current =>
+            current.filter(item => item.id !== id)
+        );
+    }
+
+    function toggleActivity(id: number) {
+        setActivities(current =>
+            current.map(item =>
+                item.id === id
+                    ? {
+                          ...item,
+                          completed: !item.completed,
+                      }
+                    : item
+            )
+        );
+    }
+
+    function openTimePicker(activity: Activity) {
+        const [hour, minute] = activity.time
+            .split(":")
+            .map(Number);
+
+        setPickerHour(
+            Number.isNaN(hour) ? 9 : hour
+        );
+
+        setPickerMinute(
+            Number.isNaN(minute) ? 0 : minute
+        );
+
+        setSelectedActivityId(activity.id);
+        setTimeModalVisible(true);
+    }
+
+    function confirmTime() {
+        if (selectedActivityId === null) {
+            return;
+        }
+
+        const formattedHour = String(
+            pickerHour
+        ).padStart(2, "0");
+
+        const formattedMinute = String(
+            pickerMinute
+        ).padStart(2, "0");
+
+        updateActivity(
+            selectedActivityId,
+            "time",
+            `${formattedHour}:${formattedMinute}`
+        );
+
+        setTimeModalVisible(false);
+        setSelectedActivityId(null);
+    }
+
+    function renderPickerItem({
+        item,
+        selected,
+    }: {
+        item: number;
+        selected: number;
+    }) {
+        const isSelected = item === selected;
+
+        return (
+            <View
+                style={[
+                    styles.pickerItem,
+                    isSelected &&
+                        styles.pickerItemSelected,
+                ]}
+            >
+                <Text
+                    style={[
+                        styles.pickerItemText,
+                        isSelected &&
+                            styles.pickerItemTextSelected,
+                    ]}
+                >
+                    {String(item).padStart(2, "0")}
+                </Text>
+            </View>
+        );
+    }
+
+    function handleHourScroll(event: any) {
+        const offsetY =
+            event.nativeEvent.contentOffset.y;
+
+        const index = Math.round(
+            offsetY / ITEM_HEIGHT
+        );
+
+        const validIndex = Math.max(
+            0,
+            Math.min(
+                index,
+                HOURS.length - 1
+            )
+        );
+
+        setPickerHour(HOURS[validIndex]);
+    }
+
+    function handleMinuteScroll(event: any) {
+        const offsetY =
+            event.nativeEvent.contentOffset.y;
+
+        const index = Math.round(
+            offsetY / ITEM_HEIGHT
+        );
+
+        const validIndex = Math.max(
+            0,
+            Math.min(
+                index,
+                MINUTES.length - 1
+            )
+        );
+
+        setPickerMinute(
+            MINUTES[validIndex]
+        );
     }
 
     return (
         <View style={styles.container}>
             <StatusBar
                 barStyle="dark-content"
-                backgroundColor="#f7f7f7"
+                backgroundColor="#ffffff"
             />
 
-            <ScrollView
-                keyboardShouldPersistTaps="handled"
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={[
-                    styles.content,
-                    { paddingTop: insets.top + 8 },
+            {/* CABEÇALHO */}
+
+            <View
+                style={[
+                    styles.header,
+                    {
+                        paddingTop:
+                            insets.top,
+                    },
                 ]}
             >
-                <View style={styles.header}>
-                    <Pressable
-                        style={styles.backButton}
-                        onPress={() => router.back()}
-                    >
-                        <MaterialIcons
-                            name="arrow-back"
-                            size={24}
-                            color="#303030"
-                        />
-                    </Pressable>
+                <Pressable
+                    style={styles.backButton}
+                    onPress={() =>
+                        router.back()
+                    }
+                >
+                    <MaterialIcons
+                        name="arrow-back"
+                        size={23}
+                        color="#303030"
+                    />
+                </Pressable>
 
-                    <Text style={styles.headerTitle}>
-                        Meu roteiro
+                <Text
+                    style={styles.headerTitle}
+                >
+                    Roteiro da Viagem
+                </Text>
+
+                <View
+                    style={styles.headerSpace}
+                />
+            </View>
+
+            {/* DESTINO */}
+
+            {tripDraft.destination ? (
+                <View style={styles.destinationInfo}>
+                    <Text
+                        style={styles.destinationName}
+                        numberOfLines={1}
+                    >
+                        {tripDraft.destination}
                     </Text>
 
-                    <View style={styles.headerSpace} />
+                    {tripDraft.country ? (
+                        <Text
+                            style={
+                                styles.destinationLocation
+                            }
+                            numberOfLines={1}
+                        >
+                            {tripDraft.country}
+                        </Text>
+                    ) : null}
                 </View>
+            ) : null}
 
-                <Text style={styles.title}>
-                    {tripDraft.destination || "Sua viagem"}
-                </Text>
+            {/* ABAS DOS DIAS */}
 
-                <Text style={styles.subtitle}>
-                    {tripDraft.country}
-                    {" · "}
-                    {totalDays} {totalDays === 1 ? "dia" : "dias"}
-                </Text>
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={
+                    false
+                }
+                style={styles.daysScroll}
+                contentContainerStyle={
+                    styles.daysContainer
+                }
+            >
+                {Array.from(
+                    {
+                        length: totalDays,
+                    },
+                    (_, index) => {
+                        const day =
+                            index + 1;
 
-                <Text style={styles.sectionTitle}>
-                    Organize seus dias
-                </Text>
-
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.daysContainer}
-                >
-                    {Array.from({ length: totalDays }, (_, index) => {
-                        const day = index + 1;
-                        const active = day === selectedDay;
+                        const active =
+                            day ===
+                            selectedDay;
 
                         return (
                             <Pressable
                                 key={day}
-                                style={[
-                                    styles.dayButton,
-                                    active && styles.dayButtonActive,
-                                ]}
-                                onPress={() => setSelectedDay(day)}
+                                style={
+                                    styles.dayButton
+                                }
+                                onPress={() =>
+                                    setSelectedDay(
+                                        day
+                                    )
+                                }
                             >
                                 <Text
                                     style={[
-                                        styles.dayButtonText,
-                                        active && styles.dayButtonTextActive,
+                                        styles.dayTitle,
+                                        active &&
+                                            styles.dayTitleActive,
                                     ]}
                                 >
                                     Dia {day}
                                 </Text>
+
+                                <Text
+                                    style={[
+                                        styles.dayDate,
+                                        active &&
+                                            styles.dayDateActive,
+                                    ]}
+                                >
+                                    {day === 1
+                                        ? "1º dia"
+                                        : `${day}º dia`}
+                                </Text>
+
+                                {active && (
+                                    <View
+                                        style={
+                                            styles.activeIndicator
+                                        }
+                                    />
+                                )}
                             </Pressable>
                         );
-                    })}
-                </ScrollView>
+                    }
+                )}
+            </ScrollView>
 
-                <View style={styles.card}>
-                    <Text style={styles.cardTitle}>
-                        Atividades do dia {selectedDay}
-                    </Text>
+            {/* LISTA DAS ATIVIDADES */}
 
-                    {activities.filter(
-                        item => item.day === selectedDay
-                    ).length === 0 ? (
-                        <View style={styles.emptyState}>
-                            <MaterialIcons
-                                name="event-note"
-                                size={32}
-                                color="#a7a7a7"
-                            />
+            <ScrollView
+                style={
+                    styles.activitiesScroll
+                }
+                contentContainerStyle={
+                    styles.activitiesContent
+                }
+                showsVerticalScrollIndicator={
+                    false
+                }
+                keyboardShouldPersistTaps="handled"
+            >
+                {dayActivities.map(
+                    item => (
+                        <View
+                            key={item.id}
+                            style={
+                                styles.activityRow
+                            }
+                        >
+                            {/* HORÁRIO */}
 
-                            <Text style={styles.emptyTitle}>
-                                Nenhuma atividade ainda
-                            </Text>
+                            <Pressable
+                                style={
+                                    styles.timeContainer
+                                }
+                                onPress={() =>
+                                    openTimePicker(
+                                        item
+                                    )
+                                }
+                            >
+                                <MaterialIcons
+                                    name="schedule"
+                                    size={14}
+                                    color="#999999"
+                                />
 
-                            <Text style={styles.emptyDescription}>
-                                Adicione os lugares e passeios que
-                                deseja visitar neste dia.
-                            </Text>
-                        </View>
-                    ) : (
-                        activities
-                            .filter(item => item.day === selectedDay)
-                            .map(item => (
-                                <View
-                                    key={item.id}
-                                    style={styles.activityRow}
+                                <Text
+                                    style={
+                                        styles.timeText
+                                    }
                                 >
-                                    <MaterialIcons
-                                        name="place"
-                                        size={21}
-                                        color="#8492a8"
-                                    />
+                                    {item.time}
+                                </Text>
+                            </Pressable>
 
-                                    <Text style={styles.activityTitle}>
-                                        {item.title}
-                                    </Text>
+                            {/* ATIVIDADE */}
+
+                            <View
+                                style={
+                                    styles.titleContainer
+                                }
+                            >
+                                <TextInput
+                                    value={
+                                        item.title
+                                    }
+                                    onChangeText={value =>
+                                        updateActivity(
+                                            item.id,
+                                            "title",
+                                            value
+                                        )
+                                    }
+                                    placeholder="Nome da atividade"
+                                    placeholderTextColor="#999999"
+                                    style={[
+                                        styles.activityInput,
+                                        item.completed &&
+                                            styles.activityCompletedText,
+                                    ]}
+                                    multiline
+                                />
+                            </View>
+
+                            {/* CHECKLIST */}
+
+                            <Pressable
+                                style={
+                                    styles.checkButton
+                                }
+                                onPress={() =>
+                                    toggleActivity(
+                                        item.id
+                                    )
+                                }
+                                hitSlop={6}
+                                accessibilityLabel={
+                                    item.completed
+                                        ? "Desmarcar atividade"
+                                        : "Marcar atividade como realizada"
+                                }
+                            >
+                                <View
+                                    style={[
+                                        styles.checkBox,
+                                        item.completed &&
+                                            styles.checkBoxCompleted,
+                                    ]}
+                                >
+                                    {item.completed && (
+                                        <MaterialIcons
+                                            name="check"
+                                            size={16}
+                                            color="#ffffff"
+                                        />
+                                    )}
                                 </View>
-                            ))
-                    )}
+                            </Pressable>
 
-                    <TextInput
-                        value={activity}
-                        onChangeText={setActivity}
-                        placeholder="Ex.: visitar a Torre Eiffel"
-                        placeholderTextColor="#999999"
-                        style={styles.input}
-                        returnKeyType="done"
-                        onSubmitEditing={addActivity}
+                            {/* EXCLUIR */}
+
+                            <Pressable
+                                style={
+                                    styles.deleteButton
+                                }
+                                onPress={() =>
+                                    deleteActivity(
+                                        item.id
+                                    )
+                                }
+                                hitSlop={8}
+                                accessibilityLabel="Excluir atividade"
+                            >
+                                <MaterialIcons
+                                    name="close"
+                                    size={17}
+                                    color="#999999"
+                                />
+                            </Pressable>
+                        </View>
+                    )
+                )}
+
+                {/* ADICIONAR ATIVIDADE */}
+
+                <Pressable
+                    style={
+                        styles.addButton
+                    }
+                    onPress={addActivity}
+                >
+                    <MaterialIcons
+                        name="add"
+                        size={19}
+                        color="#777777"
                     />
 
-                    <Pressable
-                        style={styles.addButton}
-                        onPress={addActivity}
+                    <Text
+                        style={
+                            styles.addButtonText
+                        }
                     >
-                        <MaterialIcons
-                            name="add"
-                            size={20}
-                            color="#ffffff"
-                        />
+                        Adicionar atividade
+                    </Text>
+                </Pressable>
 
-                        <Text style={styles.addButtonText}>
-                            Adicionar atividade
-                        </Text>
-                    </Pressable>
-                </View>
-
-                <Text style={styles.note}>
-                    As atividades são temporárias e serão perdidas
-                    ao reiniciar o aplicativo. A opção de salvar a
-                    viagem será integrada posteriormente.
-                </Text>
+                {dayActivities.length ===
+                    0 && (
+                    <Text
+                        style={
+                            styles.emptyHint
+                        }
+                    >
+                        Adicione atividades ou
+                        passeios para este dia.
+                    </Text>
+                )}
             </ScrollView>
+
+            {/* MODAL DO HORÁRIO */}
+
+            <Modal
+                visible={
+                    timeModalVisible
+                }
+                transparent
+                animationType="slide"
+                onRequestClose={() =>
+                    setTimeModalVisible(
+                        false
+                    )
+                }
+            >
+                <View
+                    style={
+                        styles.modalOverlay
+                    }
+                >
+                    <Pressable
+                        style={
+                            styles.modalBackground
+                        }
+                        onPress={() =>
+                            setTimeModalVisible(
+                                false
+                            )
+                        }
+                    />
+
+                    <View
+                        style={
+                            styles.timeModal
+                        }
+                    >
+                        <View
+                            style={
+                                styles.modalHeader
+                            }
+                        >
+                            <Pressable
+                                onPress={() =>
+                                    setTimeModalVisible(
+                                        false
+                                    )
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.cancelText
+                                    }
+                                >
+                                    Cancelar
+                                </Text>
+                            </Pressable>
+
+                            <Text
+                                style={
+                                    styles.modalTitle
+                                }
+                            >
+                                Escolher horário
+                            </Text>
+
+                            <Pressable
+                                onPress={
+                                    confirmTime
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.confirmText
+                                    }
+                                >
+                                    OK
+                                </Text>
+                            </Pressable>
+                        </View>
+
+                        <View
+                            style={
+                                styles.selectedTimeDisplay
+                            }
+                        >
+                            <Text
+                                style={
+                                    styles.selectedTimeText
+                                }
+                            >
+                                {String(
+                                    pickerHour
+                                ).padStart(
+                                    2,
+                                    "0"
+                                )}
+                                :
+                                {String(
+                                    pickerMinute
+                                ).padStart(
+                                    2,
+                                    "0"
+                                )}
+                            </Text>
+                        </View>
+
+                        <View
+                            style={
+                                styles.pickerWrapper
+                            }
+                        >
+                            <View
+                                style={
+                                    styles.pickerColumn
+                                }
+                            >
+                                <FlatList
+                                    data={
+                                        HOURS
+                                    }
+                                    keyExtractor={item =>
+                                        `hour-${item}`
+                                    }
+                                    showsVerticalScrollIndicator={
+                                        false
+                                    }
+                                    snapToInterval={
+                                        ITEM_HEIGHT
+                                    }
+                                    decelerationRate="fast"
+                                    contentContainerStyle={{
+                                        paddingVertical:
+                                            ITEM_HEIGHT *
+                                            2,
+                                    }}
+                                    getItemLayout={(
+                                        _data,
+                                        index
+                                    ) => ({
+                                        length:
+                                            ITEM_HEIGHT,
+                                        offset:
+                                            ITEM_HEIGHT *
+                                            index,
+                                        index,
+                                    })}
+                                    initialScrollIndex={
+                                        pickerHour
+                                    }
+                                    onMomentumScrollEnd={
+                                        handleHourScroll
+                                    }
+                                    renderItem={({
+                                        item,
+                                    }) =>
+                                        renderPickerItem(
+                                            {
+                                                item,
+                                                selected:
+                                                    pickerHour,
+                                            }
+                                        )
+                                    }
+                                />
+
+                                <View
+                                    pointerEvents="none"
+                                    style={
+                                        styles.selectionBox
+                                    }
+                                />
+                            </View>
+
+                            <View
+                                style={
+                                    styles.colonContainer
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.colonText
+                                    }
+                                >
+                                    :
+                                </Text>
+                            </View>
+
+                            <View
+                                style={
+                                    styles.pickerColumn
+                                }
+                            >
+                                <FlatList
+                                    data={
+                                        MINUTES
+                                    }
+                                    keyExtractor={item =>
+                                        `minute-${item}`
+                                    }
+                                    showsVerticalScrollIndicator={
+                                        false
+                                    }
+                                    snapToInterval={
+                                        ITEM_HEIGHT
+                                    }
+                                    decelerationRate="fast"
+                                    contentContainerStyle={{
+                                        paddingVertical:
+                                            ITEM_HEIGHT *
+                                            2,
+                                    }}
+                                    getItemLayout={(
+                                        _data,
+                                        index
+                                    ) => ({
+                                        length:
+                                            ITEM_HEIGHT,
+                                        offset:
+                                            ITEM_HEIGHT *
+                                            index,
+                                        index,
+                                    })}
+                                    initialScrollIndex={
+                                        pickerMinute
+                                    }
+                                    onMomentumScrollEnd={
+                                        handleMinuteScroll
+                                    }
+                                    renderItem={({
+                                        item,
+                                    }) =>
+                                        renderPickerItem(
+                                            {
+                                                item,
+                                                selected:
+                                                    pickerMinute,
+                                            }
+                                        )
+                                    }
+                                />
+
+                                <View
+                                    pointerEvents="none"
+                                    style={
+                                        styles.selectionBox
+                                    }
+                                />
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -218,166 +796,335 @@ const styles = StyleSheet.create({
         backgroundColor: "#f7f7f7",
     },
 
-    content: {
-        paddingHorizontal: 28,
-        paddingBottom: 50,
-    },
-
     header: {
-        height: 58,
+        minHeight: 82,
+        paddingHorizontal: 16,
+        backgroundColor: "#ffffff",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
     },
 
     backButton: {
-        width: 40,
+        width: 34,
         height: 40,
-        alignItems: "center",
+        alignItems: "flex-start",
         justifyContent: "center",
     },
 
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: "#151515",
     },
 
     headerSpace: {
-        width: 40,
-        height: 40,
+        width: 34,
     },
 
-    title: {
-        marginTop: 28,
-        fontSize: 29,
-        lineHeight: 35,
-        fontWeight: "800",
+    destinationInfo: {
+        paddingHorizontal: 20,
+        paddingTop: 8,
+        paddingBottom: 10,
+        backgroundColor: "#ffffff",
+    },
+
+    destinationName: {
+        fontSize: 18,
+        fontWeight: "700",
         color: "#303030",
     },
 
-    subtitle: {
-        marginTop: 8,
-        fontSize: 13,
-        color: "#888888",
-    },
-
-    sectionTitle: {
-        marginTop: 32,
-        fontSize: 17,
-        fontWeight: "700",
+    destinationLocation: {
+        marginTop: 3,
+        fontSize: 12,
         color: "#8492a8",
     },
 
+    daysScroll: {
+        flexGrow: 0,
+        backgroundColor: "#ffffff",
+    },
+
     daysContainer: {
-        gap: 9,
-        paddingVertical: 15,
+        flexDirection: "row",
+        paddingHorizontal: 8,
     },
 
     dayButton: {
-        paddingHorizontal: 18,
-        height: 40,
-        borderRadius: 22,
+        width: 76,
+        height: 57,
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+    },
+
+    dayTitle: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: "#303030",
+    },
+
+    dayTitleActive: {
+        fontWeight: "800",
+    },
+
+    dayDate: {
+        marginTop: 3,
+        fontSize: 11,
+        color: "#aaaaaa",
+    },
+
+    dayDateActive: {
+        color: "#888888",
+    },
+
+    activeIndicator: {
+        position: "absolute",
+        bottom: 0,
+        left: 10,
+        right: 10,
+        height: 2,
+        backgroundColor: "#303030",
+    },
+
+    activitiesScroll: {
+        flex: 1,
+    },
+
+    activitiesContent: {
+        paddingHorizontal: 15,
+        paddingTop: 15,
+        paddingBottom: 30,
+    },
+
+    activityRow: {
+        minHeight: 44,
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 9,
+        gap: 7,
+    },
+
+    timeContainer: {
+        width: 68,
+        minHeight: 35,
+        paddingHorizontal: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "#eaeaea",
+        backgroundColor: "#fafafa",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 4,
+    },
+
+    timeText: {
+        fontSize: 11,
+        color: "#303030",
+        textAlign: "center",
+        fontWeight: "500",
+    },
+
+    titleContainer: {
+        flex: 1,
+        minHeight: 35,
+        justifyContent: "center",
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "#eaeaea",
+        backgroundColor: "#fafafa",
+        paddingHorizontal: 13,
+    },
+
+    activityInput: {
+        minHeight: 33,
+        paddingVertical: 6,
+        fontSize: 12,
+        color: "#202020",
+    },
+
+    activityCompletedText: {
+        color: "#999999",
+        textDecorationLine: "line-through",
+    },
+
+    checkButton: {
+        width: 30,
+        height: 35,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    checkBox: {
+        width: 21,
+        height: 21,
+        borderRadius: 6,
+        borderWidth: 1.5,
+        borderColor: "#bdbdbd",
         backgroundColor: "#ffffff",
         alignItems: "center",
         justifyContent: "center",
     },
 
-    dayButtonActive: {
+    checkBoxCompleted: {
         backgroundColor: "#303030",
+        borderColor: "#303030",
     },
 
-    dayButtonText: {
+    deleteButton: {
+        width: 22,
+        height: 35,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    addButton: {
+        height: 42,
+        marginTop: 5,
+        borderRadius: 22,
+        backgroundColor: "#e3e3e3",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 6,
+    },
+
+    addButtonText: {
         fontSize: 12,
         fontWeight: "600",
         color: "#666666",
     },
 
-    dayButtonTextActive: {
-        color: "#ffffff",
-    },
-
-    card: {
-        marginTop: 12,
-        padding: 20,
-        borderRadius: 20,
-        backgroundColor: "#ffffff",
-        elevation: 3,
-    },
-
-    cardTitle: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: "#303030",
-    },
-
-    emptyState: {
-        alignItems: "center",
-        paddingVertical: 30,
-    },
-
-    emptyTitle: {
-        marginTop: 12,
-        fontSize: 13,
-        fontWeight: "700",
-        color: "#555555",
-    },
-
-    emptyDescription: {
-        marginTop: 7,
+    emptyHint: {
+        marginTop: 14,
         fontSize: 12,
         lineHeight: 18,
-        textAlign: "center",
         color: "#999999",
+        textAlign: "center",
     },
 
-    activityRow: {
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "flex-end",
+    },
+
+    modalBackground: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.25)",
+    },
+
+    timeModal: {
+        backgroundColor: "#ffffff",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        paddingBottom: 35,
+        overflow: "hidden",
+    },
+
+    modalHeader: {
+        height: 58,
+        paddingHorizontal: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: "#eeeeee",
         flexDirection: "row",
         alignItems: "center",
-        gap: 10,
-        paddingVertical: 14,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#eeeeee",
+        justifyContent: "space-between",
     },
 
-    activityTitle: {
-        flex: 1,
-        fontSize: 13,
-        color: "#444444",
+    modalTitle: {
+        fontSize: 15,
+        fontWeight: "700",
+        color: "#202020",
     },
 
-    input: {
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: "#f7f7f7",
-        paddingHorizontal: 18,
-        marginTop: 22,
-        fontSize: 13,
-        color: "#303030",
+    cancelText: {
+        fontSize: 14,
+        color: "#888888",
     },
 
-    addButton: {
-        height: 50,
-        marginTop: 12,
-        borderRadius: 25,
-        backgroundColor: "#303030",
-        flexDirection: "row",
+    confirmText: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#202020",
+    },
+
+    selectedTimeDisplay: {
+        height: 65,
         alignItems: "center",
         justifyContent: "center",
-        gap: 8,
     },
 
-    addButtonText: {
-        color: "#ffffff",
-        fontSize: 13,
+    selectedTimeText: {
+        fontSize: 28,
+        fontWeight: "700",
+        color: "#202020",
+    },
+
+    pickerWrapper: {
+        height: ITEM_HEIGHT * 5,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 55,
+    },
+
+    pickerColumn: {
+        width: 75,
+        height: ITEM_HEIGHT * 5,
+        position: "relative",
+        overflow: "hidden",
+    },
+
+    pickerItem: {
+        height: ITEM_HEIGHT,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    pickerItemSelected: {
+        backgroundColor: "#f2f2f2",
+        borderRadius: 12,
+    },
+
+    pickerItemText: {
+        fontSize: 18,
+        color: "#b5b5b5",
+        fontWeight: "400",
+    },
+
+    pickerItemTextSelected: {
+        fontSize: 21,
+        color: "#202020",
         fontWeight: "700",
     },
 
-    note: {
-        marginTop: 22,
-        fontSize: 11,
-        lineHeight: 17,
-        color: "#999999",
-        textAlign: "center",
+    selectionBox: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: ITEM_HEIGHT * 2,
+        height: ITEM_HEIGHT,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: "#e2e2e2",
+    },
+
+    colonContainer: {
+        width: 25,
+        height: ITEM_HEIGHT * 5,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    colonText: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: "#303030",
     },
 });

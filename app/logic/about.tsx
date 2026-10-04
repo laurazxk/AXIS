@@ -9,18 +9,31 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import GlassBottomNav from "../../components/GlassBottomNav";
+
 
 export default function AboutScreen() {
 
     const router = useRouter();
+
+    const insets = useSafeAreaInsets();
+
 
     return (
         <View style={styles.container}>
 
             {/* CABEÇALHO */}
 
-            <View style={styles.header}>
+            <View
+                style={[
+                    styles.header,
+                    {
+                        paddingTop: insets.top,
+                    },
+                ]}
+            >
 
                 <Pressable
                     style={styles.backButton}

@@ -200,15 +200,15 @@ export default function HomeScreen() {
 
     const [search, setSearch] = useState("");
 
-    const [filter, setFilter] = useState("Tudo"); 
+    const [filter, setFilter] = useState("Tudo");
 
 
     const filteredDestinations = useMemo(() => {
 
         const term = search.trim().toLowerCase();
-    
+
         return destinations.filter((destination) => {
-    
+
             const matchesSearch =
                 !term ||
                 destination.title
@@ -217,7 +217,7 @@ export default function HomeScreen() {
                 destination.location
                     .toLowerCase()
                     .includes(term);
-    
+
             const matchesFilter =
                 filter === "Tudo" ||
                 (
@@ -228,18 +228,20 @@ export default function HomeScreen() {
                     filter === "Pontos turísticos" &&
                     destination.category === "Ponto Turístico"
                 );
-    
+
             return matchesSearch && matchesFilter;
-    
+
         });
-    
+
     }, [search, filter]);
+
+
     const filteredCountries = useMemo(() => {
 
         const term = search.trim().toLowerCase();
-    
+
         return countries.filter((country) => {
-    
+
             const matchesSearch =
                 !term ||
                 country.name
@@ -248,12 +250,13 @@ export default function HomeScreen() {
                 country.continent
                     .toLowerCase()
                     .includes(term);
-    
+
             return matchesSearch;
-    
+
         });
-    
+
     }, [search]);
+
 
     return (
 
@@ -266,14 +269,15 @@ export default function HomeScreen() {
 
 
             <ScrollView
-    showsVerticalScrollIndicator={false}
-    contentContainerStyle={[
-        styles.scrollContent,
-        {
-            paddingTop: insets.top + 8,
-        },
-    ]}
->
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    {
+                        paddingTop:
+                            insets.top + 8,
+                    },
+                ]}
+            >
 
 
                 {/* =================================================
@@ -281,19 +285,6 @@ export default function HomeScreen() {
                 ================================================= */}
 
                 <View style={styles.header}>
-
-                    <Pressable
-                        style={styles.menuButton}
-                    >
-
-                        <MaterialIcons
-                            name="menu"
-                            size={27}
-                            color="#8492a8"
-                        />
-
-                    </Pressable>
-
 
                     <Text style={styles.headerTitle}>
                         Home
@@ -376,7 +367,9 @@ export default function HomeScreen() {
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.filterContainer}
+                        contentContainerStyle={
+                            styles.filterContainer
+                        }
                     >
 
                         {[
@@ -418,56 +411,87 @@ export default function HomeScreen() {
                     </ScrollView>
 
 
-                    {/* CARDS DOS DESTINOS */}
+                    {/* =================================================
+                        CARDS DOS DESTINOS
+                    ================================================= */}
 
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.cardsContainer}
+                        contentContainerStyle={
+                            styles.cardsContainer
+                        }
                     >
 
                         {filteredDestinations.map(
                             (destination) => (
 
-                                <Pressable
-                                    key={destination.id}
+                                <View
+                                    key={
+                                        destination.id
+                                    }
 
-                                    style={({ pressed }) => [
-                                        styles.destinationCard,
-
-                                        pressed &&
-                                        styles.cardPressed,
-                                    ]}
-
-                                    onPress={() =>
-                                        router.push({
-                                            pathname:
-                                                "/logic/destination/[id]",
-
-                                            params: {
-                                                id:
-                                                    destination.id,
-                                            },
-                                        })
+                                    style={
+                                        styles.destinationCard
                                     }
                                 >
 
-                                    <Image
-                                        source={
-                                            destination.image
+                                    {/* IMAGEM */}
+
+                                    <Pressable
+                                        onPress={() =>
+                                            router.push({
+                                                pathname:
+                                                    "/logic/destination/[id]",
+
+                                                params: {
+                                                    id:
+                                                        destination.id,
+                                                },
+                                            })
                                         }
+                                    >
 
-                                        style={
-                                            styles.destinationImage
-                                        }
+                                        <View
+                                            style={
+                                                styles.imageWrapper
+                                            }
+                                        >
 
-                                        resizeMode="cover"
-                                    />
+                                            <Image
+                                                source={
+                                                    destination.image
+                                                }
+
+                                                style={
+                                                    styles.destinationImage
+                                                }
+
+                                                resizeMode="cover"
+                                            />
+
+                                        </View>
+
+                                    </Pressable>
 
 
-                                    <View
+                                    {/* INFORMAÇÕES */}
+
+                                    <Pressable
                                         style={
                                             styles.cardInfo
+                                        }
+
+                                        onPress={() =>
+                                            router.push({
+                                                pathname:
+                                                    "/logic/destination/[id]",
+
+                                                params: {
+                                                    id:
+                                                        destination.id,
+                                                },
+                                            })
                                         }
                                     >
 
@@ -496,9 +520,9 @@ export default function HomeScreen() {
                                             }
                                         </Text>
 
-                                    </View>
+                                    </Pressable>
 
-                                </Pressable>
+                                </View>
 
                             )
                         )}
@@ -522,10 +546,13 @@ export default function HomeScreen() {
                     <ScrollView
                         horizontal
                         showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.cardsContainer}
+                        contentContainerStyle={
+                            styles.cardsContainer
+                        }
                     >
 
                         {filteredCountries.map((country) => (
+
                             <Pressable
                                 key={country.id}
 
@@ -623,330 +650,208 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
 
     container: {
-
         flex: 1,
-
         backgroundColor: "#f7f7f7",
-
     },
 
 
     scrollContent: {
-
         paddingTop: 8,
-
         paddingBottom: 30,
-
     },
 
 
     header: {
-
         height: 58,
-
         paddingHorizontal: 24,
-
         flexDirection: "row",
-
         alignItems: "center",
-
-        justifyContent: "space-between",
-
-    },
-
-
-    menuButton: {
-
-        width: 40,
-
-        height: 40,
-
-        alignItems: "center",
-
         justifyContent: "center",
-
     },
 
 
     headerTitle: {
-
+        position: "absolute",
+        left: 0,
+        right: 0,
+        textAlign: "center",
         fontSize: 17,
-
         fontWeight: "700",
-
         color: "#8492a8",
-
     },
 
 
     profileButton: {
-
+        position: "absolute",
+        right: 24,
         width: 40,
-
         height: 40,
-
         alignItems: "center",
-
         justifyContent: "center",
-
     },
 
 
     profileImage: {
-
         width: 35,
-
         height: 35,
-
         borderRadius: 18,
-
     },
 
 
     greeting: {
-
         marginTop: 9,
-
         marginLeft: 30,
-
         fontSize: 29,
-
         fontWeight: "800",
-
         color: "#303030",
-
     },
 
 
     searchContainer: {
-
         marginHorizontal: 20,
-
         marginTop: 27,
-
         height: 50,
-
         borderRadius: 26,
-
         backgroundColor: "#ffffff",
-
         flexDirection: "row",
-
         alignItems: "center",
-
         paddingHorizontal: 16,
-
         shadowColor: "#000000",
-
         shadowOffset: {
-
             width: 0,
-
             height: 4,
-
         },
-
         shadowOpacity: 0.15,
-
         shadowRadius: 7,
-
         elevation: 5,
-
     },
 
 
     searchInput: {
-
         flex: 1,
-
         height: 50,
-
         fontSize: 12,
-
         color: "#333333",
-
         paddingHorizontal: 0,
-
     },
 
 
     section: {
-
         marginTop: 39,
-
     },
 
 
     sectionTitle: {
-
         marginLeft: 32,
-
         marginBottom: 12,
-
         fontSize: 19,
-
         fontWeight: "700",
-
         color: "#8492a8",
-
     },
 
 
     filterContainer: {
-
         paddingLeft: 32,
-
         paddingRight: 20,
-
         gap: 8,
-
         marginBottom: 17,
-
     },
 
 
     filterButton: {
-
         height: 29,
-
         paddingHorizontal: 15,
-
         borderRadius: 16,
-
         backgroundColor: "#e7e7e7",
-
         alignItems: "center",
-
         justifyContent: "center",
-
     },
 
 
     filterButtonActive: {
-
         backgroundColor: "#303030",
-
     },
 
 
     filterText: {
-
         fontSize: 10,
-
         color: "#666666",
-
         fontWeight: "500",
-
     },
 
 
     filterTextActive: {
-
         color: "#ffffff",
-
     },
 
 
     cardsContainer: {
-
         paddingLeft: 23,
-
         paddingRight: 10,
-
         gap: 10,
-
     },
 
 
     destinationCard: {
-
         width: 160,
-
         height: 205,
-
         backgroundColor: "#ffffff",
-
         borderRadius: 14,
-
         overflow: "hidden",
-
         shadowColor: "#000000",
-
         shadowOffset: {
-
             width: 0,
-
             height: 5,
-
         },
-
         shadowOpacity: 0.16,
-
         shadowRadius: 8,
-
         elevation: 5,
-
     },
 
 
     cardPressed: {
-
         transform: [
-
             {
-
                 scale: 0.96,
-
             },
-
         ],
+    },
 
+
+    imageWrapper: {
+        width: 150,
+        height: 145,
+        margin: 5,
+        borderRadius: 10,
+        overflow: "hidden",
     },
 
 
     destinationImage: {
-
         width: 150,
-
         height: 145,
-
-        margin: 5,
-
         borderRadius: 10,
-
     },
 
 
     cardInfo: {
-
         paddingHorizontal: 10,
-
         paddingTop: 3,
-
         paddingBottom: 8,
-
     },
 
 
     cardTitle: {
-
         fontSize: 11,
-
         fontWeight: "700",
-
         color: "#333333",
-
         marginBottom: 3,
-
     },
 
 
     cardSubtitle: {
-
         fontSize: 10,
-
         color: "#999999",
-
     },
 
 });

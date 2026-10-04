@@ -49,23 +49,10 @@ export default function TripsScreen() {
 
                 <View style={styles.header}>
 
-                    <Pressable style={styles.menuButton}>
-
-                        <MaterialIcons
-                            name="menu"
-                            size={27}
-                            color="#8492a8"
-                        />
-
-                    </Pressable>
-
 
                     <Text style={styles.headerTitle}>
                         Minhas Viagens
                     </Text>
-
-
-                    <View style={styles.headerSpace} />
 
                 </View>
 
@@ -224,40 +211,21 @@ const styles = StyleSheet.create({
 
     header: {
         height: 58,
-    
         paddingHorizontal: 24,
-    
         flexDirection: "row",
-    
-        alignItems: "center",
-    
-        justifyContent: "space-between",
-    },
-
-
-    menuButton: {
-        width: 40,
-        height: 40,
-
         alignItems: "center",
         justifyContent: "center",
     },
-
-
+    
     headerTitle: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        textAlign: "center",
         fontSize: 17,
-
         fontWeight: "700",
-
         color: "#8492a8",
     },
-
-
-    headerSpace: {
-        width: 40,
-        height: 40,
-    },
-
 
     /* =================================================
        ESTADO VAZIO

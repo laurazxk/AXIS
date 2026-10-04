@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -40,14 +39,14 @@ export default function DurationScreen() {
 
     const wheelRef = useRef<ScrollView>(null);
 
-useEffect(() => {
-    if (mode === "duration") {
-        wheelRef.current?.scrollTo({
-            y: (days - 1) * 56,
-            animated: false,
-        });
-    }
-}, []);
+    useEffect(() => {
+        if (mode === "duration") {
+            wheelRef.current?.scrollTo({
+                y: (days - 1) * 56,
+                animated: false,
+            });
+        }
+    }, []);
 
     const [mode, setMode] = useState<"duration" | "dates">(
         tripDraft.dateMode
@@ -64,7 +63,11 @@ useEffect(() => {
             return new Date(year, month - 1, 1);
         }
 
-        return new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        return new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1
+        );
     });
 
     const [startDate, setStartDate] = useState(tripDraft.startDate);
@@ -79,12 +82,21 @@ useEffect(() => {
         const year = monthDate.getFullYear();
         const month = monthDate.getMonth();
 
-        const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstWeekday =
+            (new Date(year, month, 1).getDay() + 6) % 7;
+
+        const daysInMonth = new Date(
+            year,
+            month + 1,
+            0
+        ).getDate();
 
         return [
             ...Array(firstWeekday).fill(null),
-            ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
+            ...Array.from(
+                { length: daysInMonth },
+                (_, index) => index + 1
+            ),
         ];
     }, [monthDate]);
 
@@ -135,7 +147,9 @@ useEffect(() => {
             const end = new Date(`${endDate}T12:00:00`);
 
             tripDraft.duration =
-                Math.round((end.getTime() - start.getTime()) / 86400000) + 1;
+                Math.round(
+                    (end.getTime() - start.getTime()) / 86400000
+                ) + 1;
         }
 
         router.push("/logic/trips/preferences");
@@ -191,14 +205,16 @@ useEffect(() => {
                         <Pressable
                             style={[
                                 styles.modeButton,
-                                mode === "duration" && styles.modeActive,
+                                mode === "duration" &&
+                                    styles.modeActive,
                             ]}
                             onPress={() => setMode("duration")}
                         >
                             <Text
                                 style={[
                                     styles.modeText,
-                                    mode === "duration" && styles.modeTextActive,
+                                    mode === "duration" &&
+                                        styles.modeTextActive,
                                 ]}
                             >
                                 Indefinido
@@ -208,14 +224,16 @@ useEffect(() => {
                         <Pressable
                             style={[
                                 styles.modeButton,
-                                mode === "dates" && styles.modeActive,
+                                mode === "dates" &&
+                                    styles.modeActive,
                             ]}
                             onPress={() => setMode("dates")}
                         >
                             <Text
                                 style={[
                                     styles.modeText,
-                                    mode === "dates" && styles.modeTextActive,
+                                    mode === "dates" &&
+                                        styles.modeTextActive,
                                 ]}
                             >
                                 Data específica
@@ -231,7 +249,10 @@ useEffect(() => {
                                     size={14}
                                     color="#999999"
                                 />
-                                <Text style={styles.sectionLabelText}>
+
+                                <Text
+                                    style={styles.sectionLabelText}
+                                >
                                     Quantidade de dias
                                 </Text>
                             </View>
@@ -242,81 +263,129 @@ useEffect(() => {
                                     showsVerticalScrollIndicator={false}
                                     snapToInterval={56}
                                     decelerationRate="fast"
-                                    contentContainerStyle={styles.wheelContent}
+                                    contentContainerStyle={
+                                        styles.wheelContent
+                                    }
                                     onMomentumScrollEnd={event => {
-                                        const index = Math.round(
-                                            event.nativeEvent.contentOffset.y / 56
-                                        );
+                                        const index =
+                                            Math.round(
+                                                event.nativeEvent
+                                                    .contentOffset.y / 56
+                                            );
 
                                         setDays(
-                                            Math.max(1, Math.min(60, index + 1))
+                                            Math.max(
+                                                1,
+                                                Math.min(
+                                                    60,
+                                                    index + 1
+                                                )
+                                            )
                                         );
                                     }}
                                     onScrollEndDrag={event => {
-                                        const index = Math.round(
-                                            event.nativeEvent.contentOffset.y / 56
-                                        );
+                                        const index =
+                                            Math.round(
+                                                event.nativeEvent
+                                                    .contentOffset.y / 56
+                                            );
 
                                         setDays(
-                                            Math.max(1, Math.min(60, index + 1))
+                                            Math.max(
+                                                1,
+                                                Math.min(
+                                                    60,
+                                                    index + 1
+                                                )
+                                            )
                                         );
                                     }}
                                     ref={ref => {
                                         if (ref && days > 1) {
                                             ref.scrollTo({
-                                                y: (days - 1) * 56,
+                                                y:
+                                                    (days - 1) *
+                                                    56,
                                                 animated: false,
                                             });
                                         }
                                     }}
                                 >
-                                    {Array.from({ length: 60 }, (_, index) => {
-                                        const day = index + 1;
+                                    {Array.from(
+                                        { length: 60 },
+                                        (_, index) => {
+                                            const day = index + 1;
 
-                                        return (
-                                            <Pressable
-                                                key={day}
-                                                style={styles.wheelItem}
-                                                onPress={() => {
-                                                    setDays(day);
-                                                    wheelRef.current?.scrollTo({
-                                                        y: (day - 1) * 56,
-                                                        animated: true,
-                                                    });
-                                                }}
-                                            >
-                                                <Text
-                                                    style={[
-                                                        styles.wheelNumber,
-                                                        day === days &&
-                                                            styles.wheelNumberActive,
-                                                    ]}
+                                            return (
+                                                <Pressable
+                                                    key={day}
+                                                    style={
+                                                        styles.wheelItem
+                                                    }
+                                                    onPress={() => {
+                                                        setDays(day);
+
+                                                        wheelRef.current?.scrollTo(
+                                                            {
+                                                                y:
+                                                                    (day -
+                                                                        1) *
+                                                                    56,
+                                                                animated: true,
+                                                            }
+                                                        );
+                                                    }}
                                                 >
-                                                    {day}
-                                                </Text>
-                                            </Pressable>
-                                        );
-                                    })}
+                                                    <Text
+                                                        style={[
+                                                            styles.wheelNumber,
+                                                            day ===
+                                                                days &&
+                                                                styles.wheelNumberActive,
+                                                        ]}
+                                                    >
+                                                        {day}
+                                                    </Text>
+                                                </Pressable>
+                                            );
+                                        }
+                                    )}
                                 </ScrollView>
 
                                 <View
                                     pointerEvents="none"
-                                    style={styles.wheelHighlight}
+                                    style={
+                                        styles.wheelHighlight
+                                    }
                                 />
                             </View>
 
-                            <Text style={styles.durationHint}>
-                                {days} {days === 1 ? "dia" : "dias"} de viagem
+                            <Text
+                                style={styles.durationHint}
+                            >
+                                {days}{" "}
+                                {days === 1
+                                    ? "dia"
+                                    : "dias"}{" "}
+                                de viagem
                             </Text>
                         </View>
                     ) : (
                         <View style={styles.calendarSection}>
-                            <Text style={styles.calendarInstruction}>
+                            <Text
+                                style={
+                                    styles.calendarInstruction
+                                }
+                            >
                                 Selecione a ida e a volta
                             </Text>
 
                             <View style={styles.monthHeader}>
-                                <Pressable onPress={() => changeMonth(-1)}>
+                                <Pressable
+                                    onPress={() =>
+                                        changeMonth(-1)
+                                    }
+                                >
                                     <MaterialIcons
                                         name="chevron-left"
                                         size={24}
@@ -324,12 +393,20 @@ useEffect(() => {
                                     />
                                 </Pressable>
 
-                                <Text style={styles.monthTitle}>
-                                    {monthTitle.charAt(0).toUpperCase() +
+                                <Text
+                                    style={styles.monthTitle}
+                                >
+                                    {monthTitle
+                                        .charAt(0)
+                                        .toUpperCase() +
                                         monthTitle.slice(1)}
                                 </Text>
 
-                                <Pressable onPress={() => changeMonth(1)}>
+                                <Pressable
+                                    onPress={() =>
+                                        changeMonth(1)
+                                    }
+                                >
                                     <MaterialIcons
                                         name="chevron-right"
                                         size={24}
@@ -348,75 +425,214 @@ useEffect(() => {
                                     </Text>
                                 ))}
 
-                                {calendarDays.map((day, index) => {
-                                    if (!day) {
+                                {calendarDays.map(
+                                    (day, index) => {
+                                        if (!day) {
+                                            return (
+                                                <View
+                                                    key={`empty-${index}`}
+                                                    style={
+                                                        styles.dayCell
+                                                    }
+                                                />
+                                            );
+                                        }
+
+                                        const value =
+                                            dateKey(
+                                                new Date(
+                                                    monthDate.getFullYear(),
+                                                    monthDate.getMonth(),
+                                                    day
+                                                )
+                                            );
+
+                                        const isStart =
+                                            value === startDate;
+
+                                        const isEnd =
+                                            value === endDate;
+
+                                        const isInRange =
+                                            !!startDate &&
+                                            !!endDate &&
+                                            value >= startDate &&
+                                            value <= endDate;
+
+                                        const today =
+                                            dateKey(
+                                                new Date()
+                                            );
+
+                                        const isPast =
+                                            value < today;
+
+                                        const previousDay =
+                                            new Date(
+                                                monthDate.getFullYear(),
+                                                monthDate.getMonth(),
+                                                day - 1
+                                            );
+
+                                        const nextDay =
+                                            new Date(
+                                                monthDate.getFullYear(),
+                                                monthDate.getMonth(),
+                                                day + 1
+                                            );
+
+                                        const previousValue =
+                                            dateKey(
+                                                previousDay
+                                            );
+
+                                        const nextValue =
+                                            dateKey(nextDay);
+
+                                        const previousInRange =
+                                            !!startDate &&
+                                            !!endDate &&
+                                            previousValue >=
+                                                startDate &&
+                                            previousValue <=
+                                                endDate;
+
+                                        const nextInRange =
+                                            !!startDate &&
+                                            !!endDate &&
+                                            nextValue >=
+                                                startDate &&
+                                            nextValue <=
+                                                endDate;
+
+                                        const showRange =
+                                            isInRange;
+
                                         return (
-                                            <View
-                                                key={`empty-${index}`}
-                                                style={styles.dayCell}
-                                            />
+                                            <Pressable
+                                                key={value}
+                                                disabled={isPast}
+                                                style={
+                                                    styles.dayCell
+                                                }
+                                                onPress={() =>
+                                                    chooseDate(
+                                                        day
+                                                    )
+                                                }
+                                            >
+                                                {showRange && (
+                                                    <View
+                                                        pointerEvents="none"
+                                                        style={[
+                                                            styles.rangeBackground,
+
+                                                            isStart && {
+                                                                left:
+                                                                    "50%",
+                                                                right: 0,
+                                                                borderTopLeftRadius: 0,
+                                                                borderBottomLeftRadius: 0,
+                                                            },
+
+                                                            isEnd && {
+                                                                left: 0,
+                                                                right:
+                                                                    "50%",
+                                                                borderTopRightRadius: 0,
+                                                                borderBottomRightRadius: 0,
+                                                            },
+
+                                                            !isStart &&
+                                                                !isEnd && {
+                                                                    left: 0,
+                                                                    right: 0,
+                                                                    borderRadius: 0,
+                                                                },
+
+                                                            isStart &&
+                                                                !previousInRange && {
+                                                                    borderTopLeftRadius: 20,
+                                                                    borderBottomLeftRadius: 20,
+                                                                },
+
+                                                            isEnd &&
+                                                                !nextInRange && {
+                                                                    borderTopRightRadius: 20,
+                                                                    borderBottomRightRadius: 20,
+                                                                },
+                                                        ]}
+                                                    />
+                                                )}
+
+                                                {(isStart ||
+                                                    isEnd) && (
+                                                    <View
+                                                        pointerEvents="none"
+                                                        style={
+                                                            styles.selectedDayCircle
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.dayTextSelected
+                                                            }
+                                                        >
+                                                            {day}
+                                                        </Text>
+                                                    </View>
+                                                )}
+
+                                                {!isStart &&
+                                                    !isEnd && (
+                                                        <Text
+                                                            style={[
+                                                                styles.dayText,
+                                                                isPast &&
+                                                                    styles.dayPast,
+                                                            ]}
+                                                        >
+                                                            {day}
+                                                        </Text>
+                                                    )}
+                                            </Pressable>
                                         );
                                     }
-
-                                    const value = dateKey(
-                                        new Date(
-                                            monthDate.getFullYear(),
-                                            monthDate.getMonth(),
-                                            day
-                                        )
-                                    );
-
-                                    const isStart = value === startDate;
-                                    const isEnd = value === endDate;
-
-                                    const inRange =
-                                        startDate &&
-                                        endDate &&
-                                        value > startDate &&
-                                        value < endDate;
-
-                                    const today = dateKey(new Date());
-                                    const isPast = value < today;
-
-                                    return (
-                                        <Pressable
-                                            key={value}
-                                            disabled={isPast}
-                                            style={[
-                                                styles.dayCell,
-                                                inRange && styles.dayInRange,
-                                                (isStart || isEnd) &&
-                                                    styles.daySelected,
-                                            ]}
-                                            onPress={() => chooseDate(day)}
-                                        >
-                                            <Text
-                                                style={[
-                                                    styles.dayText,
-                                                    isPast && styles.dayPast,
-                                                    (isStart || isEnd) &&
-                                                        styles.dayTextSelected,
-                                                ]}
-                                            >
-                                                {day}
-                                            </Text>
-                                        </Pressable>
-                                    );
-                                })}
+                                )}
                             </View>
 
-                            <View style={styles.dateSummary}>
-                                <Text style={styles.dateSummaryText}>
-                                    Ida: {displayDate(startDate) || "—"}
+                            <View
+                                style={styles.dateSummary}
+                            >
+                                <Text
+                                    style={
+                                        styles.dateSummaryText
+                                    }
+                                >
+                                    Ida:{" "}
+                                    {displayDate(
+                                        startDate
+                                    ) || "—"}
                                 </Text>
 
-                                <Text style={styles.dateSummaryText}>
-                                    Volta: {displayDate(endDate) || "—"}
+                                <Text
+                                    style={
+                                        styles.dateSummaryText
+                                    }
+                                >
+                                    Volta:{" "}
+                                    {displayDate(
+                                        endDate
+                                    ) || "—"}
                                 </Text>
                             </View>
 
                             {startDate && !endDate && (
-                                <Text style={styles.calendarHint}>
+                                <Text
+                                    style={
+                                        styles.calendarHint
+                                    }
+                                >
                                     Agora selecione a data de volta.
                                 </Text>
                             )}
@@ -432,11 +648,14 @@ useEffect(() => {
                             styles.buttonDisabled,
                     ]}
                     disabled={
-                        mode === "dates" && (!startDate || !endDate)
+                        mode === "dates" &&
+                        (!startDate || !endDate)
                     }
                     onPress={continueToPreferences}
                 >
-                    <Text style={styles.buttonText}>Continuar</Text>
+                    <Text style={styles.buttonText}>
+                        Continuar
+                    </Text>
 
                     <MaterialIcons
                         name="arrow-forward"
@@ -515,7 +734,10 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
         elevation: 3,
         shadowColor: "#000000",
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
         shadowOpacity: 0.08,
         shadowRadius: 7,
     },
@@ -661,7 +883,7 @@ const styles = StyleSheet.create({
         height: 38,
         alignItems: "center",
         justifyContent: "center",
-        borderRadius: 18,
+        position: "relative",
     },
 
     dayText: {
@@ -673,17 +895,26 @@ const styles = StyleSheet.create({
         color: "#cccccc",
     },
 
-    dayInRange: {
-        backgroundColor: "#e8ebef",
-        borderRadius: 0,
+    rangeBackground: {
+        position: "absolute",
+        top: 9,
+        bottom: 9,
+        backgroundColor: "#e9e9e9",
     },
 
-    daySelected: {
-        backgroundColor: "#303030",
+    selectedDayCircle: {
+        width: 27,
+        height: 27,
+        borderRadius: 14,
+        backgroundColor: "#4a4a4a",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 2,
     },
 
     dayTextSelected: {
         color: "#ffffff",
+        fontSize: 11,
         fontWeight: "700",
     },
 
