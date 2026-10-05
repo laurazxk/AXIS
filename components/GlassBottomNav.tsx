@@ -1,12 +1,11 @@
-import React from "react";
 import {
-    View,
-    StyleSheet,
     Pressable,
+    StyleSheet,
+    View,
 } from "react-native";
 
-import { BlurView } from "expo-blur";
 import { MaterialIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { usePathname, useRouter } from "expo-router";
 
 export default function GlassBottomNav() {
@@ -89,7 +88,7 @@ export default function GlassBottomNav() {
 
                 <Pressable
                     style={styles.navItem}
-                    onPress={() => router.push("/logic/home")}
+                    onPress={() => router.push("/logic/trips/expenses")}
                 >
                     <View
                         style={[

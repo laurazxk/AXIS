@@ -1,12 +1,11 @@
-import React from "react";
 
 import {
-    View,
-    Text,
-    StyleSheet,
     Pressable,
-    StatusBar,
     ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,12 +16,15 @@ import { useRouter } from "expo-router";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
 
+import { savedTrips } from "./tripStore";
 
 export default function TripsScreen() {
 
     const router = useRouter();
 
     const insets = useSafeAreaInsets();
+
+    const hasTrips = savedTrips.length > 0;
 
     return (
 
@@ -34,14 +36,14 @@ export default function TripsScreen() {
             />
 
             <ScrollView
-    showsVerticalScrollIndicator={false}
-    contentContainerStyle={[
-        styles.scrollContent,
-        {
-            paddingTop: insets.top + 8,
-        },
-    ]}
->
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    {
+                        paddingTop: insets.top + 8,
+                    },
+                ]}
+            >
 
                 {/* =================================================
                     HEADER
@@ -61,36 +63,53 @@ export default function TripsScreen() {
                     ESTADO VAZIO
                 ================================================= */}
 
-                <View style={styles.emptyContainer}>
+                {!hasTrips && (
+                    <View style={styles.emptyContainer}>
 
-                    <View style={styles.iconCircle}>
+                        <View style={styles.iconCircle}>
 
-                        <MaterialIcons
-                            name="luggage"
-                            size={28}
-                            color="#ffffff"
-                        />
+                            <MaterialIcons
+                                name="luggage"
+                                size={28}
+                                color="#ffffff"
+                            />
+
+                        </View>
+
+
+                        <Text style={styles.emptyTitle}>
+                            Comece a planejar
+                            {"\n"}
+                            sua próxima viagem
+                        </Text>
+
+
+                        <Text style={styles.emptyDescription}>
+                            Crie um roteiro personalizado,
+                            {"\n"}
+                            organize seus gastos e
+                            {"\n"}
+                            convide seus amigos.
+                        </Text>
 
                     </View>
+                )}
 
+                {hasTrips && (
+                    <View style={styles.tripsContainer}>
+                        {savedTrips.map((trip) => (
+                            <View key={trip.id} style={styles.tripCard}>
+                                <Text style={styles.tripDestination}>
+                                    {trip.destination}
+                                </Text>
 
-                    <Text style={styles.emptyTitle}>
-                        Comece a planejar
-                        {"\n"}
-                        sua próxima viagem
-                    </Text>
-
-
-                    <Text style={styles.emptyDescription}>
-                        Crie um roteiro personalizado,
-                        {"\n"}
-                        organize seus gastos e
-                        {"\n"}
-                        convide seus amigos.
-                    </Text>
-
-                </View>
-
+                                <Text style={styles.tripCountry}>
+                                    {trip.country}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
 
                 {/* =================================================
                     CRIAR VIAGEM
@@ -216,7 +235,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
     },
-    
+
     headerTitle: {
         position: "absolute",
         left: 0,
@@ -413,6 +432,38 @@ const styles = StyleSheet.create({
 
     bottomSpace: {
         height: 120,
+    },
+
+    tripsContainer: {
+        marginTop: 30,
+        paddingHorizontal: 30,
+    },
+
+    tripCard: {
+        backgroundColor: "#ffffff",
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 14,
+        shadowColor: "#000000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+
+    tripDestination: {
+        fontSize: 18,
+        fontWeight: "700",
+        color: "#303030",
+        marginBottom: 5,
+    },
+
+    tripCountry: {
+        fontSize: 13,
+        color: "#888888",
     },
 
 });

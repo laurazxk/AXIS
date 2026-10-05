@@ -1,22 +1,23 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import {
-    View,
-    Text,
-    StyleSheet,
+    FlatList,
+    Modal,
     Pressable,
     ScrollView,
     StatusBar,
-    FlatList,
-    Modal,
+    StyleSheet,
+    Text,
     TextInput,
+    View,
 } from "react-native";
 
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tripDraft } from "./tripDraft";
+import { saveTrip } from "./tripStore";
 
 type Activity = {
     id: number;
@@ -786,6 +787,17 @@ export default function ItineraryScreen() {
                     </View>
                 </View>
             </Modal>
+            <Pressable
+                style={styles.finishButton}
+                onPress={() => {
+                    saveTrip();
+                    router.push("/logic/trips");
+                }}
+            >
+                <Text style={styles.finishButtonText}>
+                    Concluir viagem
+                </Text>
+            </Pressable>
         </View>
     );
 }
@@ -1126,5 +1138,21 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: "700",
         color: "#303030",
+    },
+
+    finishButton: {
+    marginTop: 20,
+    marginHorizontal: 20,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#1F2937",
+    },
+
+    finishButtonText: {
+        color: "#FFFFFF",
+        fontSize: 16,
+        fontWeight: "600",
     },
 });
