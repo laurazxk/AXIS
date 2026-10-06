@@ -47,9 +47,7 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Conheça um dos monumentos mais famosos do mundo e aproveite a atmosfera encantadora de Paris.",
-
-        price: "R$300,00",
+            "Explore Paris, uma cidade repleta de história, cultura e charme, conhecida por seus cafés, ruas encantadoras e pela icônica Torre Eiffel.",
 
         rating: "★★★★☆",
 
@@ -75,9 +73,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Explore um dos maiores símbolos da Roma Antiga e conheça de perto sua história milenar.",
+            "Conheça Roma, uma cidade marcada pela história, arquitetura e cultura, com lugares incríveis como o Coliseu e o Fórum Romano.",
 
-        price: "R$280,00",
 
         rating: "★★★★★",
 
@@ -103,9 +100,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Visite um dos principais símbolos de Londres e descubra a história e a cultura britânica.",
+            "Descubra Londres, uma cidade vibrante que combina história, cultura e modernidade, com atrações como o Big Ben e o Palácio de Westminster.",
 
-        price: "R$350,00",
 
         rating: "★★★★☆",
 
@@ -131,9 +127,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Conheça um dos maiores símbolos dos Estados Unidos e admire a vista de Nova York.",
+            "Explore Nova York, uma cidade cheia de energia, cultura e atrações famosas, como a Estátua da Liberdade, a Times Square e o Central Park.",
 
-        price: "R$420,00",
 
         rating: "★★★★★",
 
@@ -159,9 +154,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Visite um dos cartões-postais mais famosos do Brasil e aproveite uma vista incrível do Rio de Janeiro.",
+            "Conheça o Rio de Janeiro, famoso por suas praias, paisagens e cultura, com destaque para o Cristo Redentor e o Pão de Açúcar.",
 
-        price: "R$180,00",
 
         rating: "★★★★★",
 
@@ -187,9 +181,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Conheça o edifício mais alto do mundo e tenha uma experiência inesquecível em Dubai.",
+            "Descubra Dubai, uma cidade moderna e impressionante, conhecida por sua arquitetura, praias, compras e pelo enorme Burj Khalifa.",
 
-        price: "R$500,00",
 
         rating: "★★★★★",
 
@@ -215,9 +208,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Descubra as paisagens paradisíacas, casas brancas e o famoso pôr do sol de Santorini.",
+            "Explore Santorini, uma ilha grega conhecida por suas casas brancas, paisagens sobre o mar e pôr do sol inesquecível.",
 
-        price: "R$450,00",
 
         rating: "★★★★★",
 
@@ -243,9 +235,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Conheça uma das construções mais impressionantes da Índia e um dos monumentos mais famosos do mundo.",
+            "Conheça Agra, uma cidade histórica da Índia que guarda importantes monumentos, com destaque para o grandioso Taj Mahal.",
 
-        price: "R$380,00",
 
         rating: "★★★★★",
 
@@ -271,9 +262,7 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Explore as antigas ruínas incas cercadas pelas impressionantes montanhas dos Andes.",
-
-        price: "R$550,00",
+            "Explore Machu Picchu, um dos destinos mais impressionantes do Peru, cercado pelas montanhas dos Andes e pela história dos povos incas.",
 
         rating: "★★★★★",
 
@@ -299,9 +288,8 @@ const destinations: Record<string, any> = {
         ],
 
         description:
-            "Conheça uma das cidades mais famosas da Austrália, com belas praias, arquitetura e paisagens.",
+            "Descubra Sydney, uma das cidades mais famosas da Austrália, com praias, cultura, arquitetura e atrações como a Ópera de Sydney.",
 
-        price: "R$600,00",
 
         rating: "★★★★☆",
 
@@ -562,13 +550,7 @@ export default function DestinationScreen() {
 
                         <View>
 
-                            <Text
-                                style={
-                                    styles.price
-                                }
-                            >
-                                {destination.price}
-                            </Text>
+                            
 
 
                             <Text
@@ -835,13 +817,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
 
-    price: {
-        fontSize: 24,
-
-        fontWeight: "800",
-
-        color: "#303030",
-    },
+   
 
     perPerson: {
         marginTop: 4,
