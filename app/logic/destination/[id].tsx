@@ -553,13 +553,7 @@ export default function DestinationScreen() {
                             
 
 
-                            <Text
-                                style={
-                                    styles.perPerson
-                                }
-                            >
-                                Por Pessoa
-                            </Text>
+                            
 
                         </View>
 

@@ -28,7 +28,7 @@ const destinations = [
 
     {
         id: "torre-eiffel",
-        title: "Torre Eiffel",
+        title: "Paris",
         location: "Paris, França",
         category: "Cidade",
         image: require("../../assets/images/torreeiffel.jpg"),
@@ -44,7 +44,7 @@ const destinations = [
 
     {
         id: "big-ben",
-        title: "Big Ben",
+        title: "Londres",
         location: "Londres, Inglaterra",
         category: "Cidade",
         image: require("../../assets/images/bigben.jpg"),
@@ -52,7 +52,7 @@ const destinations = [
 
     {
         id: "estatua-liberdade",
-        title: "Estátua da Liberdade",
+        title: "Nova York",
         location: "Nova York, EUA",
         category: "Cidade",
         image: require("../../assets/images/libertystatue.jpg"),
@@ -60,7 +60,7 @@ const destinations = [
 
     {
         id: "cristo-redentor",
-        title: "Cristo Redentor",
+        title: "Rio de Janeiro",
         location: "Rio de Janeiro, Brasil",
         category: "Cidade",
         image: require("../../assets/images/cristo.jpg"),
@@ -68,7 +68,7 @@ const destinations = [
 
     {
         id: "burj-khalifa",
-        title: "Burj Khalifa",
+        title: "Dubai",
         location: "Dubai, Emirados Árabes",
         category: "Cidade",
         image: require("../../assets/images/burjkhalifa.jpg"),
