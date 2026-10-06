@@ -1,5 +1,7 @@
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+
 import { useState } from "react";
+
 import {
     Pressable,
     StyleSheet,
@@ -8,17 +10,26 @@ import {
     View,
 } from "react-native";
 
+import { savedTrips } from "../trips/tripStore";
+
 export default function NewExpenseScreen() {
     const router = useRouter();
 
+    const { id } = useLocalSearchParams<{ id: string }>();
+
     const [value, setValue] = useState(0);
     const [people, setPeople] = useState(1);
-    const [selectedColor, setSelectedColor] = useState("red");
+    const [selectedColor, setSelectedColor] =
+        useState("red");
+    const [name, setName] = useState("");
 
-    const perPerson = value / people;
+    const [currency, setCurrency] =
+        useState("BRL");
 
     function handleValueChange(text: string) {
-        const number = Number(text.replace(",", "."));
+        const number = Number(
+            text.replace(",", ".")
+        );
 
         if (isNaN(number)) {
             setValue(0);
@@ -28,10 +39,40 @@ export default function NewExpenseScreen() {
         setValue(number);
     }
 
+    function handleAddExpense() {
+        const trip = savedTrips.find(
+            (item) => item.id === id
+        );
+
+        if (!trip || !name.trim() || value <= 0) {
+            return;
+        }
+
+        const expense = {
+            id: Date.now().toString(),
+            name: name.trim(),
+            value,
+            currency,
+            color: selectedColor,
+            people,
+            perPerson: value / people,
+        };
+
+        if (!trip.expenses) {
+            trip.expenses = [];
+        }
+
+        trip.expenses.push(expense);
+
+        router.back();
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Pressable onPress={() => router.back()}>
+                <Pressable
+                    onPress={() => router.back()}
+                >
                     <Text style={styles.cancelText}>
                         Cancelar
                     </Text>
@@ -41,7 +82,9 @@ export default function NewExpenseScreen() {
                     Nova Despesa
                 </Text>
 
-                <Pressable>
+                <Pressable
+                    onPress={handleAddExpense}
+                >
                     <Text style={styles.addText}>
                         Adicionar
                     </Text>
@@ -53,14 +96,87 @@ export default function NewExpenseScreen() {
                     Valor
                 </Text>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder="R$ 0,00"
-                    keyboardType="numeric"
-                    placeholderTextColor="#999999"
-                    value={value === 0 ? "" : String(value)}
-                    onChangeText={handleValueChange}
-                />
+                <View style={styles.valueRow}>
+                    <TextInput
+                        style={styles.valueInput}
+                        placeholder="0,00"
+                        keyboardType="numeric"
+                        placeholderTextColor="#999999"
+                        value={
+                            value === 0
+                                ? ""
+                                : String(value)
+                        }
+                        onChangeText={
+                            handleValueChange
+                        }
+                    />
+
+                    <View style={styles.currencyRow}>
+                        <Pressable
+                            onPress={() =>
+                                setCurrency("BRL")
+                            }
+                            style={[
+                                styles.currencyButton,
+                                currency === "BRL" &&
+                                    styles.selectedCurrency,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.currencyText,
+                                    currency === "BRL" &&
+                                        styles.selectedCurrencyText,
+                                ]}
+                            >
+                                BRL
+                            </Text>
+                        </Pressable>
+
+                        <Pressable
+                            onPress={() =>
+                                setCurrency("EUR")
+                            }
+                            style={[
+                                styles.currencyButton,
+                                currency === "EUR" &&
+                                    styles.selectedCurrency,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.currencyText,
+                                    currency === "EUR" &&
+                                        styles.selectedCurrencyText,
+                                ]}
+                            >
+                                EUR
+                            </Text>
+                        </Pressable>
+
+                        <Pressable
+                            onPress={() =>
+                                setCurrency("USD")
+                            }
+                            style={[
+                                styles.currencyButton,
+                                currency === "USD" &&
+                                    styles.selectedCurrency,
+                            ]}
+                        >
+                            <Text
+                                style={[
+                                    styles.currencyText,
+                                    currency === "USD" &&
+                                        styles.selectedCurrencyText,
+                                ]}
+                            >
+                                USD
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
 
                 <Text style={styles.label}>
                     Nome
@@ -70,6 +186,8 @@ export default function NewExpenseScreen() {
                     style={styles.input}
                     placeholder="Ex: Compras"
                     placeholderTextColor="#999999"
+                    value={name}
+                    onChangeText={setName}
                 />
 
                 <Text style={styles.label}>
@@ -78,41 +196,52 @@ export default function NewExpenseScreen() {
 
                 <View style={styles.colorRow}>
                     <Pressable
-                        onPress={() => setSelectedColor("red")}
+                        onPress={() =>
+                            setSelectedColor("red")
+                        }
                         style={[
                             styles.color,
                             styles.red,
-                            selectedColor === "red" && styles.selectedColor,
+                            selectedColor === "red" &&
+                                styles.selectedColor,
                         ]}
                     />
 
                     <Pressable
-                        onPress={() => setSelectedColor("blue")}
+                        onPress={() =>
+                            setSelectedColor("blue")
+                        }
                         style={[
                             styles.color,
                             styles.blue,
-                            selectedColor === "blue" && styles.selectedColor,
+                            selectedColor === "blue" &&
+                                styles.selectedColor,
                         ]}
                     />
 
                     <Pressable
-                        onPress={() => setSelectedColor("green")}
+                        onPress={() =>
+                            setSelectedColor("green")
+                        }
                         style={[
                             styles.color,
                             styles.green,
-                            selectedColor === "green" && styles.selectedColor,
+                            selectedColor === "green" &&
+                                styles.selectedColor,
                         ]}
                     />
 
                     <Pressable
-                        onPress={() => setSelectedColor("yellow")}
+                        onPress={() =>
+                            setSelectedColor("yellow")
+                        }
                         style={[
                             styles.color,
                             styles.yellow,
-                            selectedColor === "yellow" && styles.selectedColor,
+                            selectedColor === "yellow" &&
+                                styles.selectedColor,
                         ]}
                     />
-                    
                 </View>
 
                 <Text style={styles.label}>
@@ -124,31 +253,48 @@ export default function NewExpenseScreen() {
                         Dividir entre
                     </Text>
 
-                    <View style={styles.peopleSelector}>
+                    <View
+                        style={styles.peopleSelector}
+                    >
                         <Pressable
                             onPress={() =>
                                 setPeople(
-                                    Math.max(1, people - 1)
+                                    Math.max(
+                                        1,
+                                        people - 1
+                                    )
                                 )
                             }
                             style={styles.peopleButton}
                         >
-                            <Text style={styles.peopleButtonText}>
+                            <Text
+                                style={
+                                    styles.peopleButtonText
+                                }
+                            >
                                 −
                             </Text>
                         </Pressable>
 
-                        <Text style={styles.peopleNumber}>
+                        <Text
+                            style={styles.peopleNumber}
+                        >
                             {people}
                         </Text>
 
                         <Pressable
                             onPress={() =>
-                                setPeople(people + 1)
+                                setPeople(
+                                    people + 1
+                                )
                             }
                             style={styles.peopleButton}
                         >
-                            <Text style={styles.peopleButtonText}>
+                            <Text
+                                style={
+                                    styles.peopleButtonText
+                                }
+                            >
                                 +
                             </Text>
                         </Pressable>
@@ -159,7 +305,11 @@ export default function NewExpenseScreen() {
                     </Text>
 
                     <Text style={styles.perPerson}>
-                        R$ {(Number(value) / Number(people)).toFixed(2).replace(".", ",")} por pessoa
+                        {currency}{" "}
+                        {(value / people)
+                            .toFixed(2)
+                            .replace(".", ",")}{" "}
+                        por pessoa
                     </Text>
                 </View>
             </View>
@@ -208,6 +358,50 @@ const styles = StyleSheet.create({
         color: "#303030",
         marginBottom: 8,
         marginTop: 20,
+    },
+
+    valueRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+    },
+
+    valueInput: {
+        flex: 1,
+        height: 52,
+        backgroundColor: "#ffffff",
+        borderRadius: 14,
+        paddingHorizontal: 16,
+        fontSize: 16,
+        color: "#303030",
+    },
+
+    currencyRow: {
+        flexDirection: "row",
+        gap: 6,
+    },
+
+    currencyButton: {
+        height: 52,
+        paddingHorizontal: 12,
+        borderRadius: 14,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    selectedCurrency: {
+        backgroundColor: "#303030",
+    },
+
+    currencyText: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: "#777777",
+    },
+
+    selectedCurrencyText: {
+        color: "#ffffff",
     },
 
     input: {
@@ -303,5 +497,4 @@ const styles = StyleSheet.create({
         fontSize: 13,
         color: "#888888",
     },
-
 });

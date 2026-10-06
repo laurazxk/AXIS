@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
+
 import {
     Pressable,
     ScrollView,
@@ -6,13 +7,165 @@ import {
     Text,
     View,
 } from "react-native";
+
+import { MaterialIcons } from "@expo/vector-icons";
+import Svg, { Path } from "react-native-svg";
+
 import { savedTrips } from "../trips/tripStore";
 
+type ExpenseGroup = {
+    key: string;
+    name: string;
+    color: string;
+    currency: string;
+    value: number;
+};
+
+const PIE_COLORS: Record<string, string> = {
+    red: "#E57373",
+    blue: "#6C8CFF",
+    green: "#7BCFA6",
+    yellow: "#F2C94C",
+};
+
+function getColor(color: string) {
+    return PIE_COLORS[color] || "#999999";
+}
+
+function formatMoney(value: number) {
+    return new Intl.NumberFormat("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(value);
+}
+
+function polarToCartesian(
+    centerX: number,
+    centerY: number,
+    radius: number,
+    angleInDegrees: number
+) {
+    const angleInRadians =
+        ((angleInDegrees - 90) * Math.PI) / 180;
+
+    return {
+        x:
+            centerX +
+            radius * Math.cos(angleInRadians),
+        y:
+            centerY +
+            radius * Math.sin(angleInRadians),
+    };
+}
+
+function createPieSlicePath(
+    centerX: number,
+    centerY: number,
+    radius: number,
+    startAngle: number,
+    endAngle: number
+) {
+    const start = polarToCartesian(
+        centerX,
+        centerY,
+        radius,
+        endAngle
+    );
+
+    const end = polarToCartesian(
+        centerX,
+        centerY,
+        radius,
+        startAngle
+    );
+
+    const largeArcFlag =
+        endAngle - startAngle > 180 ? 1 : 0;
+
+    return [
+        `M ${centerX} ${centerY}`,
+        `L ${start.x} ${start.y}`,
+        `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+        "Z",
+    ].join(" ");
+}
+
 export default function ExpenseTripScreen() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    const { id } = useLocalSearchParams<{
+        id: string;
+    }>();
+
     const router = useRouter();
 
-    const trip = savedTrips.find((item) => item.id === id);
+    const trip = savedTrips.find(
+        (item) => item.id === id
+    );
+
+    const expenses = trip?.expenses ?? [];
+
+    /*
+     * Agrupa despesas com:
+     * mesmo nome + mesma cor + mesma moeda.
+     *
+     * Exemplo:
+     * Compras + verde + BRL = R$ 5
+     * Compras + verde + BRL = R$ 3
+     *
+     * Resultado:
+     * Compras + verde + BRL = R$ 8
+     */
+    const groupedExpenses =
+        expenses.reduce<ExpenseGroup[]>(
+            (groups, expense) => {
+                const currency =
+                    expense.currency ||
+                    trip?.budgetCurrency ||
+                    "BRL";
+
+                const key = `${expense.name.trim().toLowerCase()}-${expense.color}-${currency}`;
+
+                const existingGroup =
+                    groups.find(
+                        (group) =>
+                            group.key === key
+                    );
+
+                if (existingGroup) {
+                    existingGroup.value +=
+                        expense.value;
+                } else {
+                    groups.push({
+                        key,
+                        name: expense.name.trim(),
+                        color: expense.color,
+                        currency,
+                        value: expense.value,
+                    });
+                }
+
+                return groups;
+            },
+            []
+        );
+
+    const totalSpent = expenses.reduce(
+        (total, expense) =>
+            total + expense.value,
+        0
+    );
+
+    const totalForPie =
+        groupedExpenses.reduce(
+            (total, expense) =>
+                total + expense.value,
+            0
+        );
+
+    const pieSize = 230;
+    const center = pieSize / 2;
+    const radius = 105;
+
+    let currentAngle = 0;
 
     return (
         <View style={styles.container}>
@@ -25,12 +178,15 @@ export default function ExpenseTripScreen() {
                         onPress={() => router.back()}
                         style={styles.backButton}
                     >
-                        <Text style={styles.backText}>‹</Text>
+                        <Text style={styles.backText}>
+                            ‹
+                        </Text>
                     </Pressable>
 
                     <View>
                         <Text style={styles.title}>
-                            {trip?.destination || "Viagem"}
+                            {trip?.destination ||
+                                "Viagem"}
                         </Text>
 
                         <Text style={styles.country}>
@@ -40,79 +196,305 @@ export default function ExpenseTripScreen() {
                 </View>
 
                 <Text style={styles.sectionTitle}>
-                    Métricas Diárias
+                    Orçamento e gastos por dia
                 </Text>
 
-                <View style={styles.metricsContainer}>
+                <View
+                    style={styles.metricsContainer}
+                >
                     <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>
+                        <Text
+                            style={styles.metricLabel}
+                        >
                             Orçamento Total
                         </Text>
 
-                        <Text style={styles.metricValue}>
-                            R$ 10.000,00
+                        <Text
+                            style={styles.metricValue}
+                        >
+                            {trip?.budgetCurrency ||
+                                "BRL"}{" "}
+
+                            {trip?.budget
+                                ? formatMoney(
+                                      Number(
+                                          trip.budget
+                                      )
+                                  )
+                                : "Não informado"}
                         </Text>
                     </View>
 
                     <View style={styles.metricCard}>
-                        <Text style={styles.metricLabel}>
+                        <Text
+                            style={styles.metricLabel}
+                        >
                             Média Diária
                         </Text>
 
-                        <Text style={styles.metricValue}>
-                            R$ 2.500,00
+                        <Text
+                            style={styles.metricValue}
+                        >
+                            {trip?.budget &&
+                            trip.duration
+                                ? `${trip.budgetCurrency} ${formatMoney(
+                                      Number(
+                                          trip.budget
+                                      ) /
+                                          trip.duration
+                                  )}`
+                                : "Não informado"}
+                        </Text>
+                    </View>
+
+                    <View style={styles.metricCard}>
+                        <Text
+                            style={styles.metricLabel}
+                        >
+                            Total Gasto
+                        </Text>
+
+                        <Text
+                            style={styles.metricValue}
+                        >
+                            {trip?.budgetCurrency ||
+                                "BRL"}{" "}
+
+                            {formatMoney(totalSpent)}
                         </Text>
                     </View>
                 </View>
 
                 <View style={styles.chartCard}>
                     <Text style={styles.chartTitle}>
-                        Distribuição dos gastos
+                        Gastos por categoria
                     </Text>
 
-                    <View style={styles.chart}>
-                        <View style={styles.chartTop} />
-                        <View style={styles.chartRight} />
-                        <View style={styles.chartBottom} />
-                        <View style={styles.chartLeft} />
-                    </View>
+                    {groupedExpenses.length > 0 ? (
+                        <>
+                            <View
+                                style={
+                                    styles.pieContainer
+                                }
+                            >
+                                <Svg
+                                    width={pieSize}
+                                    height={pieSize}
+                                    viewBox={`0 0 ${pieSize} ${pieSize}`}
+                                >
+                                    {groupedExpenses.map(
+                                        (expense) => {
+                                            const percentage =
+                                                expense.value /
+                                                totalForPie;
 
-                    <View style={styles.legend}>
-                        <View style={styles.legendItem}>
-                            <View style={[styles.dot, styles.dotBlue]} />
-                            <Text style={styles.legendText}>
-                                Passagem 33%
+                                            const angle =
+                                                percentage *
+                                                360;
+
+                                            const startAngle =
+                                                currentAngle;
+
+                                            const endAngle =
+                                                currentAngle +
+                                                angle;
+
+                                            currentAngle =
+                                                endAngle;
+
+                                            /*
+                                             * Caso exista apenas
+                                             * uma categoria, usamos
+                                             * um círculo completo.
+                                             */
+                                            if (
+                                                groupedExpenses.length ===
+                                                    1 ||
+                                                angle >=
+                                                    359.99
+                                            ) {
+                                                return (
+                                                    <Path
+                                                        key={
+                                                            expense.key
+                                                        }
+                                                        d={`
+                                                            M ${center} ${center}
+                                                            m -${radius}, 0
+                                                            a ${radius},${radius} 0 1,0 ${radius * 2},0
+                                                            a ${radius},${radius} 0 1,0 -${radius * 2},0
+                                                        `}
+                                                        fill={getColor(
+                                                            expense.color
+                                                        )}
+                                                    />
+                                                );
+                                            }
+
+                                            return (
+                                                <Path
+                                                    key={
+                                                        expense.key
+                                                    }
+                                                    d={createPieSlicePath(
+                                                        center,
+                                                        center,
+                                                        radius,
+                                                        startAngle,
+                                                        endAngle
+                                                    )}
+                                                    fill={getColor(
+                                                        expense.color
+                                                    )}
+                                                />
+                                            );
+                                        }
+                                    )}
+                                </Svg>
+                            </View>
+
+                            <View
+                                style={
+                                    styles.legend
+                                }
+                            >
+                                {groupedExpenses.map(
+                                    (expense) => {
+                                        const percentage =
+                                            totalForPie >
+                                            0
+                                                ? (expense.value /
+                                                      totalForPie) *
+                                                  100
+                                                : 0;
+
+                                        return (
+                                            <View
+                                                key={
+                                                    expense.key
+                                                }
+                                                style={
+                                                    styles.legendItem
+                                                }
+                                            >
+                                                <View
+                                                    style={[
+                                                        styles.legendColor,
+                                                        {
+                                                            backgroundColor:
+                                                                getColor(
+                                                                    expense.color
+                                                                ),
+                                                        },
+                                                    ]}
+                                                />
+
+                                                <View
+                                                    style={
+                                                        styles.legendInfo
+                                                    }
+                                                >
+                                                    <Text
+                                                        style={
+                                                            styles.legendName
+                                                        }
+                                                    >
+                                                        {
+                                                            expense.name
+                                                        }
+                                                    </Text>
+
+                                                    <Text
+                                                        style={
+                                                            styles.legendPercentage
+                                                        }
+                                                    >
+                                                        {percentage
+                                                            .toFixed(
+                                                                1
+                                                            )
+                                                            .replace(
+                                                                ".",
+                                                                ","
+                                                            )}
+                                                        %
+                                                    </Text>
+                                                </View>
+
+                                                <Text
+                                                    style={
+                                                        styles.legendValue
+                                                    }
+                                                >
+                                                    {
+                                                        expense.currency
+                                                    }{" "}
+                                                    {formatMoney(
+                                                        expense.value
+                                                    )}
+                                                </Text>
+                                            </View>
+                                        );
+                                    }
+                                )}
+                            </View>
+                        </>
+                    ) : (
+                        <View
+                            style={styles.emptyChart}
+                        >
+                            <View
+                                style={
+                                    styles.emptyChartIcon
+                                }
+                            >
+                                <MaterialIcons
+                                    name="attach-money"
+                                    size={30}
+                                    color="#999999"
+                                />
+                            </View>
+
+                            <Text
+                                style={
+                                    styles.emptyChartTitle
+                                }
+                            >
+                                Nenhuma despesa
+                                registrada
+                            </Text>
+
+                            <Text
+                                style={
+                                    styles.emptyChartText
+                                }
+                            >
+                                Adicione uma despesa
+                                para começar a
+                                acompanhar seus
+                                gastos.
                             </Text>
                         </View>
-
-                        <View style={styles.legendItem}>
-                            <View style={[styles.dot, styles.dotGreen]} />
-                            <Text style={styles.legendText}>
-                                Hospedagem 29%
-                            </Text>
-                        </View>
-
-                        <View style={styles.legendItem}>
-                            <View style={[styles.dot, styles.dotYellow]} />
-                            <Text style={styles.legendText}>
-                                Alimentação 21%
-                            </Text>
-                        </View>
-
-                        <View style={styles.legendItem}>
-                            <View style={[styles.dot, styles.dotPurple]} />
-                            <Text style={styles.legendText}>
-                                Passeios 17%
-                            </Text>
-                        </View>
-                    </View>
+                    )}
                 </View>
 
                 <Pressable
                     style={styles.addButton}
-                    onPress={() => router.push("/logic/expenses/new")}
+                    onPress={() =>
+                        router.push({
+                            pathname:
+                                "/logic/expenses/new",
+                            params: {
+                                id: trip?.id,
+                            },
+                        })
+                    }
                 >
-                    <Text style={styles.addButtonText}>
+                    <Text
+                        style={
+                            styles.addButtonText
+                        }
+                    >
                         + Adicionar Despesa
                     </Text>
                 </Pressable>
@@ -209,105 +591,95 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "700",
         color: "#303030",
-        marginBottom: 18,
+        marginBottom: 10,
     },
 
-    expenseRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: "#eeeeee",
-    },
-
-    chart: {
-        width: 180,
-        height: 180,
-        borderRadius: 90,
-        alignSelf: "center",
-        marginBottom: 24,
-        overflow: "hidden",
-        position: "relative",
-    },
-
-    chartTop: {
-        position: "absolute",
-        width: "100%",
-        height: "50%",
-        backgroundColor: "#6C8CFF",
-        top: 0,
-        left: 0,
-    },
-
-    chartRight: {
-        position: "absolute",
-        width: "50%",
-        height: "50%",
-        backgroundColor: "#7BCFA6",
-        top: "50%",
-        right: 0,
-    },
-
-    chartBottom: {
-        position: "absolute",
-        width: "50%",
-        height: "50%",
-        backgroundColor: "#F2C94C",
-        bottom: 0,
-        left: 0,
-    },
-
-    chartLeft: {
-        position: "absolute",
-        width: "50%",
-        height: "50%",
-        backgroundColor: "#B58CFF",
-        top: "50%",
-        left: 0,
+    pieContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 4,
+        marginBottom: 14,
     },
 
     legend: {
-        gap: 10,
+        marginTop: 4,
     },
 
     legendItem: {
         flexDirection: "row",
         alignItems: "center",
+        paddingVertical: 10,
+        borderTopWidth: 1,
+        borderTopColor: "#eeeeee",
     },
 
-    dot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        marginRight: 8,
+    legendColor: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
+        marginRight: 10,
     },
 
-    dotBlue: {
-        backgroundColor: "#6C8CFF",
+    legendInfo: {
+        flex: 1,
     },
 
-    dotGreen: {
-        backgroundColor: "#7BCFA6",
+    legendName: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#303030",
     },
 
-    dotYellow: {
-        backgroundColor: "#F2C94C",
+    legendPercentage: {
+        marginTop: 3,
+        fontSize: 11,
+        color: "#999999",
     },
 
-    dotPurple: {
-        backgroundColor: "#B58CFF",
+    legendValue: {
+        fontSize: 14,
+        fontWeight: "700",
+        color: "#303030",
     },
 
-    legendText: {
-        fontSize: 13,
+    emptyChart: {
+        minHeight: 180,
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: 20,
+    },
+
+    emptyChartIcon: {
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: "#f0f0f0",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 14,
+    },
+
+    emptyChartTitle: {
+        fontSize: 15,
+        fontWeight: "700",
         color: "#555555",
+        textAlign: "center",
+    },
+
+    emptyChartText: {
+        marginTop: 6,
+        fontSize: 12,
+        lineHeight: 18,
+        color: "#999999",
+        textAlign: "center",
+        maxWidth: 240,
     },
 
     addButton: {
         marginTop: 24,
-        backgroundColor: "#303030",
-        borderRadius: 16,
-        paddingVertical: 16,
+        backgroundColor: "#000000",
+        borderRadius: 40,
+        paddingVertical: 18,
         alignItems: "center",
     },
 
