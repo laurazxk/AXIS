@@ -10,7 +10,6 @@ import {
 
 import { MaterialIcons } from "@expo/vector-icons";
 import Svg, { Path } from "react-native-svg";
-
 import { savedTrips } from "../trips/tripStore";
 
 type ExpenseGroup = {
@@ -29,6 +28,10 @@ const PIE_COLORS: Record<string, string> = {
 };
 
 function getColor(color: string) {
+    if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+        return color;
+    }
+
     return PIE_COLORS[color] || "#999999";
 }
 
@@ -37,6 +40,13 @@ function formatMoney(value: number) {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     }).format(value);
+}
+
+// Formatação usada apenas nos 3 cards.
+// Mantém o valor calculado com centavos,
+// mas remove os centavos somente na exibição.
+function formatMetricMoney(value: number) {
+    return Math.trunc(value).toLocaleString("pt-BR");
 }
 
 function polarToCartesian(
@@ -114,6 +124,7 @@ export default function ExpenseTripScreen() {
      * Resultado:
      * Compras + verde + BRL = R$ 8
      */
+
     const groupedExpenses =
         expenses.reduce<ExpenseGroup[]>(
             (groups, expense) => {
@@ -199,9 +210,7 @@ export default function ExpenseTripScreen() {
                     Orçamento e gastos por dia
                 </Text>
 
-                <View
-                    style={styles.metricsContainer}
-                >
+                <View style={styles.metricsContainer}>
                     <View style={styles.metricCard}>
                         <Text
                             style={styles.metricLabel}
@@ -214,9 +223,8 @@ export default function ExpenseTripScreen() {
                         >
                             {trip?.budgetCurrency ||
                                 "BRL"}{" "}
-
                             {trip?.budget
-                                ? formatMoney(
+                                ? formatMetricMoney(
                                       Number(
                                           trip.budget
                                       )
@@ -237,7 +245,7 @@ export default function ExpenseTripScreen() {
                         >
                             {trip?.budget &&
                             trip.duration
-                                ? `${trip.budgetCurrency} ${formatMoney(
+                                ? `${trip.budgetCurrency} ${formatMetricMoney(
                                       Number(
                                           trip.budget
                                       ) /
@@ -259,8 +267,9 @@ export default function ExpenseTripScreen() {
                         >
                             {trip?.budgetCurrency ||
                                 "BRL"}{" "}
-
-                            {formatMoney(totalSpent)}
+                            {formatMetricMoney(
+                                totalSpent
+                            )}
                         </Text>
                     </View>
                 </View>
@@ -307,6 +316,7 @@ export default function ExpenseTripScreen() {
                                              * uma categoria, usamos
                                              * um círculo completo.
                                              */
+
                                             if (
                                                 groupedExpenses.length ===
                                                     1 ||

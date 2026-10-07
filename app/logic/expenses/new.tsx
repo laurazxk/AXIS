@@ -1,3 +1,5 @@
+import { BlurView } from "expo-blur";
+
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { useState } from "react";
@@ -10,6 +12,12 @@ import {
     View,
 } from "react-native";
 
+import ColorPicker, {
+    HueSlider,
+    Panel1,
+    Preview,
+} from "reanimated-color-picker";
+
 import { savedTrips } from "../trips/tripStore";
 
 export default function NewExpenseScreen() {
@@ -18,18 +26,26 @@ export default function NewExpenseScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
 
     const [value, setValue] = useState(0);
+
     const [people, setPeople] = useState(1);
-    const [selectedColor, setSelectedColor] =
-        useState("red");
+
+    const [selectedColor, setSelectedColor] = useState("red");
+
     const [name, setName] = useState("");
 
-    const [currency, setCurrency] =
-        useState("BRL");
+    const [currency, setCurrency] = useState("BRL");
+
+    const [showColorPicker, setShowColorPicker] = useState(false);
+
+    const [customColors, setCustomColors] = useState<string[]>([]);
+
+    const [showCustomColorPicker, setShowCustomColorPicker] =
+        useState(false);
+
+    const [customColor, setCustomColor] = useState("#8B5CF6");
 
     function handleValueChange(text: string) {
-        const number = Number(
-            text.replace(",", ".")
-        );
+        const number = Number(text.replace(",", "."));
 
         if (isNaN(number)) {
             setValue(0);
@@ -67,12 +83,31 @@ export default function NewExpenseScreen() {
         router.back();
     }
 
+    function handleSaveCustomColor() {
+        const color = customColor.trim();
+
+        if (!/^#[0-9A-Fa-f]{6}$/.test(color)) {
+            return;
+        }
+
+        const formattedColor = color.toUpperCase();
+
+        setCustomColors((current) => [
+            ...current,
+            formattedColor,
+        ]);
+
+        setSelectedColor(formattedColor);
+
+        setShowCustomColorPicker(false);
+
+        setShowColorPicker(true);
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Pressable
-                    onPress={() => router.back()}
-                >
+                <Pressable onPress={() => router.back()}>
                     <Text style={styles.cancelText}>
                         Cancelar
                     </Text>
@@ -82,9 +117,7 @@ export default function NewExpenseScreen() {
                     Nova Despesa
                 </Text>
 
-                <Pressable
-                    onPress={handleAddExpense}
-                >
+                <Pressable onPress={handleAddExpense}>
                     <Text style={styles.addText}>
                         Adicionar
                     </Text>
@@ -107,9 +140,7 @@ export default function NewExpenseScreen() {
                                 ? ""
                                 : String(value)
                         }
-                        onChangeText={
-                            handleValueChange
-                        }
+                        onChangeText={handleValueChange}
                     />
 
                     <View style={styles.currencyRow}>
@@ -242,7 +273,384 @@ export default function NewExpenseScreen() {
                                 styles.selectedColor,
                         ]}
                     />
+
+                    <Pressable
+                        onPress={() =>
+                            setShowColorPicker(
+                                !showColorPicker
+                            )
+                        }
+                        style={styles.addColorButton}
+                    >
+                        <Text style={styles.addColorText}>
+                            +
+                        </Text>
+                    </Pressable>
                 </View>
+
+                {showColorPicker && (
+                    <View style={styles.colorPopupWrapper}>
+                        <BlurView
+                            intensity={90}
+                            tint="dark"
+                            style={styles.colorPopup}
+                        >
+                            <Text style={styles.popupTitle}>
+                                Escolha uma cor
+                            </Text>
+
+                            <View
+                                style={
+                                    styles.popupColorRow
+                                }
+                            >
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "orange"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.orange,
+                                    ]}
+                                />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "purple"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.purple,
+                                    ]}
+                                />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "pink"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.pink,
+                                    ]}
+                                />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "cyan"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.cyan,
+                                    ]}
+                                />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "brown"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.brown,
+                                    ]}
+                                />
+
+                                <Pressable
+                                    onPress={() => {
+                                        setSelectedColor(
+                                            "gray"
+                                        );
+
+                                        setShowColorPicker(
+                                            false
+                                        );
+                                    }}
+                                    style={[
+                                        styles.popupColor,
+                                        styles.gray,
+                                    ]}
+                                />
+                            </View>
+
+                            <View
+                                style={
+                                    styles.myColorsSection
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.myColorsTitle
+                                    }
+                                >
+                                    Minhas cores
+                                </Text>
+
+                                <View
+                                    style={
+                                        styles.myColorsRow
+                                    }
+                                >
+                                    {customColors.length ===
+                                    0 ? (
+                                        <Text
+                                            style={
+                                                styles.noColorsText
+                                            }
+                                        >
+                                            Você ainda não
+                                            criou nenhuma
+                                            cor.
+                                        </Text>
+                                    ) : (
+                                        customColors.map(
+                                            (color) => (
+                                                <View
+                                                    key={color}
+                                                    style={
+                                                        styles.customColorItem
+                                                    }
+                                                >
+                                                    <Pressable
+                                                        onPress={() => {
+                                                            setSelectedColor(
+                                                                color
+                                                            );
+
+                                                            setShowColorPicker(
+                                                                false
+                                                            );
+                                                        }}
+                                                        style={[
+                                                            styles.popupColor,
+                                                            {
+                                                                backgroundColor:
+                                                                    color,
+                                                            },
+                                                            selectedColor ===
+                                                                color &&
+                                                                styles.selectedPopupColor,
+                                                        ]}
+                                                    />
+
+                                                    <Pressable
+                                                        onPress={() => {
+                                                            setCustomColors(
+                                                                (
+                                                                    current
+                                                                ) =>
+                                                                    current.filter(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            item !==
+                                                                            color
+                                                                    )
+                                                            );
+
+                                                            if (
+                                                                selectedColor ===
+                                                                color
+                                                            ) {
+                                                                setSelectedColor(
+                                                                    "red"
+                                                                );
+                                                            }
+                                                        }}
+                                                        style={
+                                                            styles.deleteColorButton
+                                                        }
+                                                    >
+                                                        <Text
+                                                            style={
+                                                                styles.deleteColorText
+                                                            }
+                                                        >
+                                                            ×
+                                                        </Text>
+                                                    </Pressable>
+                                                </View>
+                                            )
+                                        )
+                                    )}
+                                </View>
+
+                                <Pressable
+                                    onPress={() => {
+                                        setShowColorPicker(
+                                            false
+                                        );
+
+                                        setShowCustomColorPicker(
+                                            true
+                                        );
+                                    }}
+                                    style={
+                                        styles.createColorButton
+                                    }
+                                >
+                                    <Text
+                                        style={
+                                            styles.createColorPlus
+                                        }
+                                    >
+                                        +
+                                    </Text>
+
+                                    <Text
+                                        style={
+                                            styles.createColorText
+                                        }
+                                    >
+                                        Criar nova cor
+                                    </Text>
+                                </Pressable>
+                            </View>
+
+                            <Pressable
+                                onPress={() =>
+                                    setShowColorPicker(
+                                        false
+                                    )
+                                }
+                                style={
+                                    styles.closePopupButton
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.closePopupText
+                                    }
+                                >
+                                    Fechar
+                                </Text>
+                            </Pressable>
+                        </BlurView>
+                    </View>
+                )}
+
+                {showCustomColorPicker && (
+                    <View
+                        style={
+                            styles.customColorOverlay
+                        }
+                    >
+                        <BlurView
+                            intensity={95}
+                            tint="dark"
+                            style={
+                                styles.customColorModal
+                            }
+                        >
+                            <Text
+                                style={
+                                    styles.customColorTitle
+                                }
+                            >
+                                Criar nova cor
+                            </Text>
+
+                            <Text
+                                style={
+                                    styles.customColorDescription
+                                }
+                            >
+                                Escolha visualmente a cor
+                                que deseja usar.
+                            </Text>
+
+                            <ColorPicker
+                                value={customColor}
+                                onCompleteJS={({ hex }) => {
+                                    setCustomColor(hex);
+                                }}
+                                style={styles.colorPicker}
+                            >
+                                <Preview
+                                    style={
+                                        styles.colorPickerPreview
+                                    }
+                                />
+
+                                <Panel1
+                                    style={
+                                        styles.colorPanel
+                                    }
+                                />
+
+                                <HueSlider
+                                    style={
+                                        styles.hueSlider
+                                    }
+                                />
+                            </ColorPicker>
+
+                            <Pressable
+                                style={
+                                    styles.saveCustomColorButton
+                                }
+                                onPress={
+                                    handleSaveCustomColor
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.saveCustomColorButtonText
+                                    }
+                                >
+                                    Salvar cor
+                                </Text>
+                            </Pressable>
+
+                            <Pressable
+                                style={
+                                    styles.cancelCustomColorButton
+                                }
+                                onPress={() =>
+                                    setShowCustomColorPicker(
+                                        false
+                                    )
+                                }
+                            >
+                                <Text
+                                    style={
+                                        styles.cancelCustomColorButtonText
+                                    }
+                                >
+                                    Cancelar
+                                </Text>
+                            </Pressable>
+                        </BlurView>
+                    </View>
+                )}
 
                 <Text style={styles.label}>
                     Divisão
@@ -416,6 +824,7 @@ const styles = StyleSheet.create({
     colorRow: {
         flexDirection: "row",
         gap: 14,
+        alignItems: "center",
     },
 
     color: {
@@ -443,6 +852,284 @@ const styles = StyleSheet.create({
 
     yellow: {
         backgroundColor: "#F2C94C",
+    },
+
+    addColorButton: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: "#dddddd",
+    },
+
+    addColorText: {
+        fontSize: 22,
+        fontWeight: "400",
+        color: "#777777",
+        lineHeight: 24,
+    },
+
+    colorPopupWrapper: {
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: 82,
+        zIndex: 20,
+    },
+
+    colorPopup: {
+        borderRadius: 22,
+        overflow: "hidden",
+        backgroundColor: "rgba(255,255,255,0.12)",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.35)",
+        paddingHorizontal: 20,
+        paddingVertical: 18,
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+        elevation: 10,
+    },
+
+    popupTitle: {
+        fontSize: 15,
+        fontWeight: "600",
+        color: "#ffffff",
+        marginBottom: 16,
+    },
+
+    popupColorRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 14,
+        flexWrap: "wrap",
+    },
+
+    popupColor: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.25)",
+    },
+
+    selectedPopupColor: {
+        borderWidth: 3,
+        borderColor: "#ffffff",
+    },
+
+    orange: {
+        backgroundColor: "#F2994A",
+    },
+
+    purple: {
+        backgroundColor: "#9B7EDE",
+    },
+
+    pink: {
+        backgroundColor: "#E88BB7",
+    },
+
+    cyan: {
+        backgroundColor: "#62C7D9",
+    },
+
+    brown: {
+        backgroundColor: "#A77B5D",
+    },
+
+    gray: {
+        backgroundColor: "#9E9E9E",
+    },
+
+    myColorsSection: {
+        marginTop: 20,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: "rgba(255,255,255,0.15)",
+    },
+
+    myColorsTitle: {
+        fontSize: 14,
+        fontWeight: "600",
+        color: "#ffffff",
+        marginBottom: 12,
+    },
+
+    myColorsRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        flexWrap: "wrap",
+    },
+
+    customColorItem: {
+        position: "relative",
+        width: 34,
+        height: 34,
+    },
+
+    deleteColorButton: {
+        position: "absolute",
+        top: -7,
+        right: -7,
+        width: 18,
+        height: 18,
+        borderRadius: 9,
+        backgroundColor: "#ffffff",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: "rgba(0,0,0,0.15)",
+    },
+
+    deleteColorText: {
+        fontSize: 14,
+        lineHeight: 16,
+        fontWeight: "700",
+        color: "#555555",
+    },
+
+    noColorsText: {
+        fontSize: 12,
+        color: "rgba(255,255,255,0.55)",
+    },
+
+    createColorButton: {
+        marginTop: 16,
+        height: 40,
+        borderRadius: 12,
+        backgroundColor: "rgba(255,255,255,0.10)",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.20)",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 7,
+    },
+
+    createColorPlus: {
+        fontSize: 20,
+        color: "#ffffff",
+        lineHeight: 22,
+    },
+
+    createColorText: {
+        fontSize: 12,
+        fontWeight: "600",
+        color: "#ffffff",
+    },
+
+    closePopupButton: {
+        alignSelf: "flex-end",
+        marginTop: 16,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+        backgroundColor: "rgba(255,255,255,0.10)",
+    },
+
+    closePopupText: {
+        fontSize: 12,
+        color: "rgba(255,255,255,0.85)",
+    },
+
+    customColorOverlay: {
+        position: "absolute",
+        top: -35,
+        left: -24,
+        right: -24,
+        bottom: 0,
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 50,
+    },
+
+    customColorModal: {
+        width: "86%",
+        borderRadius: 24,
+        padding: 24,
+        alignItems: "center",
+        overflow: "hidden",
+        backgroundColor: "rgba(255,255,255,0.13)",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.38)",
+        shadowColor: "#000000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.30,
+        shadowRadius: 25,
+        elevation: 12,
+    },
+
+    customColorTitle: {
+        fontSize: 22,
+        fontWeight: "800",
+        color: "#FFFFFF",
+        marginBottom: 8,
+    },
+
+    customColorDescription: {
+        fontSize: 13,
+        lineHeight: 19,
+        color: "rgba(255,255,255,0.75)",
+        textAlign: "center",
+        marginBottom: 20,
+    },
+
+    colorPicker: {
+        width: "100%",
+        gap: 16,
+    },
+
+    colorPickerPreview: {
+        width: "100%",
+        height: 55,
+        borderRadius: 14,
+        marginBottom: 4,
+    },
+
+    colorPanel: {
+        width: "100%",
+        height: 180,
+        borderRadius: 16,
+    },
+
+    hueSlider: {
+        width: "100%",
+        height: 28,
+        borderRadius: 14,
+        marginBottom: 8,
+    },
+
+    saveCustomColorButton: {
+        width: "100%",
+        height: 48,
+        borderRadius: 14,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(255,255,255,0.18)",
+        borderWidth: 1,
+        borderColor: "rgba(255,255,255,0.35)",
+        marginBottom: 10,
+    },
+
+    saveCustomColorButtonText: {
+        color: "#FFFFFF",
+        fontSize: 15,
+        fontWeight: "700",
+    },
+
+    cancelCustomColorButton: {
+        paddingVertical: 8,
+    },
+
+    cancelCustomColorButtonText: {
+        color: "rgba(255,255,255,0.70)",
+        fontSize: 14,
     },
 
     peopleCard: {
