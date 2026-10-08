@@ -1,5 +1,5 @@
-
 import {
+    Image,
     Pressable,
     ScrollView,
     StatusBar,
@@ -51,10 +51,22 @@ export default function TripsScreen() {
 
                 <View style={styles.header}>
 
-
                     <Text style={styles.headerTitle}>
                         Minhas Viagens
                     </Text>
+
+                    <Pressable
+                        style={styles.profileButton}
+                        onPress={() =>
+                            router.push("/logic/profile")
+                        }
+                    >
+                        <Image
+                            source={require("../../../assets/images/perfil.jpg")}
+                            style={styles.profileImage}
+                            resizeMode="cover"
+                        />
+                    </Pressable>
 
                 </View>
 
@@ -245,6 +257,22 @@ const styles = StyleSheet.create({
         fontWeight: "700",
         color: "#8492a8",
     },
+
+    profileButton: {
+        position: "absolute",
+        right: 24,
+        width: 40,
+        height: 40,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    profileImage: {
+        width: 35,
+        height: 35,
+        borderRadius: 18,
+    },
+
 
     /* =================================================
        ESTADO VAZIO

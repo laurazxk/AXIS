@@ -1,7 +1,9 @@
 import { MaterialIcons } from "@expo/vector-icons";
+
 import { useRouter } from "expo-router";
 
 import {
+    Image,
     Pressable,
     ScrollView,
     StatusBar,
@@ -13,15 +15,21 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
+
 import { savedTrips } from "./tripStore";
 
 export default function ExpensesScreen() {
+
     const insets = useSafeAreaInsets();
+
     const hasTrips = savedTrips.length > 0;
+
     const router = useRouter();
 
     return (
+
         <View style={styles.container}>
+
             <StatusBar
                 barStyle="dark-content"
                 backgroundColor="#f7f7f7"
@@ -36,6 +44,7 @@ export default function ExpensesScreen() {
                     },
                 ]}
             >
+
                 {/* CABEÇALHO */}
 
                 <View style={styles.header}>
@@ -44,11 +53,26 @@ export default function ExpensesScreen() {
                         Despesas
                     </Text>
 
+                    <Pressable
+                        style={styles.profileButton}
+                        onPress={() =>
+                            router.push("/logic/profile")
+                        }
+                    >
+                        <Image
+                            source={require("../../../assets/images/perfil.jpg")}
+                            style={styles.profileImage}
+                            resizeMode="cover"
+                        />
+                    </Pressable>
+
                 </View>
+
 
                 {/* TÍTULO E MENSAGEM */}
 
                 <View style={styles.content}>
+
                     <Text style={styles.title}>
                         Organize seus gastos
                     </Text>
@@ -58,8 +82,11 @@ export default function ExpensesScreen() {
                         de forma simples e organizada.
                     </Text>
 
+
                     {hasTrips ? (
+
                         <>
+
                             <Text style={styles.sectionTitle}>
                                 Minhas viagens
                             </Text>
@@ -69,8 +96,11 @@ export default function ExpensesScreen() {
                                 seus gastos.
                             </Text>
 
+
                             <View style={styles.tripsContainer}>
+
                                 {savedTrips.map((trip) => (
+
                                     <Pressable
                                         key={trip.id}
                                         style={styles.tripCard}
@@ -84,19 +114,24 @@ export default function ExpensesScreen() {
                                             })
                                         }
                                     >
+
                                         <View
                                             style={
                                                 styles.tripIconContainer
                                             }
                                         >
+
                                             <MaterialIcons
                                                 name="flight-takeoff"
                                                 size={22}
                                                 color="#8492a8"
                                             />
+
                                         </View>
 
+
                                         <View style={styles.tripText}>
+
                                             <Text
                                                 style={
                                                     styles.tripDestination
@@ -110,25 +145,36 @@ export default function ExpensesScreen() {
                                             >
                                                 {trip.country}
                                             </Text>
+
                                         </View>
+
 
                                         <MaterialIcons
                                             name="chevron-right"
                                             size={24}
                                             color="#aaaaaa"
                                         />
+
                                     </Pressable>
+
                                 ))}
+
                             </View>
+
                         </>
+
                     ) : (
+
                         <View style={styles.emptyCard}>
+
                             <View style={styles.emptyIcon}>
+
                                 <MaterialIcons
                                     name="account-balance-wallet"
                                     size={28}
                                     color="#8492a8"
                                 />
+
                             </View>
 
                             <Text style={styles.emptyTitle}>
@@ -139,25 +185,35 @@ export default function ExpensesScreen() {
                                 Crie uma viagem para começar a
                                 organizar suas despesas.
                             </Text>
+
                         </View>
+
                     )}
+
                 </View>
+
             </ScrollView>
 
+
             <GlassBottomNav />
+
         </View>
     );
 }
 
+
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
         backgroundColor: "#f7f7f7",
     },
 
+
     scrollContent: {
         paddingBottom: 120,
     },
+
 
     header: {
         height: 66,
@@ -165,21 +221,36 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
 
+
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
         color: "#8492a8",
     },
 
-    headerSpace: {
+
+    profileButton: {
+        position: "absolute",
+        right: 24,
         width: 40,
         height: 40,
+        alignItems: "center",
+        justifyContent: "center",
     },
+
+
+    profileImage: {
+        width: 35,
+        height: 35,
+        borderRadius: 18,
+    },
+
 
     content: {
         paddingHorizontal: 28,
         marginTop: 28,
     },
+
 
     title: {
         fontSize: 29,
@@ -188,6 +259,7 @@ const styles = StyleSheet.create({
         color: "#303030",
         textAlign: "center",
     },
+
 
     subtitle: {
         marginTop: 10,
@@ -199,6 +271,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
 
+
     sectionTitle: {
         marginTop: 32,
         fontSize: 17,
@@ -206,6 +279,7 @@ const styles = StyleSheet.create({
         color: "#8492a8",
         textAlign: "center",
     },
+
 
     sectionDescription: {
         marginTop: 5,
@@ -215,9 +289,11 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
 
+
     tripsContainer: {
         gap: 12,
     },
+
 
     tripCard: {
         minHeight: 78,
@@ -237,6 +313,7 @@ const styles = StyleSheet.create({
         elevation: 2,
     },
 
+
     tripIconContainer: {
         width: 46,
         height: 46,
@@ -247,9 +324,11 @@ const styles = StyleSheet.create({
         marginRight: 13,
     },
 
+
     tripText: {
         flex: 1,
     },
+
 
     tripDestination: {
         fontSize: 15,
@@ -257,11 +336,13 @@ const styles = StyleSheet.create({
         color: "#303030",
     },
 
+
     tripCountry: {
         marginTop: 4,
         fontSize: 11,
         color: "#888888",
     },
+
 
     emptyCard: {
         marginTop: 30,
@@ -270,6 +351,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#ffffff",
         alignItems: "center",
     },
+
 
     emptyIcon: {
         width: 58,
@@ -281,11 +363,13 @@ const styles = StyleSheet.create({
         marginBottom: 14,
     },
 
+
     emptyTitle: {
         fontSize: 16,
         fontWeight: "700",
         color: "#303030",
     },
+
 
     emptyText: {
         marginTop: 7,
@@ -295,4 +379,5 @@ const styles = StyleSheet.create({
         textAlign: "center",
         maxWidth: 260,
     },
+
 });

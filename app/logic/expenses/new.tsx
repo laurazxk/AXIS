@@ -306,9 +306,7 @@ export default function NewExpenseScreen() {
                             >
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "orange"
-                                        );
+                                        setSelectedColor("#e59a68");
 
                                         setShowColorPicker(
                                             false
@@ -322,9 +320,7 @@ export default function NewExpenseScreen() {
 
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "purple"
-                                        );
+                                        setSelectedColor("#a583d0");
 
                                         setShowColorPicker(
                                             false
@@ -338,9 +334,7 @@ export default function NewExpenseScreen() {
 
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "pink"
-                                        );
+                                        setSelectedColor("#e38eae");
 
                                         setShowColorPicker(
                                             false
@@ -354,9 +348,7 @@ export default function NewExpenseScreen() {
 
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "cyan"
-                                        );
+                                       setSelectedColor("#71c5cf");
 
                                         setShowColorPicker(
                                             false
@@ -370,10 +362,7 @@ export default function NewExpenseScreen() {
 
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "brown"
-                                        );
-
+                                       setSelectedColor("#a77b61");
                                         setShowColorPicker(
                                             false
                                         );
@@ -386,9 +375,7 @@ export default function NewExpenseScreen() {
 
                                 <Pressable
                                     onPress={() => {
-                                        setSelectedColor(
-                                            "gray"
-                                        );
+                                       setSelectedColor("#a7adb5"); 
 
                                         setShowColorPicker(
                                             false
@@ -923,27 +910,27 @@ const styles = StyleSheet.create({
     },
 
     orange: {
-        backgroundColor: "#F2994A",
+        backgroundColor: "#e59a68",
     },
 
     purple: {
-        backgroundColor: "#9B7EDE",
+        backgroundColor: "#a583d0",
     },
 
     pink: {
-        backgroundColor: "#E88BB7",
+        backgroundColor: "#e38eae",
     },
 
     cyan: {
-        backgroundColor: "#62C7D9",
+        backgroundColor: "#72c5cf",
     },
 
     brown: {
-        backgroundColor: "#A77B5D",
+        backgroundColor: "#a77b61",
     },
 
     gray: {
-        backgroundColor: "#9E9E9E",
+        backgroundColor: "#a7adb5",
     },
 
     myColorsSection: {
