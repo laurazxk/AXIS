@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
-    View,
-    Text,
     Image,
-    StyleSheet,
-    ScrollView,
-    TextInput,
     Pressable,
+    ScrollView,
     StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -293,22 +293,15 @@ export default function HomeScreen() {
 
                     <Pressable
                         style={styles.profileButton}
-
                         onPress={() =>
-                            router.push("/")
+                            router.push("/logic/profile")
                         }
                     >
-
                         <Image
-                            source={require(
-                                "../../assets/images/perfil.jpg"
-                            )}
-
+                            source={require("../../assets/images/perfil.jpg")}
                             style={styles.profileImage}
-
                             resizeMode="cover"
                         />
-
                     </Pressable>
 
                 </View>

@@ -1,19 +1,19 @@
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 import {
-    View,
-    Text,
-    StyleSheet,
     Pressable,
-    TextInput,
     ScrollView,
     StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tripDraft } from "./tripDraft";
 
@@ -53,9 +53,63 @@ export default function Budget() {
 
     const [limit, setLimit] = useState(tripDraft.budget || "");
 
+    function normalizeBudget(value: string) {
+        const cleaned = value.trim().replace(/\s/g, "");
+
+        if (!cleaned) {
+            return "";
+        }
+
+        // Exemplo: 50.000,50 → 50000.50
+        if (
+            cleaned.includes(",") &&
+            cleaned.includes(".")
+        ) {
+            const lastComma = cleaned.lastIndexOf(",");
+            const lastDot = cleaned.lastIndexOf(".");
+
+            if (lastComma > lastDot) {
+                return cleaned
+                    .replace(/\./g, "")
+                    .replace(",", ".");
+            }
+
+            return cleaned.replace(/,/g, "");
+        }
+
+        // Exemplo: 50,000 → 50000
+        // Exemplo: 50,00 → 50.00
+        if (cleaned.includes(",")) {
+            const parts = cleaned.split(",");
+
+            if (
+                parts.length === 2 &&
+                parts[1].length === 3
+            ) {
+                return parts[0] + parts[1];
+            }
+
+            return cleaned.replace(",", ".");
+        }
+
+        // Exemplo: 50.000 → 50000
+        if (cleaned.includes(".")) {
+            const parts = cleaned.split(".");
+
+            if (
+                parts.length === 2 &&
+                parts[1].length === 3
+            ) {
+                return parts[0] + parts[1];
+            }
+        }
+
+        return cleaned;
+    }
+
     function continueToMethod() {
         tripDraft.budgetCurrency = currency;
-        tripDraft.budget = limit;
+        tripDraft.budget = normalizeBudget(limit);
 
         router.push("/logic/trips/method");
     }
@@ -132,14 +186,14 @@ export default function Budget() {
                             style={[
                                 styles.currency,
                                 currency === item &&
-                                    styles.currencyActive,
+                                styles.currencyActive,
                             ]}
                         >
                             <Text
                                 style={[
                                     styles.currencyText,
                                     currency === item &&
-                                        styles.currencyTextActive,
+                                    styles.currencyTextActive,
                                 ]}
                             >
                                 {item}
