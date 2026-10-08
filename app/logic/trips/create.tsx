@@ -1,3 +1,7 @@
+import GlassFrost from "../../../components/GlassFrost";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 
 import React, { useMemo, useState } from "react";
 
@@ -100,6 +104,9 @@ function normalize(value: string) {
 }
 
 export default function CreateTripScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -155,8 +162,9 @@ export default function CreateTripScreen() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -176,7 +184,7 @@ export default function CreateTripScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="#303030"
+                            color={axisPalette.text}
                         />
                     </Pressable>
 
@@ -201,7 +209,7 @@ export default function CreateTripScreen() {
                         <MaterialIcons
                             name="search"
                             size={22}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
 
                         <TextInput
@@ -217,7 +225,7 @@ export default function CreateTripScreen() {
                                 }
                             }}
                             placeholder="Digite um destino"
-                            placeholderTextColor="#999999"
+                            placeholderTextColor={axisPalette.muted}
                             style={styles.input}
                             returnKeyType="search"
                             autoCorrect={false}
@@ -233,7 +241,7 @@ export default function CreateTripScreen() {
                                 <MaterialIcons
                                     name="close"
                                     size={20}
-                                    color="#888888"
+                                    color={axisPalette.muted}
                                 />
                             </Pressable>
                         )}
@@ -270,7 +278,7 @@ export default function CreateTripScreen() {
                                                     : "chevron-right"
                                             }
                                             size={22}
-                                            color="#8492a8"
+                                            color={axisPalette.muted}
                                         />
                                     </Pressable>
                                 ))
@@ -285,10 +293,11 @@ export default function CreateTripScreen() {
 
                     {selected && (
                         <View style={styles.selectedCard}>
+                <GlassFrost />
                             <MaterialIcons
                                 name="check-circle"
                                 size={21}
-                                color="#8492a8"
+                                color={axisPalette.muted}
                             />
                             <View style={styles.selectedText}>
                                 <Text style={styles.selectedTitle}>
@@ -332,14 +341,14 @@ export default function CreateTripScreen() {
                                     </Text>
 
                                     <Text
-                                        style={styles.popularCity}
+                                        style={[styles.popularCity, active && styles.popularCityActive]}
                                         numberOfLines={1}
                                     >
                                         {item.city}
                                     </Text>
 
                                     <Text
-                                        style={styles.popularCountry}
+                                        style={[styles.popularCountry, active && styles.popularCountryActive]}
                                         numberOfLines={1}
                                     >
                                         {item.country}
@@ -364,7 +373,7 @@ export default function CreateTripScreen() {
                         <MaterialIcons
                             name="arrow-forward"
                             size={21}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
                     </Pressable>
                 </View>
@@ -373,10 +382,10 @@ export default function CreateTripScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     scrollContent: {
@@ -401,7 +410,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -418,13 +427,13 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     description: {
         fontSize: 13,
         lineHeight: 20,
-        color: "#888888",
+        color: glassColor("color", "#888888", "description", palette),
         marginTop: 12,
         marginBottom: 25,
     },
@@ -432,12 +441,12 @@ const styles = StyleSheet.create({
     searchContainer: {
         minHeight: 54,
         borderRadius: 27,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "searchContainer", palette),
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 18,
         gap: 10,
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "searchContainer", palette),
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.08,
         shadowRadius: 7,
@@ -448,12 +457,12 @@ const styles = StyleSheet.create({
         flex: 1,
         minHeight: 52,
         fontSize: 14,
-        color: "#303030",
+        color: glassColor("color", "#303030", "input", palette),
     },
 
     resultsContainer: {
         marginTop: 8,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "resultsContainer", palette),
         borderRadius: 18,
         paddingHorizontal: 14,
         paddingVertical: 4,
@@ -465,7 +474,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: "#eeeeee",
+        borderBottomColor: glassColor("borderBottomColor", "#eeeeee", "resultRow", palette),
         gap: 12,
     },
 
@@ -480,25 +489,26 @@ const styles = StyleSheet.create({
     resultCity: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "resultCity", palette),
     },
 
     resultCountry: {
         fontSize: 11,
-        color: "#999999",
+        color: glassColor("color", "#999999", "resultCountry", palette),
         marginTop: 3,
     },
 
     noResults: {
         padding: 16,
-        color: "#888888",
+        color: glassColor("color", "#888888", "noResults", palette),
         fontSize: 12,
         lineHeight: 18,
     },
 
     selectedCard: {
+        ...glassDecoration("selectedCard", palette),
         marginTop: 15,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "selectedCard", palette),
         borderRadius: 17,
         padding: 15,
         flexDirection: "row",
@@ -513,25 +523,25 @@ const styles = StyleSheet.create({
     selectedTitle: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "selectedTitle", palette),
     },
 
     selectedSubtitle: {
         marginTop: 4,
         fontSize: 11,
-        color: "#888888",
+        color: glassColor("color", "#888888", "selectedSubtitle", palette),
     },
 
     sectionTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "sectionTitle", palette),
         marginTop: 32,
     },
 
     sectionDescription: {
         fontSize: 11,
-        color: "#999999",
+        color: glassColor("color", "#999999", "sectionDescription", palette),
         marginTop: 5,
         marginBottom: 13,
     },
@@ -543,9 +553,10 @@ const styles = StyleSheet.create({
     },
 
     popularCard: {
+        ...glassDecoration("popularCard", palette),
         width: 112,
         minHeight: 115,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "popularCard", palette),
         borderRadius: 17,
         alignItems: "center",
         justifyContent: "center",
@@ -556,9 +567,12 @@ const styles = StyleSheet.create({
     },
 
     popularCardActive: {
-        borderColor: "#8492a8",
-        backgroundColor: "#eef1f5",
+        borderColor: glassColor("borderColor", "#8492a8", "popularCardActive", palette),
+        backgroundColor: palette.accent,
     },
+
+    popularCityActive: { color: palette.accentText },
+    popularCountryActive: { color: palette.accentText, opacity: 0.85 },
 
     popularFlag: {
         fontSize: 27,
@@ -568,12 +582,12 @@ const styles = StyleSheet.create({
     popularCity: {
         fontSize: 12,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "popularCity", palette),
     },
 
     popularCountry: {
         fontSize: 10,
-        color: "#999999",
+        color: glassColor("color", "#999999", "popularCountry", palette),
         marginTop: 4,
         textAlign: "center",
     },
@@ -581,7 +595,7 @@ const styles = StyleSheet.create({
     nextButton: {
         height: 56,
         borderRadius: 28,
-        backgroundColor: "#000000",
+        backgroundColor: palette.accent,
         marginTop: 35,
         flexDirection: "row",
         alignItems: "center",
@@ -594,7 +608,7 @@ const styles = StyleSheet.create({
     },
 
     nextButtonText: {
-        color: "#ffffff",
+        color: palette.accentText,
         fontSize: 14,
         fontWeight: "600",
     },

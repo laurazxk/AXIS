@@ -1,3 +1,8 @@
+import GlassFrost from "../../components/GlassFrost";
+import { useAxisTheme } from "../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
+import GlassBackdrop from "../../components/GlassBackdrop";
+import React from "react";
 import {
     Pressable,
     ScrollView,
@@ -15,6 +20,9 @@ import GlassBottomNav from "../../components/GlassBottomNav";
 
 
 export default function AboutScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
 
@@ -23,6 +31,7 @@ export default function AboutScreen() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
 
             {/* CABEÇALHO */}
 
@@ -42,7 +51,7 @@ export default function AboutScreen() {
                     <MaterialIcons
                         name="arrow-back"
                         size={26}
-                        color="#8492a8"
+                        color={axisPalette.muted}
                     />
                 </Pressable>
 
@@ -78,12 +87,13 @@ export default function AboutScreen() {
                 {/* JULIA */}
 
                 <View style={styles.memberCard}>
+                <GlassFrost />
 
                     <View style={styles.photoPlaceholder}>
                         <MaterialIcons
                             name="person"
                             size={38}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -97,12 +107,13 @@ export default function AboutScreen() {
                 {/* KYARA */}
 
                 <View style={styles.memberCard}>
+                <GlassFrost />
 
                     <View style={styles.photoPlaceholder}>
                         <MaterialIcons
                             name="person"
                             size={38}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -116,12 +127,13 @@ export default function AboutScreen() {
                 {/* LAILA */}
 
                 <View style={styles.memberCard}>
+                <GlassFrost />
 
                     <View style={styles.photoPlaceholder}>
                         <MaterialIcons
                             name="person"
                             size={38}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -135,12 +147,13 @@ export default function AboutScreen() {
                 {/* LAURA */}
 
                 <View style={styles.memberCard}>
+                <GlassFrost />
 
                     <View style={styles.photoPlaceholder}>
                         <MaterialIcons
                             name="person"
                             size={38}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -160,11 +173,11 @@ export default function AboutScreen() {
 }
 
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     header: {
@@ -185,7 +198,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -202,14 +215,14 @@ const styles = StyleSheet.create({
     axisTitle: {
         fontSize: 28,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "axisTitle", palette),
         textAlign: "center",
     },
 
     description: {
         marginTop: 8,
         fontSize: 14,
-        color: "#888888",
+        color: glassColor("color", "#888888", "description", palette),
         textAlign: "center",
         lineHeight: 21,
     },
@@ -219,19 +232,20 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         fontSize: 19,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "sectionTitle", palette),
     },
 
     memberCard: {
+        ...glassDecoration("memberCard", palette),
         minHeight: 78,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "memberCard", palette),
         borderRadius: 15,
         marginBottom: 12,
         paddingHorizontal: 15,
         flexDirection: "row",
         alignItems: "center",
 
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "memberCard", palette),
         shadowOffset: {
             width: 0,
             height: 3,
@@ -245,7 +259,7 @@ const styles = StyleSheet.create({
         width: 52,
         height: 52,
         borderRadius: 26,
-        backgroundColor: "#eef0f4",
+        backgroundColor: glassColor("backgroundColor", "#eef0f4", "photoPlaceholder", palette),
         alignItems: "center",
         justifyContent: "center",
         marginRight: 14,
@@ -255,7 +269,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 14,
         fontWeight: "600",
-        color: "#333333",
+        color: glassColor("color", "#333333", "memberName", palette),
     },
 
 });

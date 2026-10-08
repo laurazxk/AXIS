@@ -1,3 +1,6 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useState } from "react";
 
 import {
@@ -21,6 +24,9 @@ import GlassBottomNav from "../../../components/GlassBottomNav";
 
 
 export default function JoinTripScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
     
@@ -31,9 +37,10 @@ export default function JoinTripScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
     <StatusBar
-        barStyle="dark-content"
+        barStyle={axisDarkMode ? "light-content" : "dark-content"}
         backgroundColor="#f7f7f7"
     />
 
@@ -65,7 +72,7 @@ export default function JoinTripScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="#303030"
+                            color={axisPalette.text}
                         />
 
                     </Pressable>
@@ -92,7 +99,7 @@ export default function JoinTripScreen() {
                         <MaterialIcons
                             name="group"
                             size={30}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
 
                     </View>
@@ -116,7 +123,7 @@ export default function JoinTripScreen() {
                         value={code}
                         onChangeText={setCode}
                         placeholder="Código da viagem"
-                        placeholderTextColor="#999999"
+                        placeholderTextColor={axisPalette.muted}
                         autoCapitalize="characters"
                         style={styles.input}
                         maxLength={10}
@@ -139,7 +146,7 @@ export default function JoinTripScreen() {
                         <MaterialIcons
                             name="arrow-forward"
                             size={21}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
 
                     </Pressable>
@@ -160,11 +167,11 @@ export default function JoinTripScreen() {
    ESTILOS
 ========================================================= */
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
 
@@ -200,7 +207,7 @@ const styles = StyleSheet.create({
 
         fontWeight: "700",
 
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
 
@@ -225,7 +232,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 32,
 
-        backgroundColor: "#a7a7a7",
+        backgroundColor: glassColor("backgroundColor", "#a7a7a7", "iconCircle", palette),
 
         alignItems: "center",
         justifyContent: "center",
@@ -243,7 +250,7 @@ const styles = StyleSheet.create({
 
         fontWeight: "800",
 
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
 
         marginBottom: 12,
     },
@@ -256,7 +263,7 @@ const styles = StyleSheet.create({
 
         lineHeight: 20,
 
-        color: "#888888",
+        color: glassColor("color", "#888888", "description", palette),
 
         marginBottom: 30,
     },
@@ -267,7 +274,7 @@ const styles = StyleSheet.create({
 
         height: 54,
 
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "input", palette),
 
         borderRadius: 27,
 
@@ -275,13 +282,13 @@ const styles = StyleSheet.create({
 
         fontSize: 15,
 
-        color: "#303030",
+        color: glassColor("color", "#303030", "input", palette),
 
         textAlign: "center",
 
         letterSpacing: 2,
 
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "input", palette),
 
         shadowOffset: {
             width: 0,
@@ -303,7 +310,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 27,
 
-        backgroundColor: "#000000",
+        backgroundColor: glassColor("backgroundColor", "#000000", "button", palette),
 
         marginTop: 18,
 
@@ -323,7 +330,7 @@ const styles = StyleSheet.create({
 
 
     buttonText: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "buttonText", palette),
 
         fontSize: 14,
 

@@ -1,3 +1,8 @@
+import GlassFrost from "../../../components/GlassFrost";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import React from "react";
 
 import { useState } from "react";
 
@@ -44,6 +49,9 @@ const currencyNames: Record<string, string> = {
 };
 
 export default function Budget() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -116,8 +124,9 @@ export default function Budget() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -136,7 +145,7 @@ export default function Budget() {
                     <MaterialIcons
                         name="arrow-back"
                         size={24}
-                        color="#303030"
+                        color={axisPalette.text}
                     />
                 </Pressable>
 
@@ -151,10 +160,11 @@ export default function Budget() {
                 </Text>
 
                 <View style={styles.destinationCard}>
+                <GlassFrost />
                     <MaterialIcons
                         name="place"
                         size={23}
-                        color="#8492a8"
+                        color={axisPalette.muted}
                     />
 
                     <View style={styles.destinationText}>
@@ -215,7 +225,7 @@ export default function Budget() {
                         value={limit}
                         onChangeText={setLimit}
                         placeholder="0,00"
-                        placeholderTextColor="#999999"
+                        placeholderTextColor={axisPalette.muted}
                         keyboardType="decimal-pad"
                         style={styles.input}
                         returnKeyType="done"
@@ -223,6 +233,7 @@ export default function Budget() {
                 </View>
 
                 <View style={styles.estimateCard}>
+                <GlassFrost />
                     <View style={styles.estimateContent}>
                         <Text style={styles.estimateLabel}>
                             Seu orçamento
@@ -243,7 +254,7 @@ export default function Budget() {
                     <MaterialIcons
                         name="trending-up"
                         size={28}
-                        color="#8492a8"
+                        color={axisPalette.muted}
                     />
                 </View>
 
@@ -258,7 +269,7 @@ export default function Budget() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={20}
-                        color="#ffffff"
+                        color={axisPalette.accentText}
                     />
                 </Pressable>
             </ScrollView>
@@ -266,10 +277,10 @@ export default function Budget() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     content: {
@@ -289,7 +300,7 @@ const styles = StyleSheet.create({
         marginTop: 28,
         fontSize: 11,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "step", palette),
         letterSpacing: 1,
     },
 
@@ -298,22 +309,23 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     subtitle: {
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#888888",
+        color: glassColor("color", "#888888", "subtitle", palette),
     },
 
     destinationCard: {
+        ...glassDecoration("destinationCard", palette),
         marginTop: 26,
         padding: 16,
         minHeight: 70,
         borderRadius: 18,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "destinationCard", palette),
         flexDirection: "row",
         alignItems: "center",
         gap: 12,
@@ -326,13 +338,13 @@ const styles = StyleSheet.create({
     destinationTitle: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "destinationTitle", palette),
     },
 
     destinationSubtitle: {
         fontSize: 11,
         lineHeight: 17,
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "destinationSubtitle", palette),
         marginTop: 4,
     },
 
@@ -341,7 +353,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         fontSize: 14,
         fontWeight: "700",
-        color: "#444444",
+        color: glassColor("color", "#444444", "label", palette),
     },
 
     currencyContainer: {
@@ -354,30 +366,30 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         height: 42,
         borderRadius: 22,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "currency", palette),
         alignItems: "center",
         justifyContent: "center",
     },
 
     currencyActive: {
-        backgroundColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "currencyActive", palette),
     },
 
     currencyText: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#666666",
+        color: glassColor("color", "#666666", "currencyText", palette),
     },
 
     currencyTextActive: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "currencyTextActive", palette),
     },
 
     moneyInput: {
         height: 58,
         borderRadius: 29,
         paddingHorizontal: 20,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "moneyInput", palette),
         flexDirection: "row",
         alignItems: "center",
     },
@@ -385,21 +397,22 @@ const styles = StyleSheet.create({
     moneySymbol: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "moneySymbol", palette),
         marginRight: 10,
     },
 
     input: {
         flex: 1,
         fontSize: 17,
-        color: "#333333",
+        color: glassColor("color", "#333333", "input", palette),
     },
 
     estimateCard: {
+        ...glassDecoration("estimateCard", palette),
         marginTop: 28,
         padding: 20,
         borderRadius: 18,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "estimateCard", palette),
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
@@ -413,28 +426,28 @@ const styles = StyleSheet.create({
     estimateLabel: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#333333",
+        color: glassColor("color", "#333333", "estimateLabel", palette),
     },
 
     estimateText: {
         marginTop: 5,
         fontSize: 12,
         lineHeight: 18,
-        color: "#888888",
+        color: glassColor("color", "#888888", "estimateText", palette),
     },
 
     localCurrencyNote: {
         marginTop: 10,
         fontSize: 11,
         lineHeight: 16,
-        color: "#999999",
+        color: glassColor("color", "#999999", "localCurrencyNote", palette),
     },
 
     button: {
         height: 56,
         marginTop: 35,
         borderRadius: 28,
-        backgroundColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "button", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -442,7 +455,7 @@ const styles = StyleSheet.create({
     },
 
     buttonText: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "buttonText", palette),
         fontSize: 15,
         fontWeight: "700",
     },

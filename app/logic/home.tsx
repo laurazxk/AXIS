@@ -1,3 +1,7 @@
+import { useAxisTheme } from "../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
+import GlassBackdrop from "../../components/GlassBackdrop";
+import React from "react";
 import { useMemo, useState } from "react";
 
 import {
@@ -193,6 +197,9 @@ const countries = [
 ========================================================= */
 
 export default function HomeScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
 
@@ -261,9 +268,10 @@ export default function HomeScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -329,7 +337,7 @@ export default function HomeScreen() {
 
                         placeholder="Qual seu destino?"
 
-                        placeholderTextColor="#999999"
+                        placeholderTextColor={axisPalette.muted}
 
                         style={styles.searchInput}
 
@@ -340,7 +348,7 @@ export default function HomeScreen() {
                     <MaterialIcons
                         name="search"
                         size={22}
-                        color="#333333"
+                        color={axisPalette.text}
                     />
 
                 </View>
@@ -640,11 +648,11 @@ export default function HomeScreen() {
    ESTILOS
 ========================================================= */
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
 
@@ -670,11 +678,12 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
 
     profileButton: {
+        ...glassDecoration("profileButton", palette),
         position: "absolute",
         right: 24,
         width: 40,
@@ -696,7 +705,7 @@ const styles = StyleSheet.create({
         marginLeft: 30,
         fontSize: 29,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "greeting", palette),
     },
 
 
@@ -705,11 +714,11 @@ const styles = StyleSheet.create({
         marginTop: 27,
         height: 50,
         borderRadius: 26,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "searchContainer", palette),
         flexDirection: "row",
         alignItems: "center",
         paddingHorizontal: 16,
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "searchContainer", palette),
         shadowOffset: {
             width: 0,
             height: 4,
@@ -724,7 +733,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         fontSize: 12,
-        color: "#333333",
+        color: glassColor("color", "#333333", "searchInput", palette),
         paddingHorizontal: 0,
     },
 
@@ -739,7 +748,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         fontSize: 19,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "sectionTitle", palette),
     },
 
 
@@ -752,29 +761,31 @@ const styles = StyleSheet.create({
 
 
     filterButton: {
+        ...glassDecoration("filterButton", palette),
         height: 29,
         paddingHorizontal: 15,
         borderRadius: 16,
-        backgroundColor: "#e7e7e7",
+        backgroundColor: glassColor("backgroundColor", "#e7e7e7", "filterButton", palette),
         alignItems: "center",
         justifyContent: "center",
     },
 
 
     filterButtonActive: {
-        backgroundColor: "#303030",
+        ...glassDecoration("filterButtonActive", palette),
+        backgroundColor: glassColor("backgroundColor", "#303030", "filterButtonActive", palette),
     },
 
 
     filterText: {
         fontSize: 10,
-        color: "#666666",
+        color: glassColor("color", "#666666", "filterText", palette),
         fontWeight: "500",
     },
 
 
     filterTextActive: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "filterTextActive", palette),
     },
 
 
@@ -786,12 +797,13 @@ const styles = StyleSheet.create({
 
 
     destinationCard: {
+        ...glassDecoration("destinationCard", palette),
         width: 160,
         height: 205,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "destinationCard", palette),
         borderRadius: 14,
         overflow: "hidden",
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "destinationCard", palette),
         shadowOffset: {
             width: 0,
             height: 5,
@@ -837,14 +849,14 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 11,
         fontWeight: "700",
-        color: "#333333",
+        color: glassColor("color", "#333333", "cardTitle", palette),
         marginBottom: 3,
     },
 
 
     cardSubtitle: {
         fontSize: 10,
-        color: "#999999",
+        color: glassColor("color", "#999999", "cardSubtitle", palette),
     },
 
 });

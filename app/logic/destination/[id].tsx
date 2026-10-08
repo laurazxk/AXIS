@@ -1,3 +1,6 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useState } from "react";
 
 import {
@@ -304,6 +307,9 @@ const destinations: Record<string, any> = {
 ========================================================= */
 
 export default function DestinationScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
 
@@ -340,7 +346,7 @@ export default function DestinationScreen() {
                     <MaterialIcons
                         name="arrow-back"
                         size={25}
-                        color="#ffffff"
+                        color={axisPalette.accentText}
                     />
                 </Pressable>
 
@@ -352,6 +358,7 @@ export default function DestinationScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
                 barStyle="light-content"
@@ -444,7 +451,7 @@ export default function DestinationScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={25}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
 
                     </Pressable>
@@ -627,12 +634,12 @@ export default function DestinationScreen() {
    ESTILOS
 ========================================================= */
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
 
-        backgroundColor: "#111111",
+        backgroundColor: glassColor("backgroundColor", "#111111", "container", palette),
     },
 
     scrollContent: {
@@ -726,21 +733,23 @@ const styles = StyleSheet.create({
     },
 
     dotActive: {
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "dotActive", palette),
     },
 
 
     /* DETALHES */
 
     details: {
-        backgroundColor: "#f7f7f7",
+        width: "100%",
+        alignSelf: "stretch",
+        backgroundColor: palette.background,
 
         marginTop: -2,
 
         borderTopLeftRadius: 35,
         borderTopRightRadius: 35,
 
-        paddingHorizontal: 42,
+        paddingHorizontal: 28,
         paddingTop: 45,
         paddingBottom: 45,
     },
@@ -750,7 +759,7 @@ const styles = StyleSheet.create({
 
         fontWeight: "800",
 
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     location: {
@@ -758,7 +767,7 @@ const styles = StyleSheet.create({
 
         fontSize: 14,
 
-        color: "#777777",
+        color: glassColor("color", "#777777", "location", palette),
     },
 
     description: {
@@ -768,7 +777,7 @@ const styles = StyleSheet.create({
 
         lineHeight: 24,
 
-        color: "#777777",
+        color: glassColor("color", "#777777", "description", palette),
     },
 
 
@@ -785,7 +794,7 @@ const styles = StyleSheet.create({
     stars: {
         fontSize: 20,
 
-        color: "#333333",
+        color: glassColor("color", "#333333", "stars", palette),
 
         letterSpacing: 1,
     },
@@ -795,7 +804,7 @@ const styles = StyleSheet.create({
 
         fontSize: 15,
 
-        color: "#555555",
+        color: glassColor("color", "#555555", "ratingText", palette),
     },
 
 
@@ -808,7 +817,7 @@ const styles = StyleSheet.create({
 
         alignItems: "center",
 
-        justifyContent: "space-between",
+        justifyContent: "flex-end",
     },
 
    
@@ -818,11 +827,11 @@ const styles = StyleSheet.create({
 
         fontSize: 14,
 
-        color: "#999999",
+        color: glassColor("color", "#999999", "perPerson", palette),
     },
 
     routeButton: {
-        minWidth: 150,
+        minWidth: 190,
 
         height: 58,
 
@@ -830,7 +839,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 30,
 
-        backgroundColor: "#000000",
+        backgroundColor: palette.accent,
 
         alignItems: "center",
 
@@ -838,7 +847,7 @@ const styles = StyleSheet.create({
     },
 
     routeButtonText: {
-        color: "#ffffff",
+        color: palette.accentText,
 
         fontSize: 15,
 
@@ -855,13 +864,13 @@ const styles = StyleSheet.create({
 
         justifyContent: "center",
 
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "errorContainer", palette),
     },
 
     errorText: {
         fontSize: 18,
 
-        color: "#333333",
+        color: glassColor("color", "#333333", "errorText", palette),
     },
 
 });

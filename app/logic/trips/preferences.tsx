@@ -1,3 +1,6 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useState } from "react";
 
 import {
@@ -35,6 +38,9 @@ const interests = [
 ];
 
 export default function Preferences() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -60,8 +66,9 @@ export default function Preferences() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -88,7 +95,7 @@ export default function Preferences() {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="#303030"
+                            color={axisPalette.text}
                         />
                     </Pressable>
 
@@ -147,7 +154,7 @@ export default function Preferences() {
                                     <MaterialIcons
                                         name="check-circle"
                                         size={15}
-                                        color="#ffffff"
+                                        color={axisPalette.accentText}
                                     />
                                 )}
                             </Pressable>
@@ -189,7 +196,7 @@ export default function Preferences() {
                         <MaterialIcons
                             name="arrow-forward"
                             size={20}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
                     </Pressable>
                 </View>
@@ -198,10 +205,10 @@ export default function Preferences() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     scrollView: {
@@ -229,7 +236,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -241,7 +248,7 @@ const styles = StyleSheet.create({
         marginTop: 28,
         fontSize: 11,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "step", palette),
         letterSpacing: 1,
     },
 
@@ -250,14 +257,14 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     subtitle: {
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#888888",
+        color: glassColor("color", "#888888", "subtitle", palette),
     },
 
     interests: {
@@ -273,19 +280,19 @@ const styles = StyleSheet.create({
         minHeight: 53,
         paddingHorizontal: 10,
         borderRadius: 17,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "interest", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
         gap: 7,
         borderWidth: 1,
-        borderColor: "#eeeeee",
+        borderColor: glassColor("borderColor", "#eeeeee", "interest", palette),
         elevation: 2,
     },
 
     interestActive: {
-        backgroundColor: "#303030",
-        borderColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "interestActive", palette),
+        borderColor: glassColor("borderColor", "#303030", "interestActive", palette),
     },
 
     emoji: {
@@ -295,31 +302,31 @@ const styles = StyleSheet.create({
     interestText: {
         fontSize: 11,
         fontWeight: "600",
-        color: "#555555",
+        color: glassColor("color", "#555555", "interestText", palette),
         flexShrink: 1,
     },
 
     interestTextActive: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "interestTextActive", palette),
     },
 
     selectionHint: {
         marginTop: 10,
         fontSize: 12,
-        color: "#999999",
+        color: glassColor("color", "#999999", "selectionHint", palette),
         textAlign: "center",
     },
     footer: {
         flexShrink: 0,
         paddingHorizontal: 28,
         paddingTop: 10,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "footer", palette),
     },
 
     button: {
         height: 56,
         borderRadius: 28,
-        backgroundColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "button", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -327,7 +334,7 @@ const styles = StyleSheet.create({
     },
 
     buttonText: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "buttonText", palette),
         fontSize: 15,
         fontWeight: "700",
     },

@@ -1,3 +1,6 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -34,6 +37,9 @@ function displayDate(value: string) {
 }
 
 export default function DurationScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -157,8 +163,9 @@ export default function DurationScreen() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -177,7 +184,7 @@ export default function DurationScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="#303030"
+                            color={axisPalette.text}
                         />
                     </Pressable>
 
@@ -247,7 +254,7 @@ export default function DurationScreen() {
                                 <MaterialIcons
                                     name="calendar-today"
                                     size={14}
-                                    color="#999999"
+                                    color={axisPalette.muted}
                                 />
 
                                 <Text
@@ -389,7 +396,7 @@ export default function DurationScreen() {
                                     <MaterialIcons
                                         name="chevron-left"
                                         size={24}
-                                        color="#8492a8"
+                                        color={axisPalette.muted}
                                     />
                                 </Pressable>
 
@@ -410,7 +417,7 @@ export default function DurationScreen() {
                                     <MaterialIcons
                                         name="chevron-right"
                                         size={24}
-                                        color="#8492a8"
+                                        color={axisPalette.muted}
                                     />
                                 </Pressable>
                             </View>
@@ -660,7 +667,7 @@ export default function DurationScreen() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={20}
-                        color="#ffffff"
+                        color={axisPalette.accentText}
                     />
                 </Pressable>
             </ScrollView>
@@ -668,10 +675,10 @@ export default function DurationScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     content: {
@@ -696,7 +703,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -708,7 +715,7 @@ const styles = StyleSheet.create({
         marginTop: 28,
         fontSize: 11,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "step", palette),
         letterSpacing: 1,
     },
 
@@ -717,23 +724,23 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     subtitle: {
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#888888",
+        color: glassColor("color", "#888888", "subtitle", palette),
     },
 
     card: {
         marginTop: 28,
         padding: 18,
         borderRadius: 22,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "card", palette),
         elevation: 3,
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "card", palette),
         shadowOffset: {
             width: 0,
             height: 3,
@@ -745,7 +752,7 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#444444",
+        color: glassColor("color", "#444444", "label", palette),
     },
 
     modeSwitch: {
@@ -753,7 +760,7 @@ const styles = StyleSheet.create({
         height: 42,
         borderRadius: 13,
         padding: 4,
-        backgroundColor: "#f0f0f0",
+        backgroundColor: glassColor("backgroundColor", "#f0f0f0", "modeSwitch", palette),
         flexDirection: "row",
     },
 
@@ -765,18 +772,18 @@ const styles = StyleSheet.create({
     },
 
     modeActive: {
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "modeActive", palette),
         elevation: 2,
     },
 
     modeText: {
         fontSize: 11,
         fontWeight: "600",
-        color: "#999999",
+        color: glassColor("color", "#999999", "modeText", palette),
     },
 
     modeTextActive: {
-        color: "#303030",
+        color: glassColor("color", "#303030", "modeTextActive", palette),
     },
 
     durationSection: {
@@ -792,7 +799,7 @@ const styles = StyleSheet.create({
 
     sectionLabelText: {
         fontSize: 11,
-        color: "#999999",
+        color: glassColor("color", "#999999", "sectionLabelText", palette),
     },
 
     wheel: {
@@ -815,13 +822,13 @@ const styles = StyleSheet.create({
 
     wheelNumber: {
         fontSize: 30,
-        color: "#444444",
+        color: glassColor("color", "#444444", "wheelNumber", palette),
     },
 
     wheelNumberActive: {
         fontSize: 43,
         fontWeight: "500",
-        color: "#303030",
+        color: glassColor("color", "#303030", "wheelNumberActive", palette),
     },
 
     wheelHighlight: {
@@ -831,14 +838,14 @@ const styles = StyleSheet.create({
         right: 0,
         height: 56,
         borderRadius: 9,
-        backgroundColor: "#eeeeee",
+        backgroundColor: glassColor("backgroundColor", "#eeeeee", "wheelHighlight", palette),
         zIndex: -1,
     },
 
     durationHint: {
         marginTop: 6,
         fontSize: 12,
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "durationHint", palette),
         fontWeight: "600",
     },
 
@@ -848,7 +855,7 @@ const styles = StyleSheet.create({
 
     calendarInstruction: {
         fontSize: 11,
-        color: "#888888",
+        color: glassColor("color", "#888888", "calendarInstruction", palette),
         marginBottom: 12,
     },
 
@@ -862,7 +869,7 @@ const styles = StyleSheet.create({
     monthTitle: {
         fontSize: 13,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "monthTitle", palette),
     },
 
     calendarGrid: {
@@ -873,7 +880,7 @@ const styles = StyleSheet.create({
     weekday: {
         width: `${100 / 7}%`,
         textAlign: "center",
-        color: "#999999",
+        color: glassColor("color", "#999999", "weekday", palette),
         fontSize: 10,
         paddingVertical: 8,
     },
@@ -888,32 +895,33 @@ const styles = StyleSheet.create({
 
     dayText: {
         fontSize: 11,
-        color: "#303030",
+        color: glassColor("color", "#303030", "dayText", palette),
     },
 
     dayPast: {
-        color: "#cccccc",
+        color: palette.muted,
+        opacity: 0.45,
     },
 
     rangeBackground: {
         position: "absolute",
         top: 9,
         bottom: 9,
-        backgroundColor: "#e9e9e9",
+        backgroundColor: palette.background === "#080808" ? "#555555" : "#D5D5D5",
     },
 
     selectedDayCircle: {
         width: 27,
         height: 27,
         borderRadius: 14,
-        backgroundColor: "#4a4a4a",
+        backgroundColor: palette.background === "#080808" ? "#FFFFFF" : "#242424",
         alignItems: "center",
         justifyContent: "center",
         zIndex: 2,
     },
 
     dayTextSelected: {
-        color: "#ffffff",
+        color: palette.background === "#080808" ? "#111111" : "#FFFFFF",
         fontSize: 11,
         fontWeight: "700",
     },
@@ -925,12 +933,12 @@ const styles = StyleSheet.create({
 
     dateSummaryText: {
         fontSize: 12,
-        color: "#666666",
+        color: glassColor("color", "#666666", "dateSummaryText", palette),
     },
 
     calendarHint: {
         fontSize: 11,
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "calendarHint", palette),
         marginTop: 10,
     },
 
@@ -938,7 +946,7 @@ const styles = StyleSheet.create({
         height: 56,
         marginTop: 32,
         borderRadius: 28,
-        backgroundColor: "#303030",
+        backgroundColor: palette.accent,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -950,7 +958,7 @@ const styles = StyleSheet.create({
     },
 
     buttonText: {
-        color: "#ffffff",
+        color: palette.accentText,
         fontSize: 15,
         fontWeight: "700",
     },

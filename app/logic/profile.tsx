@@ -1,10 +1,14 @@
+import GlassFrost from "../../components/GlassFrost";
+import { useAxisTheme } from "../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
+import GlassBackdrop from "../../components/GlassBackdrop";
+import React from "react";
 import { useState } from "react";
 import {
     Image,
     Pressable,
     StatusBar,
     StyleSheet,
-    Switch,
     Text,
     View,
     ScrollView,
@@ -15,21 +19,27 @@ import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import GlassBottomNav from "../../components/GlassBottomNav";
+import AxisToggle from "../../components/AxisToggle";
 
 export default function ProfileScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
-    const [darkMode, setDarkMode] = useState(false);
+    const darkMode = axisDarkMode;
+    const setDarkMode = setAxisDarkMode;
     const [notifications, setNotifications] = useState(true);
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
-                barStyle="dark-content"
-                backgroundColor="#f7f7f7"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
+                backgroundColor={axisPalette.background}
             />
 
             <ScrollView
@@ -59,6 +69,7 @@ export default function ProfileScreen() {
                 {/* CARD DO PERFIL */}
 
                 <View style={styles.profileCard}>
+                <GlassFrost />
 
                     <Image
                         source={require("../../assets/images/perfil.jpg")}
@@ -90,6 +101,7 @@ export default function ProfileScreen() {
                     </Text>
 
                     <View style={styles.settingsCard}>
+                <GlassFrost />
 
                         {/* MODO ESCURO */}
 
@@ -100,7 +112,7 @@ export default function ProfileScreen() {
                                 <MaterialIcons
                                     name="dark-mode"
                                     size={23}
-                                    color="#8492a8"
+                                    color={axisPalette.muted}
                                 />
 
                                 <Text style={styles.settingText}>
@@ -109,10 +121,7 @@ export default function ProfileScreen() {
 
                             </View>
 
-                            <Switch
-                                value={darkMode}
-                                onValueChange={setDarkMode}
-                            />
+                            <AxisToggle label="Modo escuro" value={darkMode} onValueChange={setDarkMode} />
 
                         </View>
 
@@ -126,7 +135,7 @@ export default function ProfileScreen() {
                                 <MaterialIcons
                                     name="notifications-none"
                                     size={24}
-                                    color="#8492a8"
+                                    color={axisPalette.muted}
                                 />
 
                                 <Text style={styles.settingText}>
@@ -135,10 +144,7 @@ export default function ProfileScreen() {
 
                             </View>
 
-                            <Switch
-                                value={notifications}
-                                onValueChange={setNotifications}
-                            />
+                            <AxisToggle label="Notificações" value={notifications} onValueChange={setNotifications} />
 
                         </View>
 
@@ -155,7 +161,7 @@ export default function ProfileScreen() {
                                 <MaterialIcons
                                     name="info-outline"
                                     size={24}
-                                    color="#8492a8"
+                                    color={axisPalette.muted}
                                 />
 
                                 <Text style={styles.settingText}>
@@ -167,7 +173,7 @@ export default function ProfileScreen() {
                             <MaterialIcons
                                 name="chevron-right"
                                 size={25}
-                                color="#8492a8"
+                                color={axisPalette.muted}
                             />
 
                         </Pressable>
@@ -190,11 +196,11 @@ export default function ProfileScreen() {
 }
 
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     content: {
@@ -220,20 +226,21 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
     
     
 
     profileCard: {
+        ...glassDecoration("profileCard", palette),
         marginHorizontal: 25,
         marginTop: 25,
         paddingVertical: 22,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "profileCard", palette),
         borderRadius: 18,
         alignItems: "center",
 
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "profileCard", palette),
         shadowOffset: {
             width: 0,
             height: 3,
@@ -257,13 +264,13 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 19,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "name", palette),
     },
 
     email: {
         marginTop: 5,
         fontSize: 13,
-        color: "#8b8b8b",
+        color: glassColor("color", "#8b8b8b", "email", palette),
     },
 
     settings: {
@@ -275,15 +282,16 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         fontSize: 19,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "sectionTitle", palette),
     },
 
     settingsCard: {
-        backgroundColor: "#ffffff",
+        ...glassDecoration("settingsCard", palette),
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "settingsCard", palette),
         borderRadius: 18,
         paddingHorizontal: 17,
 
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "settingsCard", palette),
         shadowOffset: {
             width: 0,
             height: 3,
@@ -300,7 +308,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         borderBottomWidth: 1,
-        borderBottomColor: "#f0f0f0",
+        borderBottomColor: glassColor("borderBottomColor", "#f0f0f0", "settingRow", palette),
     },
 
 
@@ -316,7 +324,7 @@ const styles = StyleSheet.create({
     settingText: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#333333",
+        color: glassColor("color", "#333333", "settingText", palette),
     },
 
     bottomSpace: {

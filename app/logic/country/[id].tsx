@@ -1,3 +1,6 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useState } from "react";
 
 import {
@@ -186,6 +189,9 @@ const countries: Record<string, any> = {
 ========================================================= */
 
 export default function CountryScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
 
@@ -220,7 +226,7 @@ export default function CountryScreen() {
                     <MaterialIcons
                         name="arrow-back"
                         size={25}
-                        color="#ffffff"
+                        color={axisPalette.accentText}
                     />
 
                 </Pressable>
@@ -251,10 +257,11 @@ export default function CountryScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
                 barStyle="light-content"
-                backgroundColor="#000000"
+                backgroundColor={axisPalette.text}
             />
 
 
@@ -324,7 +331,7 @@ export default function CountryScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={25}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
 
                     </Pressable>
@@ -398,11 +405,11 @@ export default function CountryScreen() {
    ESTILOS
 ========================================================= */
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#000000",
+        backgroundColor: glassColor("backgroundColor", "#000000", "container", palette),
     },
 
 
@@ -488,7 +495,7 @@ const styles = StyleSheet.create({
 
 
     visitText: {
-        color: "#ffffff",
+        color: "#FFFFFF",
 
         fontSize: 30,
 
@@ -499,7 +506,7 @@ const styles = StyleSheet.create({
 
 
     countryName: {
-        color: "#ffffff",
+        color: "#FFFFFF",
 
         fontSize: 39,
 
@@ -559,7 +566,7 @@ const styles = StyleSheet.create({
 
 
     activeDot: {
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "activeDot", palette),
     },
 
 
@@ -574,14 +581,14 @@ const styles = StyleSheet.create({
 
         justifyContent: "center",
 
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "errorContainer", palette),
     },
 
 
     errorText: {
         fontSize: 18,
 
-        color: "#333333",
+        color: glassColor("color", "#333333", "errorText", palette),
     },
 
 });

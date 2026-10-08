@@ -1,3 +1,7 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import React from "react";
 import {
     Image,
     Pressable,
@@ -19,6 +23,9 @@ import GlassBottomNav from "../../../components/GlassBottomNav";
 import { savedTrips } from "./tripStore";
 
 export default function TripsScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const router = useRouter();
 
@@ -29,9 +36,10 @@ export default function TripsScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -83,7 +91,7 @@ export default function TripsScreen() {
                             <MaterialIcons
                                 name="luggage"
                                 size={28}
-                                color="#ffffff"
+                                color={axisPalette.accentText}
                             />
 
                         </View>
@@ -146,7 +154,7 @@ export default function TripsScreen() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={21}
-                        color="#ffffff"
+                        color={axisPalette.accentText}
                     />
 
                 </Pressable>
@@ -172,7 +180,7 @@ export default function TripsScreen() {
                         <MaterialIcons
                             name="group"
                             size={24}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
 
                     </View>
@@ -197,7 +205,7 @@ export default function TripsScreen() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={21}
-                        color="#303030"
+                        color={axisPalette.text}
                     />
 
                 </Pressable>
@@ -223,11 +231,11 @@ export default function TripsScreen() {
    ESTILOS
 ========================================================= */
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
 
@@ -255,10 +263,11 @@ const styles = StyleSheet.create({
         textAlign: "center",
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     profileButton: {
+        ...glassDecoration("profileButton", palette),
         position: "absolute",
         right: 24,
         width: 40,
@@ -296,7 +305,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
 
-        backgroundColor: "#a7a7a7",
+        backgroundColor: glassColor("backgroundColor", "#a7a7a7", "iconCircle", palette),
 
         marginBottom: 20,
     },
@@ -311,7 +320,7 @@ const styles = StyleSheet.create({
 
         fontWeight: "800",
 
-        color: "#303030",
+        color: glassColor("color", "#303030", "emptyTitle", palette),
 
         marginBottom: 12,
     },
@@ -324,7 +333,7 @@ const styles = StyleSheet.create({
 
         lineHeight: 20,
 
-        color: "#888888",
+        color: glassColor("color", "#888888", "emptyDescription", palette),
     },
 
 
@@ -341,7 +350,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 28,
 
-        backgroundColor: "#000000",
+        backgroundColor: glassColor("backgroundColor", "#000000", "createButton", palette),
 
         flexDirection: "row",
 
@@ -354,7 +363,7 @@ const styles = StyleSheet.create({
 
 
     createButtonText: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "createButtonText", palette),
 
         fontSize: 14,
 
@@ -376,6 +385,7 @@ const styles = StyleSheet.create({
     ================================================= */
 
     joinCard: {
+        ...glassDecoration("joinCard", palette),
         marginHorizontal: 30,
 
         marginTop: 18,
@@ -384,7 +394,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 20,
 
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "joinCard", palette),
 
         paddingHorizontal: 18,
 
@@ -394,7 +404,7 @@ const styles = StyleSheet.create({
 
         alignItems: "center",
 
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "joinCard", palette),
 
         shadowOffset: {
             width: 0,
@@ -415,7 +425,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 24,
 
-        backgroundColor: "#a7a7a7",
+        backgroundColor: glassColor("backgroundColor", "#a7a7a7", "joinIcon", palette),
 
         alignItems: "center",
         justifyContent: "center",
@@ -434,7 +444,7 @@ const styles = StyleSheet.create({
 
         fontWeight: "700",
 
-        color: "#303030",
+        color: glassColor("color", "#303030", "joinTitle", palette),
 
         marginBottom: 4,
     },
@@ -445,7 +455,7 @@ const styles = StyleSheet.create({
 
         lineHeight: 16,
 
-        color: "#999999",
+        color: glassColor("color", "#999999", "joinDescription", palette),
     },
 
 
@@ -468,11 +478,12 @@ const styles = StyleSheet.create({
     },
 
     tripCard: {
-        backgroundColor: "#ffffff",
+        ...glassDecoration("tripCard", palette),
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "tripCard", palette),
         borderRadius: 20,
         padding: 20,
         marginBottom: 14,
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "tripCard", palette),
         shadowOffset: {
             width: 0,
             height: 4,
@@ -485,13 +496,13 @@ const styles = StyleSheet.create({
     tripDestination: {
         fontSize: 18,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "tripDestination", palette),
         marginBottom: 5,
     },
 
     tripCountry: {
         fontSize: 13,
-        color: "#888888",
+        color: glassColor("color", "#888888", "tripCountry", palette),
     },
 
 });

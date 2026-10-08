@@ -1,3 +1,8 @@
+import GlassFrost from "../../../components/GlassFrost";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
@@ -19,6 +24,9 @@ import GlassBottomNav from "../../../components/GlassBottomNav";
 import { savedTrips } from "./tripStore";
 
 export default function ExpensesScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
 
     const insets = useSafeAreaInsets();
 
@@ -29,9 +37,10 @@ export default function ExpensesScreen() {
     return (
 
         <View style={styles.container}>
+            <GlassBackdrop />
 
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -124,7 +133,7 @@ export default function ExpensesScreen() {
                                             <MaterialIcons
                                                 name="flight-takeoff"
                                                 size={22}
-                                                color="#8492a8"
+                                                color={axisPalette.muted}
                                             />
 
                                         </View>
@@ -166,13 +175,14 @@ export default function ExpensesScreen() {
                     ) : (
 
                         <View style={styles.emptyCard}>
+                <GlassFrost />
 
                             <View style={styles.emptyIcon}>
 
                                 <MaterialIcons
                                     name="account-balance-wallet"
                                     size={28}
-                                    color="#8492a8"
+                                    color={axisPalette.muted}
                                 />
 
                             </View>
@@ -202,11 +212,11 @@ export default function ExpensesScreen() {
 }
 
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
 
@@ -225,11 +235,12 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
 
     profileButton: {
+        ...glassDecoration("profileButton", palette),
         position: "absolute",
         right: 24,
         width: 40,
@@ -256,7 +267,7 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
         textAlign: "center",
     },
 
@@ -265,7 +276,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#888888",
+        color: glassColor("color", "#888888", "subtitle", palette),
         maxWidth: 320,
         textAlign: "center",
         alignSelf: "center",
@@ -276,7 +287,7 @@ const styles = StyleSheet.create({
         marginTop: 32,
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "sectionTitle", palette),
         textAlign: "center",
     },
 
@@ -285,7 +296,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 13,
         fontSize: 11,
-        color: "#999999",
+        color: glassColor("color", "#999999", "sectionDescription", palette),
         textAlign: "center",
     },
 
@@ -296,14 +307,15 @@ const styles = StyleSheet.create({
 
 
     tripCard: {
+        ...glassDecoration("tripCard", palette),
         minHeight: 78,
         paddingHorizontal: 16,
         paddingVertical: 14,
         borderRadius: 18,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "tripCard", palette),
         flexDirection: "row",
         alignItems: "center",
-        shadowColor: "#000000",
+        shadowColor: glassColor("shadowColor", "#000000", "tripCard", palette),
         shadowOffset: {
             width: 0,
             height: 3,
@@ -318,7 +330,7 @@ const styles = StyleSheet.create({
         width: 46,
         height: 46,
         borderRadius: 23,
-        backgroundColor: "#f1f3f6",
+        backgroundColor: glassColor("backgroundColor", "#f1f3f6", "tripIconContainer", palette),
         alignItems: "center",
         justifyContent: "center",
         marginRight: 13,
@@ -333,22 +345,23 @@ const styles = StyleSheet.create({
     tripDestination: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "tripDestination", palette),
     },
 
 
     tripCountry: {
         marginTop: 4,
         fontSize: 11,
-        color: "#888888",
+        color: glassColor("color", "#888888", "tripCountry", palette),
     },
 
 
     emptyCard: {
+        ...glassDecoration("emptyCard", palette),
         marginTop: 30,
         padding: 24,
         borderRadius: 20,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "emptyCard", palette),
         alignItems: "center",
     },
 
@@ -357,7 +370,7 @@ const styles = StyleSheet.create({
         width: 58,
         height: 58,
         borderRadius: 29,
-        backgroundColor: "#f1f3f6",
+        backgroundColor: glassColor("backgroundColor", "#f1f3f6", "emptyIcon", palette),
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 14,
@@ -367,7 +380,7 @@ const styles = StyleSheet.create({
     emptyTitle: {
         fontSize: 16,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "emptyTitle", palette),
     },
 
 
@@ -375,7 +388,7 @@ const styles = StyleSheet.create({
         marginTop: 7,
         fontSize: 12,
         lineHeight: 18,
-        color: "#888888",
+        color: glassColor("color", "#888888", "emptyText", palette),
         textAlign: "center",
         maxWidth: 260,
     },

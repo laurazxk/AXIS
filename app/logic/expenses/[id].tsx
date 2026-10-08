@@ -1,3 +1,8 @@
+import GlassFrost from "../../../components/GlassFrost";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import {
@@ -101,6 +106,9 @@ function createPieSlicePath(
 }
 
 export default function ExpenseTripScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const { id } = useLocalSearchParams<{
         id: string;
     }>();
@@ -180,6 +188,7 @@ export default function ExpenseTripScreen() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
@@ -212,6 +221,7 @@ export default function ExpenseTripScreen() {
 
                 <View style={styles.metricsContainer}>
                     <View style={styles.metricCard}>
+                <GlassFrost />
                         <Text
                             style={styles.metricLabel}
                         >
@@ -234,6 +244,7 @@ export default function ExpenseTripScreen() {
                     </View>
 
                     <View style={styles.metricCard}>
+                <GlassFrost />
                         <Text
                             style={styles.metricLabel}
                         >
@@ -256,6 +267,7 @@ export default function ExpenseTripScreen() {
                     </View>
 
                     <View style={styles.metricCard}>
+                <GlassFrost />
                         <Text
                             style={styles.metricLabel}
                         >
@@ -275,6 +287,7 @@ export default function ExpenseTripScreen() {
                 </View>
 
                 <View style={styles.chartCard}>
+                <GlassFrost />
                     <Text style={styles.chartTitle}>
                         Gastos por categoria
                     </Text>
@@ -461,7 +474,7 @@ export default function ExpenseTripScreen() {
                                 <MaterialIcons
                                     name="attach-money"
                                     size={30}
-                                    color="#999999"
+                                    color={axisPalette.muted}
                                 />
                             </View>
 
@@ -513,10 +526,10 @@ export default function ExpenseTripScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     content: {
@@ -534,7 +547,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "backButton", palette),
         alignItems: "center",
         justifyContent: "center",
         marginRight: 14,
@@ -542,20 +555,20 @@ const styles = StyleSheet.create({
 
     backText: {
         fontSize: 30,
-        color: "#303030",
+        color: glassColor("color", "#303030", "backText", palette),
         lineHeight: 32,
     },
 
     title: {
         fontSize: 24,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     country: {
         marginTop: 4,
         fontSize: 14,
-        color: "#888888",
+        color: glassColor("color", "#888888", "country", palette),
     },
 
     sectionTitle: {
@@ -563,7 +576,7 @@ const styles = StyleSheet.create({
         marginBottom: 14,
         fontSize: 18,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "sectionTitle", palette),
     },
 
     metricsContainer: {
@@ -572,27 +585,29 @@ const styles = StyleSheet.create({
     },
 
     metricCard: {
+        ...glassDecoration("metricCard", palette),
         flex: 1,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "metricCard", palette),
         borderRadius: 18,
         padding: 18,
     },
 
     metricLabel: {
         fontSize: 12,
-        color: "#888888",
+        color: glassColor("color", "#888888", "metricLabel", palette),
         marginBottom: 8,
     },
 
     metricValue: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "metricValue", palette),
     },
 
     chartCard: {
+        ...glassDecoration("chartCard", palette),
         marginTop: 18,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "chartCard", palette),
         borderRadius: 20,
         padding: 20,
     },
@@ -600,7 +615,7 @@ const styles = StyleSheet.create({
     chartTitle: {
         fontSize: 16,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "chartTitle", palette),
         marginBottom: 10,
     },
 
@@ -620,7 +635,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         paddingVertical: 10,
         borderTopWidth: 1,
-        borderTopColor: "#eeeeee",
+        borderTopColor: glassColor("borderTopColor", "#eeeeee", "legendItem", palette),
     },
 
     legendColor: {
@@ -637,19 +652,19 @@ const styles = StyleSheet.create({
     legendName: {
         fontSize: 14,
         fontWeight: "600",
-        color: "#303030",
+        color: glassColor("color", "#303030", "legendName", palette),
     },
 
     legendPercentage: {
         marginTop: 3,
         fontSize: 11,
-        color: "#999999",
+        color: glassColor("color", "#999999", "legendPercentage", palette),
     },
 
     legendValue: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "legendValue", palette),
     },
 
     emptyChart: {
@@ -663,7 +678,7 @@ const styles = StyleSheet.create({
         width: 52,
         height: 52,
         borderRadius: 26,
-        backgroundColor: "#f0f0f0",
+        backgroundColor: glassColor("backgroundColor", "#f0f0f0", "emptyChartIcon", palette),
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 14,
@@ -672,7 +687,7 @@ const styles = StyleSheet.create({
     emptyChartTitle: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#555555",
+        color: glassColor("color", "#555555", "emptyChartTitle", palette),
         textAlign: "center",
     },
 
@@ -680,21 +695,21 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: 12,
         lineHeight: 18,
-        color: "#999999",
+        color: glassColor("color", "#999999", "emptyChartText", palette),
         textAlign: "center",
         maxWidth: 240,
     },
 
     addButton: {
         marginTop: 24,
-        backgroundColor: "#000000",
+        backgroundColor: glassColor("backgroundColor", "#000000", "addButton", palette),
         borderRadius: 40,
         paddingVertical: 18,
         alignItems: "center",
     },
 
     addButtonText: {
-        color: "#ffffff",
+        color: glassColor("color", "#ffffff", "addButtonText", palette),
         fontSize: 16,
         fontWeight: "600",
     },

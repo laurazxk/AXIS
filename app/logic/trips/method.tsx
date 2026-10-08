@@ -1,3 +1,7 @@
+import GlassFrost from "../../../components/GlassFrost";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
 
 import React from "react";
 
@@ -17,13 +21,17 @@ import { useRouter } from "expo-router";
 import { tripDraft } from "./tripDraft";
 
 export default function MethodScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
             />
 
@@ -42,7 +50,7 @@ export default function MethodScreen() {
                         <MaterialIcons
                             name="arrow-back"
                             size={24}
-                            color="#303030"
+                            color={axisPalette.text}
                         />
                     </Pressable>
 
@@ -67,11 +75,12 @@ export default function MethodScreen() {
                 </Text>
 
                 <View style={styles.summaryCard}>
+                <GlassFrost />
                     <View style={styles.summaryIcon}>
                         <MaterialIcons
                             name="luggage"
                             size={26}
-                            color="#ffffff"
+                            color={axisPalette.accentText}
                         />
                     </View>
 
@@ -110,7 +119,7 @@ export default function MethodScreen() {
                         <MaterialIcons
                             name="auto-awesome"
                             size={28}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -132,7 +141,7 @@ export default function MethodScreen() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={21}
-                        color="#8492a8"
+                        color={axisPalette.muted}
                     />
                 </Pressable>
 
@@ -149,7 +158,7 @@ export default function MethodScreen() {
                         <MaterialIcons
                             name="edit-calendar"
                             size={28}
-                            color="#8492a8"
+                            color={axisPalette.muted}
                         />
                     </View>
 
@@ -167,7 +176,7 @@ export default function MethodScreen() {
                     <MaterialIcons
                         name="arrow-forward"
                         size={21}
-                        color="#303030"
+                        color={axisPalette.text}
                     />
                 </Pressable>
             </ScrollView>
@@ -175,10 +184,10 @@ export default function MethodScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     content: {
@@ -203,7 +212,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -215,7 +224,7 @@ const styles = StyleSheet.create({
         marginTop: 28,
         fontSize: 11,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "step", palette),
         letterSpacing: 1,
     },
 
@@ -224,21 +233,22 @@ const styles = StyleSheet.create({
         fontSize: 29,
         lineHeight: 35,
         fontWeight: "800",
-        color: "#303030",
+        color: glassColor("color", "#303030", "title", palette),
     },
 
     subtitle: {
         marginTop: 10,
         fontSize: 14,
         lineHeight: 21,
-        color: "#888888",
+        color: glassColor("color", "#888888", "subtitle", palette),
     },
 
     summaryCard: {
+        ...glassDecoration("summaryCard", palette),
         marginTop: 27,
         padding: 17,
         borderRadius: 20,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "summaryCard", palette),
         flexDirection: "row",
         alignItems: "center",
         gap: 13,
@@ -249,7 +259,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 24,
-        backgroundColor: "#a7a7a7",
+        backgroundColor: glassColor("backgroundColor", "#a7a7a7", "summaryIcon", palette),
         alignItems: "center",
         justifyContent: "center",
     },
@@ -261,28 +271,29 @@ const styles = StyleSheet.create({
     summaryTitle: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "summaryTitle", palette),
     },
 
     summaryDescription: {
         fontSize: 11,
         lineHeight: 17,
-        color: "#888888",
+        color: glassColor("color", "#888888", "summaryDescription", palette),
         marginTop: 4,
     },
 
     summaryBudget: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "summaryBudget", palette),
         marginTop: 7,
     },
 
     optionCard: {
+        ...glassDecoration("optionCard", palette),
         marginTop: 18,
         padding: 18,
         borderRadius: 20,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "optionCard", palette),
         flexDirection: "row",
         alignItems: "center",
         gap: 13,
@@ -290,6 +301,7 @@ const styles = StyleSheet.create({
     },
 
     aiCard: {
+        ...glassDecoration("aiCard", palette),
         opacity: 0.65,
     },
 
@@ -297,7 +309,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 16,
-        backgroundColor: "#eef0f3",
+        backgroundColor: glassColor("backgroundColor", "#eef0f3", "optionIcon", palette),
         alignItems: "center",
         justifyContent: "center",
     },
@@ -309,21 +321,21 @@ const styles = StyleSheet.create({
     optionTitle: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "optionTitle", palette),
     },
 
     optionDescription: {
         marginTop: 6,
         fontSize: 11,
         lineHeight: 17,
-        color: "#888888",
+        color: glassColor("color", "#888888", "optionDescription", palette),
     },
 
     comingSoon: {
         marginTop: 8,
         fontSize: 10,
         fontWeight: "700",
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "comingSoon", palette),
     },
 
     pressed: {

@@ -1,3 +1,7 @@
+import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import React from "react";
 import { useState } from "react";
 
 import {
@@ -40,6 +44,9 @@ const MINUTES = Array.from(
 const ITEM_HEIGHT = 44;
 
 export default function ItineraryScreen() {
+    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
+    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
@@ -228,9 +235,10 @@ export default function ItineraryScreen() {
 
     return (
         <View style={styles.container}>
+            <GlassBackdrop />
             <StatusBar
-                barStyle="dark-content"
-                backgroundColor="#ffffff"
+                barStyle={axisDarkMode ? "light-content" : "dark-content"}
+                backgroundColor={axisPalette.accentText}
             />
 
             {/* CABEÇALHO */}
@@ -253,7 +261,7 @@ export default function ItineraryScreen() {
                     <MaterialIcons
                         name="arrow-back"
                         size={23}
-                        color="#303030"
+                        color={axisPalette.text}
                     />
                 </Pressable>
 
@@ -400,7 +408,7 @@ export default function ItineraryScreen() {
                                 <MaterialIcons
                                     name="schedule"
                                     size={14}
-                                    color="#999999"
+                                    color={axisPalette.muted}
                                 />
 
                                 <Text
@@ -431,7 +439,7 @@ export default function ItineraryScreen() {
                                         )
                                     }
                                     placeholder="Nome da atividade"
-                                    placeholderTextColor="#999999"
+                                    placeholderTextColor={axisPalette.muted}
                                     style={[
                                         styles.activityInput,
                                         item.completed &&
@@ -470,7 +478,7 @@ export default function ItineraryScreen() {
                                         <MaterialIcons
                                             name="check"
                                             size={16}
-                                            color="#ffffff"
+                                            color={axisPalette.accentText}
                                         />
                                     )}
                                 </View>
@@ -493,7 +501,7 @@ export default function ItineraryScreen() {
                                 <MaterialIcons
                                     name="close"
                                     size={17}
-                                    color="#999999"
+                                    color={axisPalette.muted}
                                 />
                             </Pressable>
                         </View>
@@ -511,7 +519,7 @@ export default function ItineraryScreen() {
                     <MaterialIcons
                         name="add"
                         size={19}
-                        color="#777777"
+                        color={axisPalette.muted}
                     />
 
                     <Text
@@ -802,16 +810,16 @@ export default function ItineraryScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (palette: GlassPalette) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
     },
 
     header: {
         minHeight: 82,
         paddingHorizontal: 16,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "header", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -827,7 +835,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 17,
         fontWeight: "700",
-        color: "#151515",
+        color: glassColor("color", "#151515", "headerTitle", palette),
     },
 
     headerSpace: {
@@ -838,24 +846,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 8,
         paddingBottom: 10,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "destinationInfo", palette),
     },
 
     destinationName: {
         fontSize: 18,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "destinationName", palette),
     },
 
     destinationLocation: {
         marginTop: 3,
         fontSize: 12,
-        color: "#8492a8",
+        color: glassColor("color", "#8492a8", "destinationLocation", palette),
     },
 
     daysScroll: {
         flexGrow: 0,
-        backgroundColor: "#ffffff",
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "daysScroll", palette),
     },
 
     daysContainer: {
@@ -874,7 +882,7 @@ const styles = StyleSheet.create({
     dayTitle: {
         fontSize: 13,
         fontWeight: "600",
-        color: "#303030",
+        color: glassColor("color", "#303030", "dayTitle", palette),
     },
 
     dayTitleActive: {
@@ -884,11 +892,11 @@ const styles = StyleSheet.create({
     dayDate: {
         marginTop: 3,
         fontSize: 11,
-        color: "#aaaaaa",
+        color: glassColor("color", "#aaaaaa", "dayDate", palette),
     },
 
     dayDateActive: {
-        color: "#888888",
+        color: glassColor("color", "#888888", "dayDateActive", palette),
     },
 
     activeIndicator: {
@@ -897,7 +905,7 @@ const styles = StyleSheet.create({
         left: 10,
         right: 10,
         height: 2,
-        backgroundColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "activeIndicator", palette),
     },
 
     activitiesScroll: {
@@ -924,8 +932,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: "#eaeaea",
-        backgroundColor: "#fafafa",
+        borderColor: glassColor("borderColor", "#eaeaea", "timeContainer", palette),
+        backgroundColor: glassColor("backgroundColor", "#fafafa", "timeContainer", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -934,7 +942,7 @@ const styles = StyleSheet.create({
 
     timeText: {
         fontSize: 11,
-        color: "#303030",
+        color: glassColor("color", "#303030", "timeText", palette),
         textAlign: "center",
         fontWeight: "500",
     },
@@ -945,8 +953,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: "#eaeaea",
-        backgroundColor: "#fafafa",
+        borderColor: glassColor("borderColor", "#eaeaea", "titleContainer", palette),
+        backgroundColor: glassColor("backgroundColor", "#fafafa", "titleContainer", palette),
         paddingHorizontal: 13,
     },
 
@@ -954,11 +962,11 @@ const styles = StyleSheet.create({
         minHeight: 33,
         paddingVertical: 6,
         fontSize: 12,
-        color: "#202020",
+        color: glassColor("color", "#202020", "activityInput", palette),
     },
 
     activityCompletedText: {
-        color: "#999999",
+        color: glassColor("color", "#999999", "activityCompletedText", palette),
         textDecorationLine: "line-through",
     },
 
@@ -974,15 +982,15 @@ const styles = StyleSheet.create({
         height: 21,
         borderRadius: 6,
         borderWidth: 1.5,
-        borderColor: "#bdbdbd",
-        backgroundColor: "#ffffff",
+        borderColor: glassColor("borderColor", "#bdbdbd", "checkBox", palette),
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "checkBox", palette),
         alignItems: "center",
         justifyContent: "center",
     },
 
     checkBoxCompleted: {
-        backgroundColor: "#303030",
-        borderColor: "#303030",
+        backgroundColor: glassColor("backgroundColor", "#303030", "checkBoxCompleted", palette),
+        borderColor: glassColor("borderColor", "#303030", "checkBoxCompleted", palette),
     },
 
     deleteButton: {
@@ -996,7 +1004,7 @@ const styles = StyleSheet.create({
         height: 42,
         marginTop: 5,
         borderRadius: 22,
-        backgroundColor: "#e3e3e3",
+        backgroundColor: glassColor("backgroundColor", "#e3e3e3", "addButton", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
@@ -1006,14 +1014,14 @@ const styles = StyleSheet.create({
     addButtonText: {
         fontSize: 12,
         fontWeight: "600",
-        color: "#666666",
+        color: glassColor("color", "#666666", "addButtonText", palette),
     },
 
     emptyHint: {
         marginTop: 14,
         fontSize: 12,
         lineHeight: 18,
-        color: "#999999",
+        color: glassColor("color", "#999999", "emptyHint", palette),
         textAlign: "center",
     },
 
@@ -1028,11 +1036,12 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.25)",
+        backgroundColor: glassColor("backgroundColor", "rgba(0,0,0,0.25)", "modalBackground", palette),
     },
 
     timeModal: {
-        backgroundColor: "#ffffff",
+        ...glassDecoration("timeModal", palette),
+        backgroundColor: glassColor("backgroundColor", "#ffffff", "timeModal", palette),
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         paddingBottom: 35,
@@ -1043,7 +1052,7 @@ const styles = StyleSheet.create({
         height: 58,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
-        borderBottomColor: "#eeeeee",
+        borderBottomColor: glassColor("borderBottomColor", "#eeeeee", "modalHeader", palette),
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -1052,18 +1061,18 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 15,
         fontWeight: "700",
-        color: "#202020",
+        color: glassColor("color", "#202020", "modalTitle", palette),
     },
 
     cancelText: {
         fontSize: 14,
-        color: "#888888",
+        color: glassColor("color", "#888888", "cancelText", palette),
     },
 
     confirmText: {
         fontSize: 14,
         fontWeight: "700",
-        color: "#202020",
+        color: glassColor("color", "#202020", "confirmText", palette),
     },
 
     selectedTimeDisplay: {
@@ -1075,7 +1084,7 @@ const styles = StyleSheet.create({
     selectedTimeText: {
         fontSize: 28,
         fontWeight: "700",
-        color: "#202020",
+        color: glassColor("color", "#202020", "selectedTimeText", palette),
     },
 
     pickerWrapper: {
@@ -1100,19 +1109,19 @@ const styles = StyleSheet.create({
     },
 
     pickerItemSelected: {
-        backgroundColor: "#f2f2f2",
+        backgroundColor: glassColor("backgroundColor", "#f2f2f2", "pickerItemSelected", palette),
         borderRadius: 12,
     },
 
     pickerItemText: {
         fontSize: 18,
-        color: "#b5b5b5",
+        color: glassColor("color", "#b5b5b5", "pickerItemText", palette),
         fontWeight: "400",
     },
 
     pickerItemTextSelected: {
         fontSize: 21,
-        color: "#202020",
+        color: glassColor("color", "#202020", "pickerItemTextSelected", palette),
         fontWeight: "700",
     },
 
@@ -1124,7 +1133,7 @@ const styles = StyleSheet.create({
         height: ITEM_HEIGHT,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: "#e2e2e2",
+        borderColor: glassColor("borderColor", "#e2e2e2", "selectionBox", palette),
     },
 
     colonContainer: {
@@ -1137,7 +1146,7 @@ const styles = StyleSheet.create({
     colonText: {
         fontSize: 22,
         fontWeight: "700",
-        color: "#303030",
+        color: glassColor("color", "#303030", "colonText", palette),
     },
 
     finishButton: {
@@ -1147,11 +1156,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#1F2937",
+        backgroundColor: glassColor("backgroundColor", "#1F2937", "finishButton", palette),
     },
 
     finishButtonText: {
-        color: "#FFFFFF",
+        color: glassColor("color", "#FFFFFF", "finishButtonText", palette),
         fontSize: 16,
         fontWeight: "600",
     },
