@@ -197,6 +197,8 @@ Após finalizar as telas de apresentação, o usuário é direcionado para a Hom
 
 A partir da Home, o usuário pode acessar:
 
+```text
+
 Home
  ├── Destinos
  │    └── Detalhes do destino
@@ -209,6 +211,8 @@ Home
  ├── Despesas
  │
  └── Perfil
+```
+
 Aplicativo Mobile
 
 O Axis é desenvolvido utilizando React Native + Expo.
