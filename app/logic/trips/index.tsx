@@ -3,7 +3,7 @@ import { glassColor, glassDecoration, type GlassPalette } from "../../../constan
 import GlassBackdrop from "../../../components/GlassBackdrop";
 import React from "react";
 import {
-    Image,
+    Alert,
     Pressable,
     ScrollView,
     StatusBar,
@@ -20,7 +20,16 @@ import { useRouter } from "expo-router";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
 
-import { savedTrips } from "./tripStore";
+import {
+    deleteTrip,
+    getSavedTrips,
+    subscribeToTrips,
+    type SavedTrip,
+  } from "./tripStore";
+  
+  import TripInvitationModal from "../../../components/TripInvitationModal";
+  import UserAvatar from "../../../components/UserAvatar";
+  import { useAxisAuth } from "../../../contexts/AuthContext";
 
 export default function TripsScreen() {
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
@@ -31,7 +40,39 @@ export default function TripsScreen() {
 
     const insets = useSafeAreaInsets();
 
-    const hasTrips = savedTrips.length > 0;
+    const { user } = useAxisAuth();
+
+const [trips, setTrips] =
+  React.useState<SavedTrip[]>(getSavedTrips);
+
+const [selectedTrip, setSelectedTrip] =
+  React.useState<SavedTrip | null>(null);
+
+React.useEffect(() => {
+  return subscribeToTrips(() => {
+    setTrips(getSavedTrips());
+  });
+}, []);
+
+    const hasTrips = trips.length > 0;
+
+    function confirmDeleteTrip(trip: SavedTrip) {
+      Alert.alert(
+        "Excluir viagem",
+        `Deseja excluir a viagem para ${trip.destination || "este destino"}? Essa ação não pode ser desfeita.`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: () => {
+              deleteTrip(trip.id);
+              if (selectedTrip?.id === trip.id) setSelectedTrip(null);
+            },
+          },
+        ]
+      );
+    }
 
     return (
 
@@ -69,11 +110,7 @@ export default function TripsScreen() {
                             router.push("/logic/profile")
                         }
                     >
-                        <Image
-                            source={require("../../../assets/images/perfil.jpg")}
-                            style={styles.profileImage}
-                            resizeMode="cover"
-                        />
+                        <UserAvatar user={user} size={35} />
                     </Pressable>
 
                 </View>
@@ -115,21 +152,84 @@ export default function TripsScreen() {
                     </View>
                 )}
 
-                {hasTrips && (
-                    <View style={styles.tripsContainer}>
-                        {savedTrips.map((trip) => (
-                            <View key={trip.id} style={styles.tripCard}>
-                                <Text style={styles.tripDestination}>
-                                    {trip.destination}
-                                </Text>
+{hasTrips && (
+  <View style={styles.tripsContainer}>
+    {trips.map((trip) => (
+      <Pressable
+        key={trip.id}
+        style={({ pressed }) => [
+          styles.tripCard,
+          pressed && { opacity: 0.85 },
+        ]}
+        onPress={() => router.push({
+          pathname: "/logic/trips/itinerary",
+          params: { tripId: trip.id },
+        })}
+        accessibilityRole="button"
+      >
+        <Text style={styles.tripDestination}>
+          {trip.destination}
+        </Text>
 
-                                <Text style={styles.tripCountry}>
-                                    {trip.country}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
+        <Text style={styles.tripCountry}>
+          {trip.country}
+        </Text>
+
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            setSelectedTrip(trip);
+          }}
+          accessibilityRole="button"
+          style={{
+            marginTop: 16,
+            alignSelf: "flex-start",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            borderWidth: 1,
+            borderColor: axisPalette.border,
+            borderRadius: 12,
+            paddingHorizontal: 15,
+            paddingVertical: 10,
+          }}
+        >
+          <MaterialIcons
+            name="qr-code"
+            size={20}
+            color={axisPalette.text}
+          />
+
+          <Text
+            style={{
+              color: axisPalette.text,
+              fontSize: 13,
+              fontWeight: "700",
+            }}
+          >
+            Código
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={(event) => {
+            event.stopPropagation();
+            confirmDeleteTrip(trip);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={`Excluir viagem para ${trip.destination}`}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.deleteTripButton,
+            pressed && { opacity: 0.6 },
+          ]}
+        >
+          <MaterialIcons name="delete-outline" size={22} color={axisPalette.muted} />
+        </Pressable>
+      </Pressable>
+    ))}
+  </View>
+)}
 
                 {/* =================================================
                     CRIAR VIAGEM
@@ -221,6 +321,12 @@ export default function TripsScreen() {
             ================================================= */}
 
             <GlassBottomNav />
+
+            <TripInvitationModal
+  visible={selectedTrip !== null}
+  invitation={selectedTrip?.invitation ?? null}
+  onClose={() => setSelectedTrip(null)}
+/>
 
         </View>
     );
@@ -491,6 +597,17 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 8,
         elevation: 3,
+    },
+
+    deleteTripButton: {
+        position: "absolute",
+        right: 14,
+        top: 14,
+        width: 38,
+        height: 38,
+        borderRadius: 19,
+        alignItems: "center",
+        justifyContent: "center",
     },
 
     tripDestination: {

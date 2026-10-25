@@ -2,6 +2,8 @@ import GlassFrost from "../../../components/GlassFrost";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
 import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
 import GlassBackdrop from "../../../components/GlassBackdrop";
+import UserAvatar from "../../../components/UserAvatar";
+import { useAxisAuth } from "../../../contexts/AuthContext";
 import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -24,6 +26,7 @@ import GlassBottomNav from "../../../components/GlassBottomNav";
 import { savedTrips } from "./tripStore";
 
 export default function ExpensesScreen() {
+    const { user } = useAxisAuth();
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
     const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
 
@@ -68,11 +71,7 @@ export default function ExpensesScreen() {
                             router.push("/logic/profile")
                         }
                     >
-                        <Image
-                            source={require("../../../assets/images/perfil.jpg")}
-                            style={styles.profileImage}
-                            resizeMode="cover"
-                        />
+                        <UserAvatar user={user} size={35} />
                     </Pressable>
 
                 </View>

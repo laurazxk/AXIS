@@ -1,6 +1,8 @@
 import { useAxisTheme } from "../../../contexts/ThemeContext";
 import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
 import GlassBackdrop from "../../../components/GlassBackdrop";
+import TripInvitationModal from "../../../components/TripInvitationModal";
+import type { TripInvitation } from "../../../utils/tripInvitation";
 import React from "react";
 import { useState } from "react";
 
@@ -62,6 +64,25 @@ export default function ItineraryScreen() {
 
     const [pickerHour, setPickerHour] = useState(9);
     const [pickerMinute, setPickerMinute] = useState(0);
+
+    const [invitationVisible, setInvitationVisible] = useState(false);
+    const [createdInvitation, setCreatedInvitation] =
+        useState<TripInvitation | null>(null);
+    const [tripFinished, setTripFinished] = useState(false);
+
+    function finishTrip() {
+        if (tripFinished) return;
+
+        const trip = saveTrip();
+        setTripFinished(true);
+        setCreatedInvitation(trip.invitation);
+        setInvitationVisible(true);
+    }
+
+    function closeInvitation() {
+        setInvitationVisible(false);
+        router.replace("/logic/trips");
+    }
 
     const totalDays = Math.max(
         1,
@@ -796,16 +817,19 @@ export default function ItineraryScreen() {
                 </View>
             </Modal>
             <Pressable
-                style={styles.finishButton}
-                onPress={() => {
-                    saveTrip();
-                    router.push("/logic/trips");
-                }}
-            >
-                <Text style={styles.finishButtonText}>
-                    Concluir viagem
-                </Text>
-            </Pressable>
+  style={styles.finishButton}
+  disabled={tripFinished}
+  onPress={finishTrip}
+>
+  <Text style={styles.finishButtonText}>
+    Concluir viagem
+  </Text>
+</Pressable>
+<TripInvitationModal
+  visible={invitationVisible}
+  invitation={createdInvitation}
+  onClose={closeInvitation}
+/>
         </View>
     );
 }
