@@ -20,7 +20,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { LinearGradient } from "expo-linear-gradient";
 
-import { tripDraft } from "../trips/tripDraft";
+import { tripDraft } from "../../../stores/tripDraft";
 
 
 const { width, height } = Dimensions.get("window");

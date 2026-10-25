@@ -1,29 +1,28 @@
-import GlassFrost from "../../../components/GlassFrost";
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
-import UserAvatar from "../../../components/UserAvatar";
-import { useAxisAuth } from "../../../contexts/AuthContext";
-import React from "react";
 import { MaterialIcons } from "@expo/vector-icons";
+import React from "react";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import GlassFrost from "../../../components/GlassFrost";
+import UserAvatar from "../../../components/UserAvatar";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisAuth } from "../../../contexts/AuthContext";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import { useRouter } from "expo-router";
 
 import {
-    Image,
     Pressable,
     ScrollView,
     StatusBar,
     StyleSheet,
     Text,
-    View,
+    View
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
 
-import { savedTrips } from "./tripStore";
+import { savedTrips } from "../../../stores/tripStore";
 
 export default function ExpensesScreen() {
     const { user } = useAxisAuth();

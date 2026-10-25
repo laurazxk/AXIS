@@ -1,9 +1,9 @@
-import GlassFrost from "../../../components/GlassFrost";
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
-import React from "react";
 import { BlurView } from "expo-blur";
+import React from "react";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import GlassFrost from "../../../components/GlassFrost";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -23,7 +23,7 @@ import ColorPicker, {
     Preview,
 } from "reanimated-color-picker";
 
-import { savedTrips } from "../trips/tripStore";
+import { savedTrips } from "../../../stores/tripStore";
 
 export default function NewExpenseScreen() {
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();

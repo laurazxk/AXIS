@@ -1,10 +1,9 @@
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import React, { useState } from "react";
 import GlassBackdrop from "../../../components/GlassBackdrop";
 import TripInvitationModal from "../../../components/TripInvitationModal";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 import type { TripInvitation } from "../../../utils/tripInvitation";
-import React from "react";
-import { useState } from "react";
 
 import {
     FlatList,
@@ -22,8 +21,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { tripDraft } from "./tripDraft";
-import { saveTrip } from "./tripStore";
+import { saveTrip } from "../../../stores/tripStore";
+import { tripDraft } from "../../../stores/tripDraft";
 
 type Activity = {
     id: number;

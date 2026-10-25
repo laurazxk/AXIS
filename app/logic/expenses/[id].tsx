@@ -1,9 +1,9 @@
-import GlassFrost from "../../../components/GlassFrost";
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
-import React from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import GlassFrost from "../../../components/GlassFrost";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import {
     Pressable,
@@ -15,7 +15,7 @@ import {
 
 import { MaterialIcons } from "@expo/vector-icons";
 import Svg, { Path } from "react-native-svg";
-import { savedTrips } from "../trips/tripStore";
+import { savedTrips } from "../../../stores/tripStore";
 
 type ExpenseGroup = {
     key: string;

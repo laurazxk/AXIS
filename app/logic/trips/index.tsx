@@ -1,6 +1,3 @@
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
 import React from "react";
 import {
     Alert,
@@ -11,6 +8,9 @@ import {
     Text,
     View,
 } from "react-native";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -25,11 +25,11 @@ import {
     getSavedTrips,
     subscribeToTrips,
     type SavedTrip,
-  } from "./tripStore";
+} from "../../../stores/tripStore";
   
   import TripInvitationModal from "../../../components/TripInvitationModal";
-  import UserAvatar from "../../../components/UserAvatar";
-  import { useAxisAuth } from "../../../contexts/AuthContext";
+import UserAvatar from "../../../components/UserAvatar";
+import { useAxisAuth } from "../../../contexts/AuthContext";
 
 export default function TripsScreen() {
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();

@@ -20,7 +20,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { tripDraft } from "./tripDraft";
+import { tripDraft } from "../../../stores/tripDraft";
 
 const currencies = ["BRL", "EUR", "USD"];
 

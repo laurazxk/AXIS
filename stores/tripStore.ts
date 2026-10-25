@@ -1,5 +1,5 @@
+import { createTripInvitation, type TripInvitation } from "../utils/tripInvitation";
 import { tripDraft, type TripDraft } from "./tripDraft";
-import { createTripInvitation, type TripInvitation } from "../../../utils/tripInvitation";
 
 export type Expense = {
   id: string;
