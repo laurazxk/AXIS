@@ -1,9 +1,10 @@
+
 import GlassFrost from "../../../components/GlassFrost";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
 import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
 import GlassBackdrop from "../../../components/GlassBackdrop";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import {
     View,
@@ -13,6 +14,7 @@ import {
     Pressable,
     StatusBar,
     ScrollView,
+    ActivityIndicator,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,78 +23,25 @@ import { useRouter } from "expo-router";
 
 import { tripDraft } from "../../../stores/tripDraft";
 
-type Destination = {
-    city: string;
-    country: string;
-    countryCode: string;
-    currency: string;
+type Country = {
+    name: string;
+    alpha2Code: string;
     flag: string;
+    currencies?: {
+        code: string;
+        name: string;
+        symbol: string;
+    }[];
 };
 
-const destinations: Destination[] = [
-    { city: "Paris", country: "França", countryCode: "FR", currency: "EUR", flag: "🇫🇷" },
-    { city: "Nice", country: "França", countryCode: "FR", currency: "EUR", flag: "🇫🇷" },
-    { city: "Lyon", country: "França", countryCode: "FR", currency: "EUR", flag: "🇫🇷" },
-    { city: "Tóquio", country: "Japão", countryCode: "JP", currency: "JPY", flag: "🇯🇵" },
-    { city: "Osaka", country: "Japão", countryCode: "JP", currency: "JPY", flag: "🇯🇵" },
-    { city: "Roma", country: "Itália", countryCode: "IT", currency: "EUR", flag: "🇮🇹" },
-    { city: "Veneza", country: "Itália", countryCode: "IT", currency: "EUR", flag: "🇮🇹" },
-    { city: "Florença", country: "Itália", countryCode: "IT", currency: "EUR", flag: "🇮🇹" },
-    { city: "Londres", country: "Reino Unido", countryCode: "GB", currency: "GBP", flag: "🇬🇧" },
-    { city: "Manchester", country: "Reino Unido", countryCode: "GB", currency: "GBP", flag: "🇬🇧" },
-    { city: "Lisboa", country: "Portugal", countryCode: "PT", currency: "EUR", flag: "🇵🇹" },
-    { city: "Porto", country: "Portugal", countryCode: "PT", currency: "EUR", flag: "🇵🇹" },
-    { city: "Madrid", country: "Espanha", countryCode: "ES", currency: "EUR", flag: "🇪🇸" },
-    { city: "Barcelona", country: "Espanha", countryCode: "ES", currency: "EUR", flag: "🇪🇸" },
-    { city: "Sevilha", country: "Espanha", countryCode: "ES", currency: "EUR", flag: "🇪🇸" },
-    { city: "Nova York", country: "Estados Unidos", countryCode: "US", currency: "USD", flag: "🇺🇸" },
-    { city: "Los Angeles", country: "Estados Unidos", countryCode: "US", currency: "USD", flag: "🇺🇸" },
-    { city: "Orlando", country: "Estados Unidos", countryCode: "US", currency: "USD", flag: "🇺🇸" },
-    { city: "Miami", country: "Estados Unidos", countryCode: "US", currency: "USD", flag: "🇺🇸" },
-    { city: "Toronto", country: "Canadá", countryCode: "CA", currency: "CAD", flag: "🇨🇦" },
-    { city: "Vancouver", country: "Canadá", countryCode: "CA", currency: "CAD", flag: "🇨🇦" },
-    { city: "Cidade do México", country: "México", countryCode: "MX", currency: "MXN", flag: "🇲🇽" },
-    { city: "Cancún", country: "México", countryCode: "MX", currency: "MXN", flag: "🇲🇽" },
-    { city: "Rio de Janeiro", country: "Brasil", countryCode: "BR", currency: "BRL", flag: "🇧🇷" },
-    { city: "São Paulo", country: "Brasil", countryCode: "BR", currency: "BRL", flag: "🇧🇷" },
-    { city: "Salvador", country: "Brasil", countryCode: "BR", currency: "BRL", flag: "🇧🇷" },
-    { city: "Florianópolis", country: "Brasil", countryCode: "BR", currency: "BRL", flag: "🇧🇷" },
-    { city: "Atenas", country: "Grécia", countryCode: "GR", currency: "EUR", flag: "🇬🇷" },
-    { city: "Santorini", country: "Grécia", countryCode: "GR", currency: "EUR", flag: "🇬🇷" },
-    { city: "Zurique", country: "Suíça", countryCode: "CH", currency: "CHF", flag: "🇨🇭" },
-    { city: "Genebra", country: "Suíça", countryCode: "CH", currency: "CHF", flag: "🇨🇭" },
-    { city: "Seul", country: "Coreia do Sul", countryCode: "KR", currency: "KRW", flag: "🇰🇷" },
-    { city: "Bangkok", country: "Tailândia", countryCode: "TH", currency: "THB", flag: "🇹🇭" },
-    { city: "Phuket", country: "Tailândia", countryCode: "TH", currency: "THB", flag: "🇹🇭" },
-    { city: "Dubai", country: "Emirados Árabes", countryCode: "AE", currency: "AED", flag: "🇦🇪" },
-    { city: "Sydney", country: "Austrália", countryCode: "AU", currency: "AUD", flag: "🇦🇺" },
-    { city: "Melbourne", country: "Austrália", countryCode: "AU", currency: "AUD", flag: "🇦🇺" },
-    { city: "Berlim", country: "Alemanha", countryCode: "DE", currency: "EUR", flag: "🇩🇪" },
-    { city: "Munique", country: "Alemanha", countryCode: "DE", currency: "EUR", flag: "🇩🇪" },
-    { city: "Amsterdã", country: "Países Baixos", countryCode: "NL", currency: "EUR", flag: "🇳🇱" },
-    { city: "Viena", country: "Áustria", countryCode: "AT", currency: "EUR", flag: "🇦🇹" },
-    { city: "Praga", country: "Tchéquia", countryCode: "CZ", currency: "CZK", flag: "🇨🇿" },
-    { city: "Istambul", country: "Turquia", countryCode: "TR", currency: "TRY", flag: "🇹🇷" },
-    { city: "Cairo", country: "Egito", countryCode: "EG", currency: "EGP", flag: "🇪🇬" },
-    { city: "Marrakech", country: "Marrocos", countryCode: "MA", currency: "MAD", flag: "🇲🇦" },
-    { city: "Lima", country: "Peru", countryCode: "PE", currency: "PEN", flag: "🇵🇪" },
-    { city: "Cusco", country: "Peru", countryCode: "PE", currency: "PEN", flag: "🇵🇪" },
-    { city: "Buenos Aires", country: "Argentina", countryCode: "AR", currency: "ARS", flag: "🇦🇷" },
-    { city: "Santiago", country: "Chile", countryCode: "CL", currency: "CLP", flag: "🇨🇱" },
-    { city: "Punta Cana", country: "República Dominicana", countryCode: "DO", currency: "DOP", flag: "🇩🇴" },
-];
+const API_URL =
+    "https://countries.dev/countries?fields=name,alpha2Code,flag,currencies&sort=name";
 
-const popularDestinations = [
-    { city: "Paris", country: "França", flag: "🇫🇷", currency: "EUR", code: "FR" },
-    { city: "Roma", country: "Itália", flag: "🇮🇹", currency: "EUR", code: "IT" },
-    { city: "Londres", country: "Reino Unido", flag: "🇬🇧", currency: "GBP", code: "GB" },
-    { city: "Nova York", country: "Estados Unidos", flag: "🇺🇸", currency: "USD", code: "US" },
-    { city: "Rio de Janeiro", country: "Brasil", flag: "🇧🇷", currency: "BRL", code: "BR" },
-    { city: "Dubai", country: "Emirados Árabes", flag: "🇦🇪", currency: "AED", code: "AE" },
-    { city: "Santorini", country: "Grécia", flag: "🇬🇷", currency: "EUR", code: "GR" },
-    { city: "Tóquio", country: "Japão", flag: "🇯🇵", currency: "JPY", code: "JP" },
-    { city: "Cusco", country: "Peru", flag: "🇵🇪", currency: "PEN", code: "PE" },
-    { city: "Sydney", country: "Austrália", flag: "🇦🇺", currency: "AUD", code: "AU" },
+// Países em destaque na tela inicial.
+// A lista completa continua vindo da API.
+const popularCountryCodes = [
+    "BR", "US", "FR", "IT", "JP",
+    "GB", "PT", "ES", "CA", "AU",
 ];
 
 function normalize(value: string) {
@@ -104,54 +53,114 @@ function normalize(value: string) {
 }
 
 export default function CreateTripScreen() {
-    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
-    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+    const {
+        palette: axisPalette,
+        darkMode: axisDarkMode,
+    } = useAxisTheme();
+
+    const styles = React.useMemo(
+        () => createStyles(axisPalette),
+        [axisPalette]
+    );
 
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
-    const [search, setSearch] = useState(
-        tripDraft.destination
-    );
+    const [countries, setCountries] = useState<Country[]>([]);
+    const [search, setSearch] = useState(tripDraft.country || "");
+    const [selected, setSelected] = useState<Country | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [apiError, setApiError] = useState(false);
 
-    const [selected, setSelected] = useState<Destination | null>(
-        destinations.find(
-            item => item.city === tripDraft.destination
-        ) ?? null
-    );
+    // Busca os países na API.
+    useEffect(() => {
+        let active = true;
 
+        async function loadCountries() {
+            try {
+                setLoading(true);
+                setApiError(false);
+
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error("Não foi possível carregar os países.");
+                }
+
+                const data: Country[] = await response.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error("Resposta inválida da API.");
+                }
+
+                if (active) {
+                    setCountries(data);
+
+                    // Recupera o país caso o usuário volte para esta tela.
+                    const previousCountry = data.find(
+                        item =>
+                            item.alpha2Code === tripDraft.countryCode
+                    );
+
+                    if (previousCountry) {
+                        setSelected(previousCountry);
+                        setSearch(previousCountry.name);
+                    }
+                }
+            } catch (error) {
+                console.error("Erro ao carregar países:", error);
+
+                if (active) {
+                    setApiError(true);
+                }
+            } finally {
+                if (active) {
+                    setLoading(false);
+                }
+            }
+        }
+
+        loadCountries();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    // Pesquisa entre todos os países recebidos da API.
     const results = useMemo(() => {
         const term = normalize(search);
 
         if (!term) return [];
 
-        return destinations
+        return countries
             .filter(item =>
-                normalize(`${item.city} ${item.country}`).includes(term)
+                normalize(item.name).includes(term) ||
+                normalize(item.alpha2Code).includes(term)
             )
-            .slice(0, 8);
-    }, [search]);
+            .slice(0, 10);
+    }, [search, countries]);
 
-    function selectDestination(item: Destination) {
+    // Países populares encontrados na própria resposta da API.
+    const popularCountries = useMemo(() => {
+        return popularCountryCodes
+            .map(code =>
+                countries.find(item => item.alpha2Code === code)
+            )
+            .filter((item): item is Country => Boolean(item));
+    }, [countries]);
+
+    function selectCountry(item: Country) {
+        const currency = item.currencies?.[0]?.code || "";
+
         setSelected(item);
-        setSearch(`${item.city}, ${item.country}`);
+        setSearch(item.name);
 
-        tripDraft.destination = item.city;
-        tripDraft.country = item.country;
-        tripDraft.countryCode = item.countryCode;
-        tripDraft.localCurrency = item.currency;
-    }
-
-    function selectPopular(item: typeof popularDestinations[number]) {
-        const match = destinations.find(
-            destination =>
-                destination.city === item.city &&
-                destination.country === item.country
-        );
-
-        if (match) {
-            selectDestination(match);
-        }
+        // Guarda os dados para as próximas etapas da viagem.
+        tripDraft.destination = item.name;
+        tripDraft.country = item.name;
+        tripDraft.countryCode = item.alpha2Code;
+        tripDraft.localCurrency = currency;
     }
 
     function continueToDuration() {
@@ -163,6 +172,7 @@ export default function CreateTripScreen() {
     return (
         <View style={styles.container}>
             <GlassBackdrop />
+
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
                 backgroundColor="#f7f7f7"
@@ -201,7 +211,7 @@ export default function CreateTripScreen() {
                     </Text>
 
                     <Text style={styles.description}>
-                        Pesquise um país ou cidade para começar
+                        Escolha o país de destino para começar
                         a planejar sua viagem.
                     </Text>
 
@@ -219,12 +229,12 @@ export default function CreateTripScreen() {
 
                                 if (
                                     selected &&
-                                    value !== `${selected.city}, ${selected.country}`
+                                    value !== selected.name
                                 ) {
                                     setSelected(null);
                                 }
                             }}
-                            placeholder="Digite um destino"
+                            placeholder="Pesquise um país"
                             placeholderTextColor={axisPalette.muted}
                             style={styles.input}
                             returnKeyType="search"
@@ -247,75 +257,144 @@ export default function CreateTripScreen() {
                         )}
                     </View>
 
-                    {search.trim().length > 0 && (
-                        <View style={styles.resultsContainer}>
-                            {results.length > 0 ? (
-                                results.map(item => (
-                                    <Pressable
-                                        key={`${item.city}-${item.country}`}
-                                        style={styles.resultRow}
-                                        onPress={() =>
-                                            selectDestination(item)
-                                        }
-                                    >
-                                        <Text style={styles.flag}>
-                                            {item.flag}
-                                        </Text>
-
-                                        <View style={styles.resultText}>
-                                            <Text style={styles.resultCity}>
-                                                {item.city}
-                                            </Text>
-                                            <Text style={styles.resultCountry}>
-                                                {item.country}
-                                            </Text>
-                                        </View>
-
-                                        <MaterialIcons
-                                            name={
-                                                selected?.city === item.city
-                                                    ? "check-circle"
-                                                    : "chevron-right"
-                                            }
-                                            size={22}
-                                            color={axisPalette.muted}
-                                        />
-                                    </Pressable>
-                                ))
-                            ) : (
-                                <Text style={styles.noResults}>
-                                    Nenhum resultado no catálogo.
-                                    Tente outra cidade ou país.
-                                </Text>
-                            )}
+                    {loading && (
+                        <View style={styles.messageContainer}>
+                            <ActivityIndicator
+                                size="small"
+                                color={axisPalette.muted}
+                            />
+                            <Text style={styles.messageText}>
+                                Carregando países...
+                            </Text>
                         </View>
                     )}
 
+                    {apiError && !loading && (
+                        <View style={styles.errorContainer}>
+                            <MaterialIcons
+                                name="cloud-off"
+                                size={22}
+                                color={axisPalette.muted}
+                            />
+                            <Text style={styles.noResults}>
+                                Não foi possível carregar os países.
+                                Verifique sua conexão e tente novamente.
+                            </Text>
+
+                            <Pressable
+                                onPress={() => {
+                                    setApiError(false);
+                                    setLoading(true);
+
+                                    fetch(API_URL)
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error("Erro na API");
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(data => {
+                                            setCountries(data);
+                                        })
+                                        .catch(error => {
+                                            console.error(error);
+                                            setApiError(true);
+                                        })
+                                        .finally(() => {
+                                            setLoading(false);
+                                        });
+                                }}
+                            >
+                                <Text style={styles.retryText}>
+                                    Tentar novamente
+                                </Text>
+                            </Pressable>
+                        </View>
+                    )}
+
+                    {search.trim().length > 0 &&
+                        !loading &&
+                        !apiError && (
+                            <View style={styles.resultsContainer}>
+                                {results.length > 0 ? (
+                                    results.map(item => (
+                                        <Pressable
+                                            key={item.alpha2Code}
+                                            style={styles.resultRow}
+                                            onPress={() =>
+                                                selectCountry(item)
+                                            }
+                                        >
+                                            <Text style={styles.flag}>
+                                                {item.flag}
+                                            </Text>
+
+                                            <View style={styles.resultText}>
+                                                <Text style={styles.resultCity}>
+                                                    {item.name}
+                                                </Text>
+
+                                                <Text style={styles.resultCountry}>
+                                                    {item.currencies?.[0]?.code ||
+                                                        "Moeda não informada"}
+                                                </Text>
+                                            </View>
+
+                                            <MaterialIcons
+                                                name={
+                                                    selected?.alpha2Code ===
+                                                    item.alpha2Code
+                                                        ? "check-circle"
+                                                        : "chevron-right"
+                                                }
+                                                size={22}
+                                                color={axisPalette.muted}
+                                            />
+                                        </Pressable>
+                                    ))
+                                ) : (
+                                    <Text style={styles.noResults}>
+                                        Nenhum país encontrado.
+                                        Tente outro nome.
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+
                     {selected && (
                         <View style={styles.selectedCard}>
-                <GlassFrost />
+                            <GlassFrost />
+
+                            <Text style={styles.selectedFlag}>
+                                {selected.flag}
+                            </Text>
+
                             <MaterialIcons
                                 name="check-circle"
                                 size={21}
                                 color={axisPalette.muted}
                             />
+
                             <View style={styles.selectedText}>
                                 <Text style={styles.selectedTitle}>
-                                    {selected.city}, {selected.country}
+                                    {selected.name}
                                 </Text>
+
                                 <Text style={styles.selectedSubtitle}>
-                                    Moeda local: {selected.currency}
+                                    Moeda local:{" "}
+                                    {selected.currencies?.[0]?.code ||
+                                        "Não informada"}
                                 </Text>
                             </View>
                         </View>
                     )}
 
                     <Text style={styles.sectionTitle}>
-                        Destinos populares
+                        Países populares
                     </Text>
 
                     <Text style={styles.sectionDescription}>
-                        Arraste para ver mais destinos.
+                        Escolha um dos destinos em destaque.
                     </Text>
 
                     <ScrollView
@@ -323,35 +402,41 @@ export default function CreateTripScreen() {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.popularContainer}
                     >
-                        {popularDestinations.map(item => {
+                        {popularCountries.map(item => {
                             const active =
-                                selected?.city === item.city;
+                                selected?.alpha2Code === item.alpha2Code;
 
                             return (
                                 <Pressable
-                                    key={item.city}
+                                    key={item.alpha2Code}
                                     style={[
                                         styles.popularCard,
                                         active && styles.popularCardActive,
                                     ]}
-                                    onPress={() => selectPopular(item)}
+                                    onPress={() => selectCountry(item)}
                                 >
                                     <Text style={styles.popularFlag}>
                                         {item.flag}
                                     </Text>
 
                                     <Text
-                                        style={[styles.popularCity, active && styles.popularCityActive]}
+                                        style={[
+                                            styles.popularCity,
+                                            active && styles.popularCityActive,
+                                        ]}
                                         numberOfLines={1}
                                     >
-                                        {item.city}
+                                        {item.name}
                                     </Text>
 
                                     <Text
-                                        style={[styles.popularCountry, active && styles.popularCountryActive]}
+                                        style={[
+                                            styles.popularCountry,
+                                            active && styles.popularCountryActive,
+                                        ]}
                                         numberOfLines={1}
                                     >
-                                        {item.country}
+                                        {item.currencies?.[0]?.code || "—"}
                                     </Text>
                                 </Pressable>
                             );
@@ -382,234 +467,388 @@ export default function CreateTripScreen() {
     );
 }
 
-const createStyles = (palette: GlassPalette) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
-    },
+const createStyles = (palette: GlassPalette) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#f7f7f7",
+                "container",
+                palette
+            ),
+        },
 
-    scrollContent: {
-        paddingBottom: 45,
-    },
+        scrollContent: {
+            paddingBottom: 45,
+        },
 
-    header: {
-        height: 66,
-        paddingHorizontal: 24,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
+        header: {
+            height: 66,
+            paddingHorizontal: 24,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+        },
 
-    backButton: {
-        width: 40,
-        height: 40,
-        alignItems: "center",
-        justifyContent: "center",
-    },
+        backButton: {
+            width: 40,
+            height: 40,
+            alignItems: "center",
+            justifyContent: "center",
+        },
 
-    headerTitle: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: glassColor("color", "#8492a8", "headerTitle", palette),
-    },
+        headerTitle: {
+            fontSize: 17,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#8492a8",
+                "headerTitle",
+                palette
+            ),
+        },
 
-    headerSpace: {
-        width: 40,
-        height: 40,
-    },
+        headerSpace: {
+            width: 40,
+            height: 40,
+        },
 
-    content: {
-        paddingHorizontal: 28,
-        marginTop: 30,
-    },
+        content: {
+            paddingHorizontal: 28,
+            marginTop: 30,
+        },
 
-    title: {
-        fontSize: 29,
-        lineHeight: 35,
-        fontWeight: "800",
-        color: glassColor("color", "#303030", "title", palette),
-    },
+        title: {
+            fontSize: 29,
+            lineHeight: 35,
+            fontWeight: "800",
+            color: glassColor(
+                "color",
+                "#303030",
+                "title",
+                palette
+            ),
+        },
 
-    description: {
-        fontSize: 13,
-        lineHeight: 20,
-        color: glassColor("color", "#888888", "description", palette),
-        marginTop: 12,
-        marginBottom: 25,
-    },
+        description: {
+            fontSize: 13,
+            lineHeight: 20,
+            color: glassColor(
+                "color",
+                "#888888",
+                "description",
+                palette
+            ),
+            marginTop: 12,
+            marginBottom: 25,
+        },
 
-    searchContainer: {
-        minHeight: 54,
-        borderRadius: 27,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "searchContainer", palette),
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 18,
-        gap: 10,
-        shadowColor: glassColor("shadowColor", "#000000", "searchContainer", palette),
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 7,
-        elevation: 3,
-    },
+        searchContainer: {
+            minHeight: 54,
+            borderRadius: 27,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "searchContainer",
+                palette
+            ),
+            flexDirection: "row",
+            alignItems: "center",
+            paddingHorizontal: 18,
+            gap: 10,
+            shadowColor: glassColor(
+                "shadowColor",
+                "#000000",
+                "searchContainer",
+                palette
+            ),
+            shadowOffset: { width: 0, height: 3 },
+            shadowOpacity: 0.08,
+            shadowRadius: 7,
+            elevation: 3,
+        },
 
-    input: {
-        flex: 1,
-        minHeight: 52,
-        fontSize: 14,
-        color: glassColor("color", "#303030", "input", palette),
-    },
+        input: {
+            flex: 1,
+            minHeight: 52,
+            fontSize: 14,
+            color: glassColor(
+                "color",
+                "#303030",
+                "input",
+                palette
+            ),
+        },
 
-    resultsContainer: {
-        marginTop: 8,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "resultsContainer", palette),
-        borderRadius: 18,
-        paddingHorizontal: 14,
-        paddingVertical: 4,
-        elevation: 2,
-    },
+        resultsContainer: {
+            marginTop: 8,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "resultsContainer",
+                palette
+            ),
+            borderRadius: 18,
+            paddingHorizontal: 14,
+            paddingVertical: 4,
+            elevation: 2,
+        },
 
-    resultRow: {
-        minHeight: 58,
-        flexDirection: "row",
-        alignItems: "center",
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: glassColor("borderBottomColor", "#eeeeee", "resultRow", palette),
-        gap: 12,
-    },
+        resultRow: {
+            minHeight: 58,
+            flexDirection: "row",
+            alignItems: "center",
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: glassColor(
+                "borderBottomColor",
+                "#eeeeee",
+                "resultRow",
+                palette
+            ),
+            gap: 12,
+        },
 
-    flag: {
-        fontSize: 23,
-    },
+        flag: {
+            fontSize: 23,
+        },
 
-    resultText: {
-        flex: 1,
-    },
+        resultText: {
+            flex: 1,
+        },
 
-    resultCity: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "resultCity", palette),
-    },
+        resultCity: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "resultCity",
+                palette
+            ),
+        },
 
-    resultCountry: {
-        fontSize: 11,
-        color: glassColor("color", "#999999", "resultCountry", palette),
-        marginTop: 3,
-    },
+        resultCountry: {
+            fontSize: 11,
+            color: glassColor(
+                "color",
+                "#999999",
+                "resultCountry",
+                palette
+            ),
+            marginTop: 3,
+        },
 
-    noResults: {
-        padding: 16,
-        color: glassColor("color", "#888888", "noResults", palette),
-        fontSize: 12,
-        lineHeight: 18,
-    },
+        noResults: {
+            padding: 16,
+            color: glassColor(
+                "color",
+                "#888888",
+                "noResults",
+                palette
+            ),
+            fontSize: 12,
+            lineHeight: 18,
+        },
 
-    selectedCard: {
-        ...glassDecoration("selectedCard", palette),
-        marginTop: 15,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "selectedCard", palette),
-        borderRadius: 17,
-        padding: 15,
-        flexDirection: "row",
-        alignItems: "center",
-        gap: 12,
-    },
+        messageContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+            padding: 20,
+        },
 
-    selectedText: {
-        flex: 1,
-    },
+        messageText: {
+            fontSize: 12,
+            color: glassColor(
+                "color",
+                "#888888",
+                "messageText",
+                palette
+            ),
+        },
 
-    selectedTitle: {
-        fontSize: 13,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "selectedTitle", palette),
-    },
+        errorContainer: {
+            marginTop: 12,
+            alignItems: "center",
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "errorContainer",
+                palette
+            ),
+            borderRadius: 18,
+            padding: 12,
+        },
 
-    selectedSubtitle: {
-        marginTop: 4,
-        fontSize: 11,
-        color: glassColor("color", "#888888", "selectedSubtitle", palette),
-    },
+        retryText: {
+            color: palette.accent,
+            fontWeight: "700",
+            fontSize: 13,
+            padding: 8,
+        },
 
-    sectionTitle: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: glassColor("color", "#8492a8", "sectionTitle", palette),
-        marginTop: 32,
-    },
+        selectedCard: {
+            ...glassDecoration("selectedCard", palette),
+            marginTop: 15,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "selectedCard",
+                palette
+            ),
+            borderRadius: 17,
+            padding: 15,
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 12,
+        },
 
-    sectionDescription: {
-        fontSize: 11,
-        color: glassColor("color", "#999999", "sectionDescription", palette),
-        marginTop: 5,
-        marginBottom: 13,
-    },
+        selectedFlag: {
+            fontSize: 25,
+        },
 
-    popularContainer: {
-        paddingVertical: 5,
-        paddingRight: 8,
-        gap: 12,
-    },
+        selectedText: {
+            flex: 1,
+        },
 
-    popularCard: {
-        ...glassDecoration("popularCard", palette),
-        width: 112,
-        minHeight: 115,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "popularCard", palette),
-        borderRadius: 17,
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 10,
-        borderWidth: 1,
-        borderColor: "transparent",
-        elevation: 2,
-    },
+        selectedTitle: {
+            fontSize: 13,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "selectedTitle",
+                palette
+            ),
+        },
 
-    popularCardActive: {
-        borderColor: glassColor("borderColor", "#8492a8", "popularCardActive", palette),
-        backgroundColor: palette.accent,
-    },
+        selectedSubtitle: {
+            marginTop: 4,
+            fontSize: 11,
+            color: glassColor(
+                "color",
+                "#888888",
+                "selectedSubtitle",
+                palette
+            ),
+        },
 
-    popularCityActive: { color: palette.accentText },
-    popularCountryActive: { color: palette.accentText, opacity: 0.85 },
+        sectionTitle: {
+            fontSize: 17,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#8492a8",
+                "sectionTitle",
+                palette
+            ),
+            marginTop: 32,
+        },
 
-    popularFlag: {
-        fontSize: 27,
-        marginBottom: 8,
-    },
+        sectionDescription: {
+            fontSize: 11,
+            color: glassColor(
+                "color",
+                "#999999",
+                "sectionDescription",
+                palette
+            ),
+            marginTop: 5,
+            marginBottom: 13,
+        },
 
-    popularCity: {
-        fontSize: 12,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "popularCity", palette),
-    },
+        popularContainer: {
+            paddingVertical: 5,
+            paddingRight: 8,
+            gap: 12,
+        },
 
-    popularCountry: {
-        fontSize: 10,
-        color: glassColor("color", "#999999", "popularCountry", palette),
-        marginTop: 4,
-        textAlign: "center",
-    },
+        popularCard: {
+            ...glassDecoration("popularCard", palette),
+            width: 112,
+            minHeight: 115,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "popularCard",
+                palette
+            ),
+            borderRadius: 17,
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 10,
+            borderWidth: 1,
+            borderColor: "transparent",
+            elevation: 2,
+        },
 
-    nextButton: {
-        height: 56,
-        borderRadius: 28,
-        backgroundColor: palette.accent,
-        marginTop: 35,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 10,
-    },
+        popularCardActive: {
+            borderColor: glassColor(
+                "borderColor",
+                "#8492a8",
+                "popularCardActive",
+                palette
+            ),
+            backgroundColor: palette.accent,
+        },
 
-    nextButtonDisabled: {
-        opacity: 0.4,
-    },
+        popularCityActive: {
+            color: palette.accentText,
+        },
 
-    nextButtonText: {
-        color: palette.accentText,
-        fontSize: 14,
-        fontWeight: "600",
-    },
-});
+        popularCountryActive: {
+            color: palette.accentText,
+            opacity: 0.85,
+        },
+
+        popularFlag: {
+            fontSize: 27,
+            marginBottom: 8,
+        },
+
+        popularCity: {
+            fontSize: 12,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "popularCity",
+                palette
+            ),
+        },
+
+        popularCountry: {
+            fontSize: 10,
+            color: glassColor(
+                "color",
+                "#999999",
+                "popularCountry",
+                palette
+            ),
+            marginTop: 4,
+            textAlign: "center",
+        },
+
+        nextButton: {
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: palette.accent,
+            marginTop: 35,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 10,
+        },
+
+        nextButtonDisabled: {
+            opacity: 0.4,
+        },
+
+        nextButtonText: {
+            color: palette.accentText,
+            fontSize: 14,
+            fontWeight: "600",
+        },
+    });
