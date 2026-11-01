@@ -1,10 +1,10 @@
-import GlassFrost from "../../../components/GlassFrost";
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
 import React from "react";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import GlassFrost from "../../../components/GlassFrost";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     Pressable,
@@ -16,13 +16,17 @@ import {
     View,
 } from "react-native";
 
+type CurrencyOption = {
+    code: string;
+    name: string;
+};
+
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tripDraft } from "../../../stores/tripDraft";
 
-const currencies = ["BRL", "EUR", "USD"];
 
 const currencyNames: Record<string, string> = {
     BRL: "Real brasileiro",
@@ -48,6 +52,7 @@ const currencyNames: Record<string, string> = {
     DOP: "Peso dominicano",
 };
 
+
 export default function Budget() {
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
     const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
@@ -61,6 +66,65 @@ export default function Budget() {
 
     const [limit, setLimit] = useState(tripDraft.budget || "");
 
+    const [currencies, setCurrencies] = useState<CurrencyOption[]>([]);
+    const [currenciesLoading, setCurrenciesLoading] = useState(true);
+    const [currenciesError, setCurrenciesError] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+
+        async function loadCurrencies() {
+            try {
+                setCurrenciesLoading(true);
+                setCurrenciesError(false);
+
+                const response = await fetch(
+                    "https://api.frankfurter.dev/v2/currencies"
+                );
+
+                if (!response.ok) {
+                    throw new Error("Erro ao carregar moedas.");
+                }
+
+                const data = await response.json();
+
+                const options: CurrencyOption[] = Array.isArray(data)
+                    ? data.map((item: any) => ({
+                        code: item.iso_code || item.code,
+                        name: item.name,
+                    }))
+                    : Object.entries(data).map(([code, name]) => ({
+                        code,
+                        name: String(name),
+                    }));
+
+                if (active) {
+                    setCurrencies(
+                        options
+                            .filter(item => item.code && item.name)
+                            .sort((a, b) => a.code.localeCompare(b.code))
+                    );
+                }
+            } catch (error) {
+                console.error("Erro ao carregar moedas:", error);
+
+                if (active) {
+                    setCurrenciesError(true);
+                }
+            } finally {
+                if (active) {
+                    setCurrenciesLoading(false);
+                }
+            }
+        }
+
+        loadCurrencies();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
     function normalizeBudget(value: string) {
         const cleaned = value.trim().replace(/\s/g, "");
 
@@ -69,10 +133,7 @@ export default function Budget() {
         }
 
         // Exemplo: 50.000,50 → 50000.50
-        if (
-            cleaned.includes(",") &&
-            cleaned.includes(".")
-        ) {
+        if (cleaned.includes(",") && cleaned.includes(".")) {
             const lastComma = cleaned.lastIndexOf(",");
             const lastDot = cleaned.lastIndexOf(".");
 
@@ -90,10 +151,7 @@ export default function Budget() {
         if (cleaned.includes(",")) {
             const parts = cleaned.split(",");
 
-            if (
-                parts.length === 2 &&
-                parts[1].length === 3
-            ) {
+            if (parts.length === 2 && parts[1].length === 3) {
                 return parts[0] + parts[1];
             }
 
@@ -104,10 +162,7 @@ export default function Budget() {
         if (cleaned.includes(".")) {
             const parts = cleaned.split(".");
 
-            if (
-                parts.length === 2 &&
-                parts[1].length === 3
-            ) {
+            if (parts.length === 2 && parts[1].length === 3) {
                 return parts[0] + parts[1];
             }
         }
@@ -121,6 +176,11 @@ export default function Budget() {
 
         router.push("/logic/trips/method");
     }
+
+    const localCurrencyName =
+        currencies.find(
+            item => item.code === tripDraft.localCurrency
+        )?.name || tripDraft.localCurrency;
 
     return (
         <View style={styles.container}>
@@ -178,8 +238,7 @@ export default function Budget() {
                         <Text style={styles.destinationSubtitle}>
                             Moeda local: {tripDraft.localCurrency}
                             {" · "}
-                            {currencyNames[tripDraft.localCurrency] ||
-                                tripDraft.localCurrency}
+                            {localCurrencyName}
                         </Text>
                     </View>
                 </View>
@@ -189,27 +248,38 @@ export default function Budget() {
                 </Text>
 
                 <View style={styles.currencyContainer}>
-                    {currencies.map(item => (
-                        <Pressable
-                            key={item}
-                            onPress={() => setCurrency(item)}
-                            style={[
-                                styles.currency,
-                                currency === item &&
-                                styles.currencyActive,
-                            ]}
-                        >
-                            <Text
+                    {currenciesLoading ? (
+                        <Text style={styles.localCurrencyNote}>
+                            Carregando moedas disponíveis...
+                        </Text>
+                    ) : currenciesError ? (
+                        <Text style={styles.localCurrencyNote}>
+                            Não foi possível carregar as moedas.
+                            Verifique sua conexão e tente novamente.
+                        </Text>
+                    ) : (
+                        currencies.map(item => (
+                            <Pressable
+                                key={item.code}
+                                onPress={() => setCurrency(item.code)}
                                 style={[
-                                    styles.currencyText,
-                                    currency === item &&
-                                    styles.currencyTextActive,
+                                    styles.currency,
+                                    currency === item.code &&
+                                    styles.currencyActive,
                                 ]}
                             >
-                                {item}
-                            </Text>
-                        </Pressable>
-                    ))}
+                                <Text
+                                    style={[
+                                        styles.currencyText,
+                                        currency === item.code &&
+                                        styles.currencyTextActive,
+                                    ]}
+                                >
+                                    {item.code}
+                                </Text>
+                            </Pressable>
+                        ))
+                    )}
                 </View>
 
                 <Text style={styles.label}>
@@ -246,8 +316,9 @@ export default function Budget() {
                         </Text>
 
                         <Text style={styles.localCurrencyNote}>
-                            A moeda local é identificada pelo destino.
-                            A conversão cambial será integrada posteriormente.
+                            O orçamento será definido na moeda escolhida
+                            por você. Os valores poderão ser consultados
+                            também na moeda local do destino.
                         </Text>
                     </View>
 

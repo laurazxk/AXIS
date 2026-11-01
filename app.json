@@ -7,27 +7,23 @@
     "icon": "./assets/images/logo.png",
     "scheme": "axis",
     "userInterfaceStyle": "automatic",
-
     "ios": {
       "supportsTablet": true
     },
-
     "android": {
       "predictiveBackGestureEnabled": false
     },
-
     "web": {
       "output": "static"
     },
-
     "plugins": [
       "expo-router",
       "expo-font",
       "expo-image",
       "expo-status-bar",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-splash-screen"
     ],
-
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
