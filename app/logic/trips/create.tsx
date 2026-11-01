@@ -52,6 +52,23 @@ function normalize(value: string) {
         .trim();
 }
 
+// Converte o código ISO do país para o nome em português brasileiro.
+// Se o ambiente não oferecer Intl.DisplayNames, mantém o nome da API.
+function getCountryName(code: string, fallback: string) {
+    try {
+        if (typeof Intl !== "undefined" && "DisplayNames" in Intl) {
+            const displayNames = new Intl.DisplayNames(["pt-BR"], {
+                type: "region",
+            });
+            return displayNames.of(code) || fallback;
+        }
+    } catch (error) {
+        console.warn("Não foi possível traduzir o país:", error);
+    }
+
+    return fallback;
+}
+
 export default function CreateTripScreen() {
     const {
         palette: axisPalette,
@@ -104,7 +121,7 @@ export default function CreateTripScreen() {
 
                     if (previousCountry) {
                         setSelected(previousCountry);
-                        setSearch(previousCountry.name);
+                        setSearch(getCountryName(previousCountry.alpha2Code, previousCountry.name));
                     }
                 }
             } catch (error) {
@@ -135,6 +152,7 @@ export default function CreateTripScreen() {
 
         return countries
             .filter(item =>
+                normalize(getCountryName(item.alpha2Code, item.name)).includes(term) ||
                 normalize(item.name).includes(term) ||
                 normalize(item.alpha2Code).includes(term)
             )
@@ -154,9 +172,10 @@ export default function CreateTripScreen() {
         const currency = item.currencies?.[0]?.code || "";
 
         setSelected(item);
-        setSearch(item.name);
+        setSearch(getCountryName(item.alpha2Code, item.name));
 
-        // Guarda os dados para as próximas etapas da viagem.
+        // Mantém o nome original da API nos dados internos da viagem.
+        // A tradução é aplicada somente na interface.
         tripDraft.destination = item.name;
         tripDraft.country = item.name;
         tripDraft.countryCode = item.alpha2Code;
@@ -229,7 +248,7 @@ export default function CreateTripScreen() {
 
                                 if (
                                     selected &&
-                                    value !== selected.name
+                                    value !== getCountryName(selected.alpha2Code, selected.name)
                                 ) {
                                     setSelected(null);
                                 }
@@ -331,7 +350,7 @@ export default function CreateTripScreen() {
 
                                             <View style={styles.resultText}>
                                                 <Text style={styles.resultCity}>
-                                                    {item.name}
+                                                    {getCountryName(item.alpha2Code, item.name)}
                                                 </Text>
 
                                                 <Text style={styles.resultCountry}>
@@ -377,7 +396,7 @@ export default function CreateTripScreen() {
 
                             <View style={styles.selectedText}>
                                 <Text style={styles.selectedTitle}>
-                                    {selected.name}
+                                    {getCountryName(selected.alpha2Code, selected.name)}
                                 </Text>
 
                                 <Text style={styles.selectedSubtitle}>
@@ -426,7 +445,7 @@ export default function CreateTripScreen() {
                                         ]}
                                         numberOfLines={1}
                                     >
-                                        {item.name}
+                                        {getCountryName(item.alpha2Code, item.name)}
                                     </Text>
 
                                     <Text
