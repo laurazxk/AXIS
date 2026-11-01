@@ -37,6 +37,35 @@ type Country = {
 const API_URL =
     "https://countries.dev/countries?fields=name,alpha2Code,flag,currencies&sort=name";
 
+// API complementar que fornece os nomes traduzidos para português.
+const TRANSLATIONS_API_URL =
+    "https://restcountries.com/v3.1/all?fields=cca2,translations";
+
+type CountryTranslation = {
+    cca2: string;
+    translations?: {
+        por?: {
+            common?: string;
+        };
+    };
+};
+
+async function loadCountryTranslations(): Promise<Record<string, string>> {
+    const response = await fetch(TRANSLATIONS_API_URL);
+
+    if (!response.ok) {
+        throw new Error("Não foi possível carregar as traduções dos países.");
+    }
+
+    const data: CountryTranslation[] = await response.json();
+
+    return Object.fromEntries(
+        data
+            .filter(item => item.cca2 && item.translations?.por?.common)
+            .map(item => [item.cca2, item.translations!.por!.common!])
+    );
+}
+
 // Países em destaque na tela inicial.
 // A lista completa continua vindo da API.
 const popularCountryCodes = [
@@ -50,23 +79,6 @@ function normalize(value: string) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
         .trim();
-}
-
-// Converte o código ISO do país para o nome em português brasileiro.
-// Se o ambiente não oferecer Intl.DisplayNames, mantém o nome da API.
-function getCountryName(code: string, fallback: string) {
-    try {
-        if (typeof Intl !== "undefined" && "DisplayNames" in Intl) {
-            const displayNames = new Intl.DisplayNames(["pt-BR"], {
-                type: "region",
-            });
-            return displayNames.of(code) || fallback;
-        }
-    } catch (error) {
-        console.warn("Não foi possível traduzir o país:", error);
-    }
-
-    return fallback;
 }
 
 export default function CreateTripScreen() {
@@ -84,6 +96,7 @@ export default function CreateTripScreen() {
     const insets = useSafeAreaInsets();
 
     const [countries, setCountries] = useState<Country[]>([]);
+    const [countryNames, setCountryNames] = useState<Record<string, string>>({});
     const [search, setSearch] = useState(tripDraft.country || "");
     const [selected, setSelected] = useState<Country | null>(null);
     const [loading, setLoading] = useState(true);
@@ -110,8 +123,16 @@ export default function CreateTripScreen() {
                     throw new Error("Resposta inválida da API.");
                 }
 
+                let translations: Record<string, string> = {};
+                try {
+                    translations = await loadCountryTranslations();
+                } catch (translationError) {
+                    console.warn("Não foi possível carregar nomes em português:", translationError);
+                }
+
                 if (active) {
                     setCountries(data);
+                    setCountryNames(translations);
 
                     // Recupera o país caso o usuário volte para esta tela.
                     const previousCountry = data.find(
@@ -121,7 +142,9 @@ export default function CreateTripScreen() {
 
                     if (previousCountry) {
                         setSelected(previousCountry);
-                        setSearch(getCountryName(previousCountry.alpha2Code, previousCountry.name));
+                        setSearch(
+                            translations[previousCountry.alpha2Code] || previousCountry.name
+                        );
                     }
                 }
             } catch (error) {
@@ -152,12 +175,12 @@ export default function CreateTripScreen() {
 
         return countries
             .filter(item =>
-                normalize(getCountryName(item.alpha2Code, item.name)).includes(term) ||
+                normalize(countryNames[item.alpha2Code] || item.name).includes(term) ||
                 normalize(item.name).includes(term) ||
                 normalize(item.alpha2Code).includes(term)
             )
             .slice(0, 10);
-    }, [search, countries]);
+    }, [search, countries, countryNames]);
 
     // Países populares encontrados na própria resposta da API.
     const popularCountries = useMemo(() => {
@@ -172,12 +195,13 @@ export default function CreateTripScreen() {
         const currency = item.currencies?.[0]?.code || "";
 
         setSelected(item);
-        setSearch(getCountryName(item.alpha2Code, item.name));
+        const translatedName = countryNames[item.alpha2Code] || item.name;
 
-        // Mantém o nome original da API nos dados internos da viagem.
-        // A tradução é aplicada somente na interface.
-        tripDraft.destination = item.name;
-        tripDraft.country = item.name;
+        setSearch(translatedName);
+
+        // Guarda os dados para as próximas etapas da viagem.
+        tripDraft.destination = translatedName;
+        tripDraft.country = translatedName;
         tripDraft.countryCode = item.alpha2Code;
         tripDraft.localCurrency = currency;
     }
@@ -248,7 +272,7 @@ export default function CreateTripScreen() {
 
                                 if (
                                     selected &&
-                                    value !== getCountryName(selected.alpha2Code, selected.name)
+                                    value !== selected.name
                                 ) {
                                     setSelected(null);
                                 }
@@ -312,8 +336,17 @@ export default function CreateTripScreen() {
                                             }
                                             return response.json();
                                         })
-                                        .then(data => {
+                                        .then(async data => {
                                             setCountries(data);
+                                            try {
+                                                const translations = await loadCountryTranslations();
+                                                setCountryNames(translations);
+                                            } catch (translationError) {
+                                                console.warn(
+                                                    "Não foi possível carregar nomes em português:",
+                                                    translationError
+                                                );
+                                            }
                                         })
                                         .catch(error => {
                                             console.error(error);
@@ -350,7 +383,7 @@ export default function CreateTripScreen() {
 
                                             <View style={styles.resultText}>
                                                 <Text style={styles.resultCity}>
-                                                    {getCountryName(item.alpha2Code, item.name)}
+                                                    {countryNames[item.alpha2Code] || item.name}
                                                 </Text>
 
                                                 <Text style={styles.resultCountry}>
@@ -396,7 +429,7 @@ export default function CreateTripScreen() {
 
                             <View style={styles.selectedText}>
                                 <Text style={styles.selectedTitle}>
-                                    {getCountryName(selected.alpha2Code, selected.name)}
+                                    {countryNames[selected.alpha2Code] || selected.name}
                                 </Text>
 
                                 <Text style={styles.selectedSubtitle}>
@@ -445,7 +478,7 @@ export default function CreateTripScreen() {
                                         ]}
                                         numberOfLines={1}
                                     >
-                                        {getCountryName(item.alpha2Code, item.name)}
+                                        {countryNames[item.alpha2Code] || item.name}
                                     </Text>
 
                                     <Text
