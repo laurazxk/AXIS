@@ -43,7 +43,7 @@ export default function ExpensesScreen() {
 
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor="#f7f7f7"
+               
             />
 
             <ScrollView
