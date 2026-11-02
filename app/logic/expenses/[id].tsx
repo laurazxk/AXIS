@@ -1,8 +1,13 @@
+
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import GlassBackdrop from "../../../components/GlassBackdrop";
 import GlassFrost from "../../../components/GlassFrost";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import {
+    glassColor,
+    glassDecoration,
+    type GlassPalette,
+} from "../../../constants/glass";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import {
@@ -23,6 +28,13 @@ type ExpenseGroup = {
     color: string;
     currency: string;
     value: number;
+};
+
+type ExpenseValue = {
+    value: number;
+    currency?: string;
+    valueBRL?: number;
+    exchangeRate?: number;
 };
 
 const PIE_COLORS: Record<string, string> = {
@@ -47,11 +59,37 @@ function formatMoney(value: number) {
     }).format(value);
 }
 
-// Formatação usada apenas nos 3 cards.
-// Mantém o valor calculado com centavos,
-// mas remove os centavos somente na exibição.
 function formatMetricMoney(value: number) {
     return Math.trunc(value).toLocaleString("pt-BR");
+}
+
+function getExpenseValueBRL(expense: ExpenseValue) {
+    if (typeof expense.valueBRL === "number") {
+        return expense.valueBRL;
+    }
+
+    if (expense.currency === "BRL") {
+        return expense.value;
+    }
+
+    if (typeof expense.exchangeRate === "number") {
+        return expense.value * expense.exchangeRate;
+    }
+
+    return 0;
+}
+
+function formatLocalMoney(value: number, currency: string) {
+    try {
+        return new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency,
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        }).format(value);
+    } catch {
+        return `${currency} ${formatMoney(value)}`;
+    }
 }
 
 function polarToCartesian(
@@ -106,8 +144,14 @@ function createPieSlicePath(
 }
 
 export default function ExpenseTripScreen() {
-    const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
-    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+    const {
+        palette: axisPalette,
+    } = useAxisTheme();
+
+    const styles = useMemo(
+        () => createStyles(axisPalette),
+        [axisPalette]
+    );
 
     const { id } = useLocalSearchParams<{
         id: string;
@@ -121,27 +165,96 @@ export default function ExpenseTripScreen() {
 
     const expenses = trip?.expenses ?? [];
 
-    /*
-     * Agrupa despesas com:
-     * mesmo nome + mesma cor + mesma moeda.
-     *
-     * Exemplo:
-     * Compras + verde + BRL = R$ 5
-     * Compras + verde + BRL = R$ 3
-     *
-     * Resultado:
-     * Compras + verde + BRL = R$ 8
-     */
+    // O orçamento da viagem é sempre armazenado em BRL.
+    const initialBudget = Number(trip?.budget) || 0;
 
+    // A moeda local é identificada automaticamente pelo destino.
+    const localCurrency = (
+        trip?.localCurrency || "BRL"
+    ).toUpperCase();
+
+    // Cotação para converter o orçamento de BRL para a moeda local.
+    const [budgetExchangeRate, setBudgetExchangeRate] =
+        useState<number | null>(
+            localCurrency === "BRL" ? 1 : null
+        );
+
+    const [rateLoading, setRateLoading] = useState(
+        localCurrency !== "BRL"
+    );
+
+    const [rateError, setRateError] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+
+        async function fetchBudgetExchangeRate() {
+            if (localCurrency === "BRL") {
+                setBudgetExchangeRate(1);
+                setRateLoading(false);
+                setRateError(false);
+                return;
+            }
+
+            setRateLoading(true);
+            setRateError(false);
+            setBudgetExchangeRate(null);
+
+            try {
+                const response = await fetch(
+                    `https://api.frankfurter.dev/v2/rate/BRL/${localCurrency}`
+                );
+
+                if (!response.ok) {
+                    throw new Error("Não foi possível consultar a cotação.");
+                }
+
+                const data = await response.json();
+
+                if (
+                    typeof data.rate !== "number" ||
+                    !Number.isFinite(data.rate)
+                ) {
+                    throw new Error("Cotação inválida.");
+                }
+
+                if (active) {
+                    setBudgetExchangeRate(data.rate);
+                    setRateError(false);
+                }
+            } catch (error) {
+                console.error(
+                    "Erro ao consultar cotação do orçamento:",
+                    error
+                );
+
+                if (active) {
+                    setBudgetExchangeRate(null);
+                    setRateError(true);
+                }
+            } finally {
+                if (active) {
+                    setRateLoading(false);
+                }
+            }
+        }
+
+        fetchBudgetExchangeRate();
+
+        return () => {
+            active = false;
+        };
+    }, [localCurrency]);
+
+    // Agrupa despesas com o mesmo nome e a mesma cor.
+    // Todos os valores são somados em BRL.
     const groupedExpenses =
         expenses.reduce<ExpenseGroup[]>(
             (groups, expense) => {
-                const currency =
-                    expense.currency ||
-                    trip?.budgetCurrency ||
-                    "BRL";
+                const valueBRL =
+                    getExpenseValueBRL(expense);
 
-                const key = `${expense.name.trim().toLowerCase()}-${expense.color}-${currency}`;
+                const key = `${expense.name.trim().toLowerCase()}-${expense.color}`;
 
                 const existingGroup =
                     groups.find(
@@ -150,15 +263,14 @@ export default function ExpenseTripScreen() {
                     );
 
                 if (existingGroup) {
-                    existingGroup.value +=
-                        expense.value;
+                    existingGroup.value += valueBRL;
                 } else {
                     groups.push({
                         key,
                         name: expense.name.trim(),
                         color: expense.color,
-                        currency,
-                        value: expense.value,
+                        currency: "BRL",
+                        value: valueBRL,
                     });
                 }
 
@@ -167,12 +279,28 @@ export default function ExpenseTripScreen() {
             []
         );
 
+    // Total de todas as despesas convertido para reais.
     const totalSpent = expenses.reduce(
         (total, expense) =>
-            total + expense.value,
+            total + getExpenseValueBRL(expense),
         0
     );
 
+    // Saldo restante calculado a partir do orçamento inicial.
+    const remainingBudget = initialBudget - totalSpent;
+
+    // Equivalentes na moeda local.
+    const localInitialBudget =
+        budgetExchangeRate !== null
+            ? initialBudget * budgetExchangeRate
+            : null;
+
+    const localRemainingBudget =
+        budgetExchangeRate !== null
+            ? remainingBudget * budgetExchangeRate
+            : null;
+
+    // Total utilizado para calcular as porcentagens do gráfico.
     const totalForPie =
         groupedExpenses.reduce(
             (total, expense) =>
@@ -189,6 +317,7 @@ export default function ExpenseTripScreen() {
     return (
         <View style={styles.container}>
             <GlassBackdrop />
+
             <ScrollView
                 contentContainerStyle={styles.content}
                 showsVerticalScrollIndicator={false}
@@ -205,8 +334,7 @@ export default function ExpenseTripScreen() {
 
                     <View>
                         <Text style={styles.title}>
-                            {trip?.destination ||
-                                "Viagem"}
+                            {trip?.destination || "Viagem"}
                         </Text>
 
                         <Text style={styles.country}>
@@ -220,85 +348,104 @@ export default function ExpenseTripScreen() {
                 </Text>
 
                 <View style={styles.metricsContainer}>
+                    {/* Orçamento inicial */}
                     <View style={styles.metricCard}>
-                <GlassFrost />
-                        <Text
-                            style={styles.metricLabel}
-                        >
-                            Orçamento Total
+                        <GlassFrost />
+
+                        <Text style={styles.metricLabel}>
+                            Orçamento Inicial
                         </Text>
 
-                        <Text
-                            style={styles.metricValue}
-                        >
-                            {trip?.budgetCurrency ||
-                                "BRL"}{" "}
+                        <Text style={styles.metricValue}>
                             {trip?.budget
-                                ? formatMetricMoney(
-                                      Number(
-                                          trip.budget
-                                      )
-                                  )
+                                ? `BRL ${formatMetricMoney(initialBudget)}`
                                 : "Não informado"}
                         </Text>
+
+                        {trip?.budget && (
+                            <Text style={styles.metricSecondary}>
+                                {rateLoading
+                                    ? "Consultando cotação..."
+                                    : localInitialBudget !== null
+                                      ? formatLocalMoney(
+                                            localInitialBudget,
+                                            localCurrency
+                                        )
+                                      : rateError
+                                        ? "Cotação indisponível"
+                                        : ""}
+                            </Text>
+                        )}
                     </View>
 
+                    {/* Saldo restante */}
                     <View style={styles.metricCard}>
-                <GlassFrost />
-                        <Text
-                            style={styles.metricLabel}
-                        >
-                            Média Diária
+                        <GlassFrost />
+
+                        <Text style={styles.metricLabel}>
+                            Saldo Restante
                         </Text>
 
                         <Text
-                            style={styles.metricValue}
+                            style={[
+                                styles.metricValue,
+                                remainingBudget < 0 &&
+                                    styles.negativeValue,
+                            ]}
                         >
-                            {trip?.budget &&
-                            trip.duration
-                                ? `${trip.budgetCurrency} ${formatMetricMoney(
-                                      Number(
-                                          trip.budget
-                                      ) /
-                                          trip.duration
-                                  )}`
+                            {trip?.budget
+                                ? `BRL ${formatMetricMoney(remainingBudget)}`
                                 : "Não informado"}
                         </Text>
+
+                        {trip?.budget && (
+                            <Text style={styles.metricSecondary}>
+                                {rateLoading
+                                    ? "Consultando cotação..."
+                                    : localRemainingBudget !== null
+                                      ? formatLocalMoney(
+                                            localRemainingBudget,
+                                            localCurrency
+                                        )
+                                      : rateError
+                                        ? "Cotação indisponível"
+                                        : ""}
+                            </Text>
+                        )}
                     </View>
 
+                    {/* Total gasto */}
                     <View style={styles.metricCard}>
-                <GlassFrost />
-                        <Text
-                            style={styles.metricLabel}
-                        >
+                        <GlassFrost />
+
+                        <Text style={styles.metricLabel}>
                             Total Gasto
                         </Text>
 
-                        <Text
-                            style={styles.metricValue}
-                        >
-                            {trip?.budgetCurrency ||
-                                "BRL"}{" "}
-                            {formatMetricMoney(
-                                totalSpent
-                            )}
+                        <Text style={styles.metricValue}>
+                            BRL{" "}
+                            {formatMetricMoney(totalSpent)}
+                        </Text>
+
+                        <Text style={styles.metricSecondary}>
+                            {expenses.length}{" "}
+                            {expenses.length === 1
+                                ? "despesa"
+                                : "despesas"}
                         </Text>
                     </View>
                 </View>
 
                 <View style={styles.chartCard}>
-                <GlassFrost />
+                    <GlassFrost />
+
                     <Text style={styles.chartTitle}>
                         Gastos por categoria
                     </Text>
 
                     {groupedExpenses.length > 0 ? (
                         <>
-                            <View
-                                style={
-                                    styles.pieContainer
-                                }
-                            >
+                            <View style={styles.pieContainer}>
                                 <Svg
                                     width={pieSize}
                                     height={pieSize}
@@ -307,12 +454,13 @@ export default function ExpenseTripScreen() {
                                     {groupedExpenses.map(
                                         (expense) => {
                                             const percentage =
-                                                expense.value /
-                                                totalForPie;
+                                                totalForPie > 0
+                                                    ? expense.value /
+                                                      totalForPie
+                                                    : 0;
 
                                             const angle =
-                                                percentage *
-                                                360;
+                                                percentage * 360;
 
                                             const startAngle =
                                                 currentAngle;
@@ -324,23 +472,14 @@ export default function ExpenseTripScreen() {
                                             currentAngle =
                                                 endAngle;
 
-                                            /*
-                                             * Caso exista apenas
-                                             * uma categoria, usamos
-                                             * um círculo completo.
-                                             */
-
                                             if (
                                                 groupedExpenses.length ===
                                                     1 ||
-                                                angle >=
-                                                    359.99
+                                                angle >= 359.99
                                             ) {
                                                 return (
                                                     <Path
-                                                        key={
-                                                            expense.key
-                                                        }
+                                                        key={expense.key}
                                                         d={`
                                                             M ${center} ${center}
                                                             m -${radius}, 0
@@ -356,9 +495,7 @@ export default function ExpenseTripScreen() {
 
                                             return (
                                                 <Path
-                                                    key={
-                                                        expense.key
-                                                    }
+                                                    key={expense.key}
                                                     d={createPieSlicePath(
                                                         center,
                                                         center,
@@ -376,16 +513,11 @@ export default function ExpenseTripScreen() {
                                 </Svg>
                             </View>
 
-                            <View
-                                style={
-                                    styles.legend
-                                }
-                            >
+                            <View style={styles.legend}>
                                 {groupedExpenses.map(
                                     (expense) => {
                                         const percentage =
-                                            totalForPie >
-                                            0
+                                            totalForPie > 0
                                                 ? (expense.value /
                                                       totalForPie) *
                                                   100
@@ -393,9 +525,7 @@ export default function ExpenseTripScreen() {
 
                                         return (
                                             <View
-                                                key={
-                                                    expense.key
-                                                }
+                                                key={expense.key}
                                                 style={
                                                     styles.legendItem
                                                 }
@@ -422,9 +552,7 @@ export default function ExpenseTripScreen() {
                                                             styles.legendName
                                                         }
                                                     >
-                                                        {
-                                                            expense.name
-                                                        }
+                                                        {expense.name}
                                                     </Text>
 
                                                     <Text
@@ -433,9 +561,7 @@ export default function ExpenseTripScreen() {
                                                         }
                                                     >
                                                         {percentage
-                                                            .toFixed(
-                                                                1
-                                                            )
+                                                            .toFixed(1)
                                                             .replace(
                                                                 ".",
                                                                 ","
@@ -449,9 +575,7 @@ export default function ExpenseTripScreen() {
                                                         styles.legendValue
                                                     }
                                                 >
-                                                    {
-                                                        expense.currency
-                                                    }{" "}
+                                                    BRL{" "}
                                                     {formatMoney(
                                                         expense.value
                                                     )}
@@ -463,9 +587,7 @@ export default function ExpenseTripScreen() {
                             </View>
                         </>
                     ) : (
-                        <View
-                            style={styles.emptyChart}
-                        >
+                        <View style={styles.emptyChart}>
                             <View
                                 style={
                                     styles.emptyChartIcon
@@ -513,11 +635,7 @@ export default function ExpenseTripScreen() {
                         })
                     }
                 >
-                    <Text
-                        style={
-                            styles.addButtonText
-                        }
-                    >
+                    <Text style={styles.addButtonText}>
                         + Adicionar Despesa
                     </Text>
                 </Pressable>
@@ -526,191 +644,309 @@ export default function ExpenseTripScreen() {
     );
 }
 
-const createStyles = (palette: GlassPalette) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
-    },
+const createStyles = (palette: GlassPalette) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#f7f7f7",
+                "container",
+                palette
+            ),
+        },
 
-    content: {
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        paddingBottom: 40,
-    },
+        content: {
+            paddingHorizontal: 24,
+            paddingTop: 60,
+            paddingBottom: 40,
+        },
 
-    header: {
-        flexDirection: "row",
-        alignItems: "center",
-    },
+        header: {
+            flexDirection: "row",
+            alignItems: "center",
+        },
 
-    backButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "backButton", palette),
-        alignItems: "center",
-        justifyContent: "center",
-        marginRight: 14,
-    },
+        backButton: {
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "backButton",
+                palette
+            ),
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 14,
+        },
 
-    backText: {
-        fontSize: 30,
-        color: glassColor("color", "#303030", "backText", palette),
-        lineHeight: 32,
-    },
+        backText: {
+            fontSize: 30,
+            color: glassColor(
+                "color",
+                "#303030",
+                "backText",
+                palette
+            ),
+            lineHeight: 32,
+        },
 
-    title: {
-        fontSize: 24,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "title", palette),
-    },
+        title: {
+            fontSize: 24,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "title",
+                palette
+            ),
+        },
 
-    country: {
-        marginTop: 4,
-        fontSize: 14,
-        color: glassColor("color", "#888888", "country", palette),
-    },
+        country: {
+            marginTop: 4,
+            fontSize: 14,
+            color: glassColor(
+                "color",
+                "#888888",
+                "country",
+                palette
+            ),
+        },
 
-    sectionTitle: {
-        marginTop: 32,
-        marginBottom: 14,
-        fontSize: 18,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "sectionTitle", palette),
-    },
+        sectionTitle: {
+            marginTop: 32,
+            marginBottom: 14,
+            fontSize: 18,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "sectionTitle",
+                palette
+            ),
+        },
 
-    metricsContainer: {
-        flexDirection: "row",
-        gap: 12,
-    },
+        metricsContainer: {
+            flexDirection: "row",
+            gap: 12,
+        },
 
-    metricCard: {
-        ...glassDecoration("metricCard", palette),
-        flex: 1,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "metricCard", palette),
-        borderRadius: 18,
-        padding: 18,
-    },
+        metricCard: {
+            ...glassDecoration("metricCard", palette),
+            flex: 1,
+            minWidth: 0,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "metricCard",
+                palette
+            ),
+            borderRadius: 18,
+            padding: 12,
+        },
 
-    metricLabel: {
-        fontSize: 12,
-        color: glassColor("color", "#888888", "metricLabel", palette),
-        marginBottom: 8,
-    },
+        metricLabel: {
+            fontSize: 11,
+            color: glassColor(
+                "color",
+                "#888888",
+                "metricLabel",
+                palette
+            ),
+            marginBottom: 8,
+        },
 
-    metricValue: {
-        fontSize: 17,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "metricValue", palette),
-    },
+        metricValue: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "metricValue",
+                palette
+            ),
+        },
 
-    chartCard: {
-        ...glassDecoration("chartCard", palette),
-        marginTop: 18,
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "chartCard", palette),
-        borderRadius: 20,
-        padding: 20,
-    },
+        metricSecondary: {
+            marginTop: 7,
+            fontSize: 10,
+            lineHeight: 14,
+            color: glassColor(
+                "color",
+                "#888888",
+                "metricSecondary",
+                palette
+            ),
+        },
 
-    chartTitle: {
-        fontSize: 16,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "chartTitle", palette),
-        marginBottom: 10,
-    },
+        negativeValue: {
+            color: "#E57373",
+        },
 
-    pieContainer: {
-        alignItems: "center",
-        justifyContent: "center",
-        marginTop: 4,
-        marginBottom: 14,
-    },
+        chartCard: {
+            ...glassDecoration("chartCard", palette),
+            marginTop: 18,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#ffffff",
+                "chartCard",
+                palette
+            ),
+            borderRadius: 20,
+            padding: 20,
+        },
 
-    legend: {
-        marginTop: 4,
-    },
+        chartTitle: {
+            fontSize: 16,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "chartTitle",
+                palette
+            ),
+            marginBottom: 10,
+        },
 
-    legendItem: {
-        flexDirection: "row",
-        alignItems: "center",
-        paddingVertical: 10,
-        borderTopWidth: 1,
-        borderTopColor: glassColor("borderTopColor", "#eeeeee", "legendItem", palette),
-    },
+        pieContainer: {
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 4,
+            marginBottom: 14,
+        },
 
-    legendColor: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        marginRight: 10,
-    },
+        legend: {
+            marginTop: 4,
+        },
 
-    legendInfo: {
-        flex: 1,
-    },
+        legendItem: {
+            flexDirection: "row",
+            alignItems: "center",
+            paddingVertical: 10,
+            borderTopWidth: 1,
+            borderTopColor: glassColor(
+                "borderTopColor",
+                "#eeeeee",
+                "legendItem",
+                palette
+            ),
+        },
 
-    legendName: {
-        fontSize: 14,
-        fontWeight: "600",
-        color: glassColor("color", "#303030", "legendName", palette),
-    },
+        legendColor: {
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            marginRight: 10,
+        },
 
-    legendPercentage: {
-        marginTop: 3,
-        fontSize: 11,
-        color: glassColor("color", "#999999", "legendPercentage", palette),
-    },
+        legendInfo: {
+            flex: 1,
+        },
 
-    legendValue: {
-        fontSize: 14,
-        fontWeight: "700",
-        color: glassColor("color", "#303030", "legendValue", palette),
-    },
+        legendName: {
+            fontSize: 14,
+            fontWeight: "600",
+            color: glassColor(
+                "color",
+                "#303030",
+                "legendName",
+                palette
+            ),
+        },
 
-    emptyChart: {
-        minHeight: 180,
-        alignItems: "center",
-        justifyContent: "center",
-        paddingHorizontal: 20,
-    },
+        legendPercentage: {
+            marginTop: 3,
+            fontSize: 11,
+            color: glassColor(
+                "color",
+                "#999999",
+                "legendPercentage",
+                palette
+            ),
+        },
 
-    emptyChartIcon: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: glassColor("backgroundColor", "#f0f0f0", "emptyChartIcon", palette),
-        alignItems: "center",
-        justifyContent: "center",
-        marginBottom: 14,
-    },
+        legendValue: {
+            fontSize: 14,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#303030",
+                "legendValue",
+                palette
+            ),
+        },
 
-    emptyChartTitle: {
-        fontSize: 15,
-        fontWeight: "700",
-        color: glassColor("color", "#555555", "emptyChartTitle", palette),
-        textAlign: "center",
-    },
+        emptyChart: {
+            minHeight: 180,
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 20,
+        },
 
-    emptyChartText: {
-        marginTop: 6,
-        fontSize: 12,
-        lineHeight: 18,
-        color: glassColor("color", "#999999", "emptyChartText", palette),
-        textAlign: "center",
-        maxWidth: 240,
-    },
+        emptyChartIcon: {
+            width: 52,
+            height: 52,
+            borderRadius: 26,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#f0f0f0",
+                "emptyChartIcon",
+                palette
+            ),
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 14,
+        },
 
-    addButton: {
-        marginTop: 24,
-        backgroundColor: glassColor("backgroundColor", "#000000", "addButton", palette),
-        borderRadius: 40,
-        paddingVertical: 18,
-        alignItems: "center",
-    },
+        emptyChartTitle: {
+            fontSize: 15,
+            fontWeight: "700",
+            color: glassColor(
+                "color",
+                "#555555",
+                "emptyChartTitle",
+                palette
+            ),
+            textAlign: "center",
+        },
 
-    addButtonText: {
-        color: glassColor("color", "#ffffff", "addButtonText", palette),
-        fontSize: 16,
-        fontWeight: "600",
-    },
-});
+        emptyChartText: {
+            marginTop: 6,
+            fontSize: 12,
+            lineHeight: 18,
+            color: glassColor(
+                "color",
+                "#999999",
+                "emptyChartText",
+                palette
+            ),
+            textAlign: "center",
+            maxWidth: 240,
+        },
+
+        addButton: {
+            marginTop: 24,
+            backgroundColor: glassColor(
+                "backgroundColor",
+                "#000000",
+                "addButton",
+                palette
+            ),
+            borderRadius: 40,
+            paddingVertical: 18,
+            alignItems: "center",
+        },
+
+        addButtonText: {
+            color: glassColor(
+                "color",
+                "#ffffff",
+                "addButtonText",
+                palette
+            ),
+            fontSize: 16,
+            fontWeight: "600",
+        },
+    });

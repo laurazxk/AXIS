@@ -2,25 +2,25 @@ import React, { useState } from "react";
 
 import {
   Pressable,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   View,
-  ScrollView,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import GlassFrost from "../../components/GlassFrost";
+import AxisToggle from "../../components/AxisToggle";
 import GlassBackdrop from "../../components/GlassBackdrop";
 import GlassBottomNav from "../../components/GlassBottomNav";
-import AxisToggle from "../../components/AxisToggle";
+import GlassFrost from "../../components/GlassFrost";
 import UserAvatar from "../../components/UserAvatar";
 
-import { useAxisTheme } from "../../contexts/ThemeContext";
 import { useAxisAuth } from "../../contexts/AuthContext";
+import { useAxisTheme } from "../../contexts/ThemeContext";
 
 import {
   glassColor,
@@ -61,7 +61,6 @@ export default function ProfileScreen() {
         barStyle={
           darkMode ? "light-content" : "dark-content"
         }
-        backgroundColor={axisPalette.background}
       />
 
       <ScrollView

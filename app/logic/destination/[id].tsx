@@ -1,17 +1,17 @@
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
-import GlassBackdrop from "../../../components/GlassBackdrop";
 import React, { useState } from "react";
+import GlassBackdrop from "../../../components/GlassBackdrop";
+import { glassColor, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import {
-    View,
-    Text,
-    Image,
-    StyleSheet,
-    ScrollView,
-    Pressable,
     Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
     StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
@@ -362,7 +362,7 @@ export default function DestinationScreen() {
 
             <StatusBar
                 barStyle="light-content"
-                backgroundColor="#111111"
+                
             />
 
 

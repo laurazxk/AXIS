@@ -1,22 +1,22 @@
-import GlassFrost from "../../../components/GlassFrost";
-import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
 import GlassBackdrop from "../../../components/GlassBackdrop";
+import GlassFrost from "../../../components/GlassFrost";
+import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
+import { useAxisTheme } from "../../../contexts/ThemeContext";
 
 import React from "react";
 
 import {
-    View,
-    Text,
-    StyleSheet,
     Pressable,
     ScrollView,
     StatusBar,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tripDraft } from "../../../stores/tripDraft";
 
@@ -32,7 +32,7 @@ export default function MethodScreen() {
             <GlassBackdrop />
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor="#f7f7f7"
+               
             />
 
             <ScrollView

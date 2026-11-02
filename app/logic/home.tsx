@@ -1,10 +1,9 @@
-import { useAxisTheme } from "../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
+import React, { useMemo, useState } from "react";
 import GlassBackdrop from "../../components/GlassBackdrop";
 import UserAvatar from "../../components/UserAvatar";
+import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
 import { useAxisAuth } from "../../contexts/AuthContext";
-import React from "react";
-import { useMemo, useState } from "react";
+import { useAxisTheme } from "../../contexts/ThemeContext";
 
 import {
     Image,
@@ -275,7 +274,7 @@ export default function HomeScreen() {
 
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor="#f7f7f7"
+            
             />
 
 
