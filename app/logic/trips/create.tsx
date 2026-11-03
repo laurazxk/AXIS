@@ -37,35 +37,262 @@ type Country = {
 const API_URL =
     "https://countries.dev/countries?fields=name,alpha2Code,flag,currencies&sort=name";
 
-// API complementar que fornece os nomes traduzidos para português.
-const TRANSLATIONS_API_URL =
-    "https://restcountries.com/v3.1/all?fields=cca2,translations";
-
-type CountryTranslation = {
-    cca2: string;
-    translations?: {
-        por?: {
-            common?: string;
-        };
-    };
+// Traduções locais: não dependem de uma segunda API.
+const countryNamesPt: Record<string, string> = {
+    "AF": "Afeganistão",
+    "ZA": "África do Sul",
+    "AL": "Albânia",
+    "DE": "Alemanha",
+    "AD": "Andorra",
+    "AO": "Angola",
+    "AI": "Anguila",
+    "AQ": "Antártida",
+    "AG": "Antígua e Barbuda",
+    "SA": "Arábia Saudita",
+    "DZ": "Argélia",
+    "AR": "Argentina",
+    "AM": "Armênia",
+    "AW": "Aruba",
+    "AU": "Austrália",
+    "AT": "Áustria",
+    "AZ": "Azerbaijão",
+    "BS": "Bahamas",
+    "BH": "Bahrein",
+    "BD": "Bangladesh",
+    "BB": "Barbados",
+    "BE": "Bélgica",
+    "BZ": "Belize",
+    "BJ": "Benim",
+    "BM": "Bermudas",
+    "BY": "Bielorrússia",
+    "BO": "Bolívia",
+    "BA": "Bósnia e Herzegovina",
+    "BW": "Botsuana",
+    "BR": "Brasil",
+    "BN": "Brunei",
+    "BG": "Bulgária",
+    "BF": "Burquina Faso",
+    "BI": "Burundi",
+    "BT": "Butão",
+    "CV": "Cabo Verde",
+    "CM": "Camarões",
+    "KH": "Camboja",
+    "CA": "Canadá",
+    "QA": "Catar",
+    "KZ": "Cazaquistão",
+    "TD": "Chade",
+    "CL": "Chile",
+    "CN": "China",
+    "CY": "Chipre",
+    "CO": "Colômbia",
+    "KM": "Comores",
+    "CG": "Congo",
+    "CD": "Congo (República Democrática do)",
+    "KP": "Coreia do Norte",
+    "KR": "Coreia do Sul",
+    "CI": "Costa do Marfim",
+    "CR": "Costa Rica",
+    "HR": "Croácia",
+    "CU": "Cuba",
+    "CW": "Curaçao",
+    "DK": "Dinamarca",
+    "DJ": "Djibuti",
+    "DM": "Dominica",
+    "EG": "Egito",
+    "SV": "El Salvador",
+    "AE": "Emirados Árabes Unidos",
+    "EC": "Equador",
+    "ER": "Eritreia",
+    "SK": "Eslováquia",
+    "SI": "Eslovênia",
+    "ES": "Espanha",
+    "US": "Estados Unidos",
+    "EE": "Estônia",
+    "ET": "Etiópia",
+    "FJ": "Fiji",
+    "PH": "Filipinas",
+    "FI": "Finlândia",
+    "FR": "França",
+    "GA": "Gabão",
+    "GM": "Gâmbia",
+    "GH": "Gana",
+    "GE": "Geórgia",
+    "GS": "Geórgia do Sul e Ilhas Sandwich do Sul",
+    "GI": "Gibraltar",
+    "GD": "Granada",
+    "GR": "Grécia",
+    "GL": "Groenlândia",
+    "GP": "Guadalupe",
+    "GU": "Guam",
+    "GT": "Guatemala",
+    "GG": "Guernsey",
+    "GY": "Guiana",
+    "GF": "Guiana Francesa",
+    "GN": "Guiné",
+    "GQ": "Guiné Equatorial",
+    "GW": "Guiné-Bissau",
+    "HT": "Haiti",
+    "HN": "Honduras",
+    "HK": "Hong Kong",
+    "HU": "Hungria",
+    "YE": "Iêmen",
+    "BV": "Ilha Bouvet",
+    "IM": "Ilha de Man",
+    "CX": "Ilha Christmas",
+    "NF": "Ilha Norfolk",
+    "AX": "Ilhas Åland",
+    "KY": "Ilhas Cayman",
+    "CC": "Ilhas Cocos",
+    "CK": "Ilhas Cook",
+    "FO": "Ilhas Faroé",
+    "HM": "Ilhas Heard e McDonald",
+    "FK": "Ilhas Malvinas",
+    "MP": "Ilhas Marianas do Norte",
+    "MH": "Ilhas Marshall",
+    "UM": "Ilhas Menores Distantes dos Estados Unidos",
+    "PN": "Ilhas Pitcairn",
+    "SB": "Ilhas Salomão",
+    "TC": "Ilhas Turcas e Caicos",
+    "VG": "Ilhas Virgens Britânicas",
+    "VI": "Ilhas Virgens dos Estados Unidos",
+    "IN": "Índia",
+    "ID": "Indonésia",
+    "IR": "Irã",
+    "IQ": "Iraque",
+    "IE": "Irlanda",
+    "IS": "Islândia",
+    "IL": "Israel",
+    "IT": "Itália",
+    "JM": "Jamaica",
+    "JP": "Japão",
+    "JE": "Jersey",
+    "JO": "Jordânia",
+    "KW": "Kuwait",
+    "LA": "Laos",
+    "LS": "Lesoto",
+    "LV": "Letônia",
+    "LB": "Líbano",
+    "LR": "Libéria",
+    "LY": "Líbia",
+    "LI": "Liechtenstein",
+    "LT": "Lituânia",
+    "LU": "Luxemburgo",
+    "MO": "Macau",
+    "MK": "Macedônia do Norte",
+    "MG": "Madagascar",
+    "MY": "Malásia",
+    "MW": "Malawi",
+    "MV": "Maldivas",
+    "ML": "Mali",
+    "MT": "Malta",
+    "MA": "Marrocos",
+    "MQ": "Martinica",
+    "MU": "Maurício",
+    "MR": "Mauritânia",
+    "YT": "Mayotte",
+    "MX": "México",
+    "FM": "Micronésia",
+    "MZ": "Moçambique",
+    "MD": "Moldávia",
+    "MC": "Mônaco",
+    "MN": "Mongólia",
+    "ME": "Montenegro",
+    "MS": "Montserrat",
+    "MM": "Myanmar",
+    "NA": "Namíbia",
+    "NR": "Nauru",
+    "NP": "Nepal",
+    "NI": "Nicarágua",
+    "NE": "Níger",
+    "NG": "Nigéria",
+    "NU": "Niue",
+    "NO": "Noruega",
+    "NC": "Nova Caledônia",
+    "NZ": "Nova Zelândia",
+    "OM": "Omã",
+    "NL": "Países Baixos",
+    "BQ": "Países Baixos Caribenhos",
+    "PW": "Palau",
+    "PS": "Palestina",
+    "PA": "Panamá",
+    "PG": "Papua-Nova Guiné",
+    "PK": "Paquistão",
+    "PY": "Paraguai",
+    "PE": "Peru",
+    "PF": "Polinésia Francesa",
+    "PL": "Polônia",
+    "PR": "Porto Rico",
+    "PT": "Portugal",
+    "KE": "Quênia",
+    "KG": "Quirguistão",
+    "GB": "Reino Unido",
+    "CF": "República Centro-Africana",
+    "CZ": "República Tcheca",
+    "DO": "República Dominicana",
+    "RE": "Reunião",
+    "RO": "Romênia",
+    "RW": "Ruanda",
+    "RU": "Rússia",
+    "EH": "Saara Ocidental",
+    "WS": "Samoa",
+    "AS": "Samoa Americana",
+    "SM": "San Marino",
+    "SH": "Santa Helena, Ascensão e Tristão da Cunha",
+    "LC": "Santa Lúcia",
+    "BL": "São Bartolomeu",
+    "KN": "São Cristóvão e Névis",
+    "MF": "São Martinho",
+    "PM": "São Pedro e Miquelão",
+    "ST": "São Tomé e Príncipe",
+    "VC": "São Vicente e Granadinas",
+    "SN": "Senegal",
+    "SL": "Serra Leoa",
+    "RS": "Sérvia",
+    "SC": "Seicheles",
+    "SG": "Singapura",
+    "SX": "Sint Maarten",
+    "SY": "Síria",
+    "SO": "Somália",
+    "LK": "Sri Lanka",
+    "SZ": "Essuatíni",
+    "SD": "Sudão",
+    "SS": "Sudão do Sul",
+    "SE": "Suécia",
+    "CH": "Suíça",
+    "SR": "Suriname",
+    "SJ": "Svalbard e Jan Mayen",
+    "TH": "Tailândia",
+    "TW": "Taiwan",
+    "TJ": "Tajiquistão",
+    "TZ": "Tanzânia",
+    "IO": "Território Britânico do Oceano Índico",
+    "TF": "Territórios Franceses do Sul",
+    "TL": "Timor-Leste",
+    "TG": "Togo",
+    "TK": "Tokelau",
+    "TO": "Tonga",
+    "TT": "Trinidad e Tobago",
+    "TN": "Tunísia",
+    "TM": "Turcomenistão",
+    "TR": "Turquia",
+    "TV": "Tuvalu",
+    "UA": "Ucrânia",
+    "UG": "Uganda",
+    "UY": "Uruguai",
+    "UZ": "Uzbequistão",
+    "VU": "Vanuatu",
+    "VA": "Vaticano",
+    "VE": "Venezuela",
+    "VN": "Vietnã",
+    "WF": "Wallis e Futuna",
+    "ZM": "Zâmbia",
+    "ZW": "Zimbábue",
+    "XK": "Kosovo",
 };
 
-async function loadCountryTranslations(): Promise<Record<string, string>> {
-    const response = await fetch(TRANSLATIONS_API_URL);
-
-    if (!response.ok) {
-        throw new Error("Não foi possível carregar as traduções dos países.");
-    }
-
-    const data: CountryTranslation[] = await response.json();
-
-    return Object.fromEntries(
-        data
-            .filter(item => item.cca2 && item.translations?.por?.common)
-            .map(item => [item.cca2, item.translations!.por!.common!])
-    );
+function getCountryName(code: string, fallback: string) {
+    return countryNamesPt[code] || fallback;
 }
-
 // Países em destaque na tela inicial.
 // A lista completa continua vindo da API.
 const popularCountryCodes = [
@@ -96,7 +323,6 @@ export default function CreateTripScreen() {
     const insets = useSafeAreaInsets();
 
     const [countries, setCountries] = useState<Country[]>([]);
-    const [countryNames, setCountryNames] = useState<Record<string, string>>({});
     const [search, setSearch] = useState(tripDraft.country || "");
     const [selected, setSelected] = useState<Country | null>(null);
     const [loading, setLoading] = useState(true);
@@ -123,16 +349,8 @@ export default function CreateTripScreen() {
                     throw new Error("Resposta inválida da API.");
                 }
 
-                let translations: Record<string, string> = {};
-                try {
-                    translations = await loadCountryTranslations();
-                } catch (translationError) {
-                    console.warn("Não foi possível carregar nomes em português:", translationError);
-                }
-
                 if (active) {
                     setCountries(data);
-                    setCountryNames(translations);
 
                     // Recupera o país caso o usuário volte para esta tela.
                     const previousCountry = data.find(
@@ -143,7 +361,7 @@ export default function CreateTripScreen() {
                     if (previousCountry) {
                         setSelected(previousCountry);
                         setSearch(
-                            translations[previousCountry.alpha2Code] || previousCountry.name
+                            getCountryName(previousCountry.alpha2Code, previousCountry.name)
                         );
                     }
                 }
@@ -175,12 +393,12 @@ export default function CreateTripScreen() {
 
         return countries
             .filter(item =>
-                normalize(countryNames[item.alpha2Code] || item.name).includes(term) ||
+                normalize(getCountryName(item.alpha2Code, item.name)).includes(term) ||
                 normalize(item.name).includes(term) ||
                 normalize(item.alpha2Code).includes(term)
             )
             .slice(0, 10);
-    }, [search, countries, countryNames]);
+    }, [search, countries]);
 
     // Países populares encontrados na própria resposta da API.
     const popularCountries = useMemo(() => {
@@ -195,7 +413,7 @@ export default function CreateTripScreen() {
         const currency = item.currencies?.[0]?.code || "";
 
         setSelected(item);
-        const translatedName = countryNames[item.alpha2Code] || item.name;
+        const translatedName = getCountryName(item.alpha2Code, item.name);
 
         setSearch(translatedName);
 
@@ -272,7 +490,7 @@ export default function CreateTripScreen() {
 
                                 if (
                                     selected &&
-                                    value !== selected.name
+                                    value !== getCountryName(selected.alpha2Code, selected.name)
                                 ) {
                                     setSelected(null);
                                 }
@@ -338,15 +556,6 @@ export default function CreateTripScreen() {
                                         })
                                         .then(async data => {
                                             setCountries(data);
-                                            try {
-                                                const translations = await loadCountryTranslations();
-                                                setCountryNames(translations);
-                                            } catch (translationError) {
-                                                console.warn(
-                                                    "Não foi possível carregar nomes em português:",
-                                                    translationError
-                                                );
-                                            }
                                         })
                                         .catch(error => {
                                             console.error(error);
@@ -383,7 +592,7 @@ export default function CreateTripScreen() {
 
                                             <View style={styles.resultText}>
                                                 <Text style={styles.resultCity}>
-                                                    {countryNames[item.alpha2Code] || item.name}
+                                                    {getCountryName(item.alpha2Code, item.name)}
                                                 </Text>
 
                                                 <Text style={styles.resultCountry}>
@@ -429,7 +638,7 @@ export default function CreateTripScreen() {
 
                             <View style={styles.selectedText}>
                                 <Text style={styles.selectedTitle}>
-                                    {countryNames[selected.alpha2Code] || selected.name}
+                                    {getCountryName(selected.alpha2Code, selected.name)}
                                 </Text>
 
                                 <Text style={styles.selectedSubtitle}>
@@ -478,7 +687,7 @@ export default function CreateTripScreen() {
                                         ]}
                                         numberOfLines={1}
                                     >
-                                        {countryNames[item.alpha2Code] || item.name}
+                                        {getCountryName(item.alpha2Code, item.name)}
                                     </Text>
 
                                     <Text
