@@ -1,7 +1,3 @@
-import GlassFrost from "../../components/GlassFrost";
-import { useAxisTheme } from "../../contexts/ThemeContext";
-import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
-import GlassBackdrop from "../../components/GlassBackdrop";
 import React from "react";
 import {
     Image,
@@ -11,6 +7,10 @@ import {
     Text,
     View,
 } from "react-native";
+import GlassBackdrop from "../../components/GlassBackdrop";
+import GlassFrost from "../../components/GlassFrost";
+import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
+import { useAxisTheme } from "../../contexts/ThemeContext";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
