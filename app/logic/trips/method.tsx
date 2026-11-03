@@ -112,40 +112,6 @@ export default function MethodScreen() {
                 </View>
 
                 <Pressable
-                    style={[styles.optionCard, styles.aiCard]}
-                    disabled
-                >
-                    <View style={styles.optionIcon}>
-                        <MaterialIcons
-                            name="auto-awesome"
-                            size={28}
-                            color={axisPalette.muted}
-                        />
-                    </View>
-
-                    <View style={styles.optionText}>
-                        <Text style={styles.optionTitle}>
-                            Gerar roteiro com IA
-                        </Text>
-
-                        <Text style={styles.optionDescription}>
-                            Receba sugestões de passeios e atividades
-                            personalizadas para sua viagem.
-                        </Text>
-
-                        <Text style={styles.comingSoon}>
-                            Em breve
-                        </Text>
-                    </View>
-
-                    <MaterialIcons
-                        name="arrow-forward"
-                        size={21}
-                        color={axisPalette.muted}
-                    />
-                </Pressable>
-
-                <Pressable
                     style={({ pressed }) => [
                         styles.optionCard,
                         pressed && styles.pressed,
