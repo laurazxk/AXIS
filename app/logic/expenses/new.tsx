@@ -1,10 +1,9 @@
-
 import { MaterialIcons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 import {
+    Modal,
     Pressable,
     StyleSheet,
     Text,
@@ -54,11 +53,11 @@ const stylesCheck = StyleSheet.create({
 });
 
 export default function NewExpenseScreen() {
-    const { palette: axisPalette } = useAxisTheme();
+    const { palette: axisPalette, mode } = useAxisTheme();
 
     const styles = React.useMemo(
-        () => createStyles(axisPalette),
-        [axisPalette]
+        () => createStyles(axisPalette, mode === "dark"),
+        [axisPalette, mode]
     );
 
     const router = useRouter();
@@ -341,13 +340,15 @@ export default function NewExpenseScreen() {
                     </Pressable>
                 </View>
 
-                {showColorPicker && (
+                <Modal
+                    visible={showColorPicker}
+                    transparent
+                    animationType="fade"
+                    statusBarTranslucent
+                    onRequestClose={() => setShowColorPicker(false)}
+                >
                     <View style={styles.colorPopupWrapper}>
-                        <BlurView
-                            intensity={90}
-                            tint="dark"
-                            style={styles.colorPopup}
-                        >
+                        <View style={styles.colorPopup}>
                             <Text style={styles.popupTitle}>
                                 Escolha uma cor
                             </Text>
@@ -480,17 +481,19 @@ export default function NewExpenseScreen() {
                                     Fechar
                                 </Text>
                             </Pressable>
-                        </BlurView>
+                        </View>
                     </View>
-                )}
+                </Modal>
 
-                {showCustomColorPicker && (
+                <Modal
+                    visible={showCustomColorPicker}
+                    transparent
+                    animationType="fade"
+                    statusBarTranslucent
+                    onRequestClose={() => setShowCustomColorPicker(false)}
+                >
                     <View style={styles.customColorOverlay}>
-                        <BlurView
-                            intensity={95}
-                            tint="dark"
-                            style={styles.customColorModal}
-                        >
+                        <View style={styles.customColorModal}>
                             <Text style={styles.customColorTitle}>
                                 Criar nova cor
                             </Text>
@@ -538,9 +541,9 @@ export default function NewExpenseScreen() {
                                     Cancelar
                                 </Text>
                             </Pressable>
-                        </BlurView>
+                        </View>
                     </View>
-                )}
+                </Modal>
 
                 <Text style={styles.label}>Divisão</Text>
 
@@ -590,7 +593,7 @@ export default function NewExpenseScreen() {
     );
 }
 
-const createStyles = (palette: GlassPalette) =>
+const createStyles = (palette: GlassPalette, darkMode: boolean) =>
     StyleSheet.create({
         container: {
             flex: 1,
@@ -827,29 +830,24 @@ const createStyles = (palette: GlassPalette) =>
         },
 
         colorPopupWrapper: {
-            position: "absolute",
-            left: 0,
-            right: 0,
-            top: 82,
-            zIndex: 20,
+            flex: 1,
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 24,
+            paddingVertical: 30,
+            backgroundColor: "rgba(0,0,0,0.45)",
         },
 
         colorPopup: {
+            width: "100%",
+            maxWidth: 420,
+            alignSelf: "center",
             borderRadius: 22,
             overflow: "hidden",
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "rgba(255,255,255,0.12)",
-                "colorPopup",
-                palette
-            ),
+            backgroundColor: darkMode ? "rgba(30,30,30,0.98)" : "rgba(248,248,248,0.98)",
             borderWidth: 1,
-            borderColor: glassColor(
-                "borderColor",
-                "rgba(255,255,255,0.35)",
-                "colorPopup",
-                palette
-            ),
+            borderColor: darkMode ? "#505050" : "#D5D5D5",
             paddingHorizontal: 20,
             paddingVertical: 18,
             shadowColor: glassColor(
@@ -867,7 +865,7 @@ const createStyles = (palette: GlassPalette) =>
         popupTitle: {
             fontSize: 15,
             fontWeight: "600",
-            color: glassColor("color", "#ffffff", "popupTitle", palette),
+            color: palette.text,
             marginBottom: 16,
         },
 
@@ -962,23 +960,13 @@ const createStyles = (palette: GlassPalette) =>
             marginTop: 20,
             paddingTop: 16,
             borderTopWidth: 1,
-            borderTopColor: glassColor(
-                "borderTopColor",
-                "rgba(255,255,255,0.15)",
-                "myColorsSection",
-                palette
-            ),
+            borderTopColor: palette.divider,
         },
 
         myColorsTitle: {
             fontSize: 14,
             fontWeight: "600",
-            color: glassColor(
-                "color",
-                "#ffffff",
-                "myColorsTitle",
-                palette
-            ),
+            color: palette.text,
             marginBottom: 12,
         },
 
@@ -1002,12 +990,7 @@ const createStyles = (palette: GlassPalette) =>
             width: 18,
             height: 18,
             borderRadius: 9,
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "#ffffff",
-                "deleteColorButton",
-                palette
-            ),
+            backgroundColor: darkMode ? "#EDEDED" : "#FFFFFF",
             alignItems: "center",
             justifyContent: "center",
             borderWidth: 1,
@@ -1023,41 +1006,21 @@ const createStyles = (palette: GlassPalette) =>
             fontSize: 14,
             lineHeight: 16,
             fontWeight: "700",
-            color: glassColor(
-                "color",
-                "#555555",
-                "deleteColorText",
-                palette
-            ),
+            color: "#171717",
         },
 
         noColorsText: {
             fontSize: 12,
-            color: glassColor(
-                "color",
-                "rgba(255,255,255,0.55)",
-                "noColorsText",
-                palette
-            ),
+            color: palette.muted,
         },
 
         createColorButton: {
             marginTop: 16,
             height: 40,
             borderRadius: 12,
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "rgba(255,255,255,0.10)",
-                "createColorButton",
-                palette
-            ),
+            backgroundColor: darkMode ? "#F4F4F4" : "#171717",
             borderWidth: 1,
-            borderColor: glassColor(
-                "borderColor",
-                "rgba(255,255,255,0.20)",
-                "createColorButton",
-                palette
-            ),
+            borderColor: darkMode ? "#F4F4F4" : "#171717",
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
@@ -1066,24 +1029,14 @@ const createStyles = (palette: GlassPalette) =>
 
         createColorPlus: {
             fontSize: 20,
-            color: glassColor(
-                "color",
-                "#ffffff",
-                "createColorPlus",
-                palette
-            ),
+            color: darkMode ? "#171717" : "#FFFFFF",
             lineHeight: 22,
         },
 
         createColorText: {
             fontSize: 12,
             fontWeight: "600",
-            color: glassColor(
-                "color",
-                "#ffffff",
-                "createColorText",
-                palette
-            ),
+            color: darkMode ? "#171717" : "#FFFFFF",
         },
 
         closePopupButton: {
@@ -1092,55 +1045,37 @@ const createStyles = (palette: GlassPalette) =>
             paddingHorizontal: 12,
             paddingVertical: 6,
             borderRadius: 10,
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "rgba(255,255,255,0.10)",
-                "closePopupButton",
-                palette
-            ),
+            backgroundColor: darkMode ? "#3B3B3B" : "#E8E8E8",
         },
 
         closePopupText: {
             fontSize: 12,
-            color: glassColor(
-                "color",
-                "rgba(255,255,255,0.85)",
-                "closePopupText",
-                palette
-            ),
+            color: darkMode ? "#FFFFFF" : "#171717",
         },
 
         customColorOverlay: {
-            position: "absolute",
-            top: -35,
-            left: -24,
-            right: -24,
-            bottom: 0,
+            flex: 1,
+            width: "100%",
             alignItems: "center",
             justifyContent: "center",
-            zIndex: 50,
+            paddingHorizontal: 20,
+            paddingVertical: 24,
+            backgroundColor: "rgba(0,0,0,0.55)",
         },
 
         customColorModal: {
             ...glassDecoration("customColorModal", palette),
-            width: "86%",
+            width: "100%",
+            maxWidth: 420,
+            maxHeight: "95%",
+            alignSelf: "center",
             borderRadius: 24,
             padding: 24,
             alignItems: "center",
             overflow: "hidden",
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "rgba(255,255,255,0.13)",
-                "customColorModal",
-                palette
-            ),
+            backgroundColor: darkMode ? "rgba(30,30,30,0.98)" : "rgba(248,248,248,0.98)",
             borderWidth: 1,
-            borderColor: glassColor(
-                "borderColor",
-                "rgba(255,255,255,0.38)",
-                "customColorModal",
-                palette
-            ),
+            borderColor: darkMode ? "#505050" : "#D5D5D5",
             shadowColor: glassColor(
                 "shadowColor",
                 "#000000",
@@ -1156,24 +1091,14 @@ const createStyles = (palette: GlassPalette) =>
         customColorTitle: {
             fontSize: 22,
             fontWeight: "800",
-            color: glassColor(
-                "color",
-                "#FFFFFF",
-                "customColorTitle",
-                palette
-            ),
+            color: palette.text,
             marginBottom: 8,
         },
 
         customColorDescription: {
             fontSize: 13,
             lineHeight: 19,
-            color: glassColor(
-                "color",
-                "rgba(255,255,255,0.75)",
-                "customColorDescription",
-                palette
-            ),
+            color: palette.muted,
             textAlign: "center",
             marginBottom: 20,
         },
@@ -1210,29 +1135,14 @@ const createStyles = (palette: GlassPalette) =>
             borderRadius: 14,
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: glassColor(
-                "backgroundColor",
-                "rgba(255,255,255,0.18)",
-                "saveCustomColorButton",
-                palette
-            ),
+            backgroundColor: darkMode ? "#F4F4F4" : "#171717",
             borderWidth: 1,
-            borderColor: glassColor(
-                "borderColor",
-                "rgba(255,255,255,0.35)",
-                "saveCustomColorButton",
-                palette
-            ),
+            borderColor: darkMode ? "#F4F4F4" : "#171717",
             marginBottom: 10,
         },
 
         saveCustomColorButtonText: {
-            color: glassColor(
-                "color",
-                "#FFFFFF",
-                "saveCustomColorButtonText",
-                palette
-            ),
+            color: darkMode ? "#171717" : "#FFFFFF",
             fontSize: 15,
             fontWeight: "700",
         },
@@ -1242,12 +1152,7 @@ const createStyles = (palette: GlassPalette) =>
         },
 
         cancelCustomColorButtonText: {
-            color: glassColor(
-                "color",
-                "rgba(255,255,255,0.70)",
-                "cancelCustomColorButtonText",
-                palette
-            ),
+            color: palette.muted,
             fontSize: 14,
         },
 

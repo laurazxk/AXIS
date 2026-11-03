@@ -131,27 +131,7 @@ export default function ProfileScreen() {
               />
             </View>
 
-            {/* NOTIFICAÇÕES */}
-
-            <View style={styles.settingRow}>
-              <View style={styles.settingInfo}>
-                <MaterialIcons
-                  name="notifications-none"
-                  size={24}
-                  color={axisPalette.muted}
-                />
-
-                <Text style={styles.settingText}>
-                  Notificações
-                </Text>
-              </View>
-
-              <AxisToggle
-                label="Notificações"
-                value={notifications}
-                onValueChange={setNotifications}
-              />
-            </View>
+           
 
             {/* SOBRE */}
 

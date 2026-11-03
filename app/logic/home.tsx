@@ -111,6 +111,165 @@ const destinations = [
         image: require("../../assets/images/sydney.jpg"),
     },
 
+    {
+        id: "lisboa",
+        title: "Lisboa",
+        location: "Lisboa, Portugal",
+        category: "Cidade",
+        image: require("../../assets/images/lisboa.jpg"),
+    },
+
+    {
+        id: "istambul",
+        title: "Istambul",
+        location: "Istambul, Turquia",
+        category: "Cidade",
+        image: require("../../assets/images/istambul.jpg"),
+    },
+
+    {
+        id: "los-angeles",
+        title: "Los Angeles",
+        location: "Los Angeles, Estados Unidos",
+        category: "Cidade",
+        image: require("../../assets/images/los-angeles.jpg"),
+    },
+
+    {
+        id: "miami",
+        title: "Miami",
+        location: "Miami, Estados Unidos",
+        category: "Cidade",
+        image: require("../../assets/images/miami.jpg"),
+    },
+
+    {
+        id: "hong-kong",
+        title: "Hong Kong",
+        location: "Hong Kong, China",
+        category: "Cidade",
+        image: require("../../assets/images/hong-kong.jpg"),
+    },
+
+    {
+        id: "florenca",
+        title: "Florença",
+        location: "Florença, Itália",
+        category: "Cidade",
+        image: require("../../assets/images/florenca.jpg"),
+    },
+
+    {
+        id: "cancun",
+        title: "Cancún",
+        location: "Cancún, México",
+        category: "Cidade",
+        image: require("../../assets/images/cancun.jpg"),
+    },
+
+    {
+        id: "edimburgo",
+        title: "Edimburgo",
+        location: "Edimburgo, Reino Unido",
+        category: "Cidade",
+        image: require("../../assets/images/edimburgo.jpg"),
+    },
+
+    {
+        id: "berlim",
+        title: "Berlim",
+        location: "Berlim, Alemanha",
+        category: "Cidade",
+        image: require("../../assets/images/berlim.jpg"),
+    },
+
+    {
+        id: "hanoi",
+        title: "Hanói",
+        location: "Hanói, Vietnã",
+        category: "Cidade",
+        image: require("../../assets/images/hanoi.jpg"),
+    },
+
+    {
+        id: "monte-fuji",
+        title: "Monte Fuji",
+        location: "Monte Fuji, Japão",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/monte-fuji.jpg"),
+    },
+
+    {
+        id: "angkor-wat",
+        title: "Angkor Wat",
+        location: "Angkor Wat, Camboja",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/angkor-wat.jpg"),
+    },
+
+    {
+        id: "grand-canyon",
+        title: "Grand Canyon",
+        location: "Grand Canyon, Estados Unidos",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/grand-canyon.jpg"),
+    },
+
+    {
+        id: "niagara",
+        title: "Cataratas do Niágara",
+        location: "Cataratas do Niágara, Canadá",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/niagara.jpg"),
+    },
+
+    {
+        id: "blue-lagoon",
+        title: "Blue Lagoon",
+        location: "Blue Lagoon, Islândia",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/blue-lagoon.jpg"),
+    },
+
+    {
+        id: "everest",
+        title: "Monte Everest",
+        location: "Monte Everest, Nepal",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/everest.jpg"),
+    },
+
+    {
+        id: "salar-de-uyuni",
+        title: "Salar de Uyuni",
+        location: "Salar de Uyuni, Bolívia",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/salar-de-uyuni.jpg"),
+    },
+
+    {
+        id: "victoria-falls",
+        title: "Victoria Falls",
+        location: "Victoria Falls, Zâmbia",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/victoria-falls.jpg"),
+    },
+
+    {
+        id: "kilimanjaro",
+        title: "Kilimanjaro",
+        location: "Kilimanjaro, Tanzânia",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/kilimanjaro.jpg"),
+    },
+
+    {
+        id: "uluru",
+        title: "Uluru",
+        location: "Uluru, Austrália",
+        category: "Ponto Turístico",
+        image: require("../../assets/images/uluru.jpg"),
+    },
 ];
 
 
@@ -200,7 +359,7 @@ const countries = [
 export default function HomeScreen() {
     const { user } = useAxisAuth();
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
-    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+    const styles = React.useMemo(() => createStyles(axisPalette, axisDarkMode), [axisPalette, axisDarkMode]);
 
 
     const router = useRouter();
@@ -575,15 +734,13 @@ export default function HomeScreen() {
                                 }
                             >
 
-                                <Image
-                                    source={country.image}
-
-                                    style={
-                                        styles.destinationImage
-                                    }
-
-                                    resizeMode="cover"
-                                />
+                                <View style={styles.imageWrapper}>
+                                    <Image
+                                        source={country.image}
+                                        style={styles.destinationImage}
+                                        resizeMode="cover"
+                                    />
+                                </View>
 
 
                                 <View
@@ -646,7 +803,7 @@ export default function HomeScreen() {
    ESTILOS
 ========================================================= */
 
-const createStyles = (palette: GlassPalette) => StyleSheet.create({
+const createStyles = (palette: GlassPalette, darkMode: boolean) => StyleSheet.create({
 
     container: {
         flex: 1,
@@ -763,7 +920,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         height: 29,
         paddingHorizontal: 15,
         borderRadius: 16,
-        backgroundColor: glassColor("backgroundColor", "#e7e7e7", "filterButton", palette),
+        backgroundColor: darkMode ? "#292929" : "#E8E8E8",
         alignItems: "center",
         justifyContent: "center",
     },
@@ -771,19 +928,19 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
     filterButtonActive: {
         ...glassDecoration("filterButtonActive", palette),
-        backgroundColor: glassColor("backgroundColor", "#303030", "filterButtonActive", palette),
+        backgroundColor: darkMode ? "#F5F5F5" : "#171717",
     },
 
 
     filterText: {
         fontSize: 10,
-        color: glassColor("color", "#666666", "filterText", palette),
+        color: darkMode ? "#F2F2F2" : "#333333",
         fontWeight: "500",
     },
 
 
     filterTextActive: {
-        color: glassColor("color", "#ffffff", "filterTextActive", palette),
+        color: darkMode ? "#171717" : "#FFFFFF",
     },
 
 
@@ -831,8 +988,8 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
 
 
     destinationImage: {
-        width: 150,
-        height: 145,
+        width: "100%",
+        height: "100%",
         borderRadius: 10,
     },
 
