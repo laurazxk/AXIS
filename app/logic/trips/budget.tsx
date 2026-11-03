@@ -120,9 +120,9 @@ export default function Budget() {
                 </Pressable>
 
                <Text style={styles.step}>
-                     ETAPA 3 DE 3
+                     ETAPA 2 DE 3
             </Text>
-            
+
                 <Text style={styles.title}>
                     Defina seu orçamento
                 </Text>
