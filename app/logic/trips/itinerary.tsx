@@ -21,8 +21,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { saveTrip } from "../../../stores/tripStore";
 import { tripDraft } from "../../../stores/tripDraft";
+import { saveTrip } from "../../../stores/tripStore";
 
 type Activity = {
     id: number;
@@ -258,7 +258,7 @@ export default function ItineraryScreen() {
             <GlassBackdrop />
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor={axisPalette.accentText}
+             
             />
 
             {/* CABEÇALHO */}
@@ -1171,20 +1171,30 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         fontWeight: "700",
         color: glassColor("color", "#303030", "colonText", palette),
     },
-
     finishButton: {
-    marginTop: 20,
-    marginHorizontal: 20,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
+        marginTop: 12,
+        marginHorizontal: 20,
+        marginBottom: 20,
+        paddingVertical: 15,
+        borderRadius: 35,
+        alignItems: "center",
         justifyContent: "center",
-        backgroundColor: glassColor("backgroundColor", "#1F2937", "finishButton", palette),
+        backgroundColor: glassColor(
+            "backgroundColor",
+            "#171717",
+            "finishButton",
+            palette
+        ),
     },
 
     finishButtonText: {
-        color: glassColor("color", "#FFFFFF", "finishButtonText", palette),
-        fontSize: 16,
-        fontWeight: "600",
+        color: glassColor(
+            "color",
+            "#FFFFFF",
+            "finishButtonText",
+            palette
+        ),
+        fontSize: 17,
+        fontWeight: "700",
     },
 });

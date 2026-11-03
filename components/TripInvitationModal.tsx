@@ -12,8 +12,8 @@ import {
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import QRCode from "react-native-qrcode-svg";
 import * as Clipboard from "expo-clipboard";
+import QRCode from "react-native-qrcode-svg";
 
 import { useAxisTheme } from "../contexts/ThemeContext";
 
@@ -259,7 +259,7 @@ export default function TripInvitationModal({
               <View style={styles.qrBackground}>
                 <QRCode
                   value={invitation.code}
-                  size={174}
+                  size={140}
                   backgroundColor="#FFFFFF"
                   color="#111111"
                 />
@@ -364,68 +364,68 @@ const styles = StyleSheet.create({
   center: {
     flexGrow: 1,
     justifyContent: "center",
-    paddingHorizontal: 22,
-    paddingVertical: 42,
+    paddingHorizontal: 28,
+    paddingVertical: 20,
   },
 
   ticket: {
     width: "100%",
-    maxWidth: 440,
+    maxWidth: 400,
     alignSelf: "center",
-    borderRadius: 27,
+    borderRadius: 24,
     borderWidth: 1,
     overflow: "hidden",
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingTop: 18,
+    paddingHorizontal: 20,
+    paddingBottom: 14,
   },
 
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 28,
+    marginBottom: 18,
   },
 
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 7,
   },
 
   brand: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "900",
     letterSpacing: 3,
   },
 
   eyebrow: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "800",
-    letterSpacing: 2,
-    marginBottom: 10,
+    letterSpacing: 1.8,
+    marginBottom: 7,
   },
 
   heading: {
-    fontSize: 25,
-    lineHeight: 31,
+    fontSize: 22,
+    lineHeight: 27,
     fontWeight: "800",
-    marginBottom: 28,
+    marginBottom: 19,
   },
 
   destinationSection: {
-    marginBottom: 22,
+    marginBottom: 16,
   },
 
   fieldLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: "800",
-    letterSpacing: 1.6,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: 6,
   },
 
   destination: {
-    fontSize: 23,
+    fontSize: 21,
     fontWeight: "800",
   },
 
@@ -433,8 +433,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 27,
-    gap: 12,
+    marginBottom: 18,
+    gap: 10,
   },
 
   dateColumn: {
@@ -442,15 +442,15 @@ const styles = StyleSheet.create({
   },
 
   dateValue: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
 
   perforationRow: {
-    height: 25,
+    height: 19,
     justifyContent: "center",
-    marginHorizontal: -24,
-    marginBottom: 26,
+    marginHorizontal: -20,
+    marginBottom: 17,
   },
 
   dashedLine: {
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     left: -10,
-    top: 2,
+    top: 0,
   },
 
   cutoutRight: {
@@ -474,68 +474,68 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     right: -10,
-    top: 2,
+    top: 0,
   },
 
   code: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "900",
     letterSpacing: 2,
     textAlign: "center",
-    marginBottom: 22,
+    marginBottom: 14,
   },
 
   qrContainer: {
     alignItems: "center",
-    marginBottom: 18,
+    marginBottom: 12,
   },
 
   qrBackground: {
-    padding: 15,
+    padding: 11,
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    borderRadius: 15,
   },
 
   helper: {
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 11,
+    lineHeight: 16,
     textAlign: "center",
-    marginBottom: 23,
+    marginBottom: 16,
   },
 
   primaryButton: {
-    minHeight: 52,
-    borderRadius: 15,
+    minHeight: 46,
+    borderRadius: 14,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
+    gap: 9,
   },
 
   primaryText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: "800",
   },
 
   secondaryButton: {
-    minHeight: 52,
-    borderRadius: 15,
+    minHeight: 46,
+    borderRadius: 14,
     borderWidth: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10,
-    marginTop: 10,
+    gap: 9,
+    marginTop: 8,
   },
 
   secondaryText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
   },
 
   closeButton: {
     alignItems: "center",
-    padding: 14,
-    marginTop: 4,
+    padding: 10,
+    marginTop: 2,
   },
 });
