@@ -134,7 +134,7 @@ export default function DurationScreen() {
         );
     }
 
-    function continueToPreferences() {
+    function continueToBudget() {
         if (mode === "dates" && (!startDate || !endDate)) {
             return;
         }
@@ -158,7 +158,7 @@ export default function DurationScreen() {
                 ) + 1;
         }
 
-        router.push("/logic/trips/preferences");
+        router.push("/logic/trips/budget");
     }
 
     return (
@@ -195,7 +195,7 @@ export default function DurationScreen() {
                     <View style={styles.headerSpace} />
                 </View>
 
-                <Text style={styles.step}>ETAPA 2 DE 4</Text>
+                <Text style={styles.step}>ETAPA 2 DE 3</Text>
 
                 <Text style={styles.title}>
                     Quando você{"\n"}pretende viajar?
@@ -658,7 +658,7 @@ export default function DurationScreen() {
                         mode === "dates" &&
                         (!startDate || !endDate)
                     }
-                    onPress={continueToPreferences}
+                    onPress={continueToBudget}
                 >
                     <Text style={styles.buttonText}>
                         Continuar
