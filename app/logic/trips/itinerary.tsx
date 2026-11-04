@@ -46,7 +46,7 @@ const ITEM_HEIGHT = 44;
 
 export default function ItineraryScreen() {
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
-    const styles = React.useMemo(() => createStyles(axisPalette), [axisPalette]);
+    const styles = React.useMemo(() => createStyles(axisPalette, axisDarkMode), [axisPalette, axisDarkMode]);
 
     const router = useRouter();
     const insets = useSafeAreaInsets();
@@ -564,6 +564,16 @@ export default function ItineraryScreen() {
                 )}
             </ScrollView>
 
+            <Pressable
+  style={styles.finishButton}
+  disabled={tripFinished}
+  onPress={finishTrip}
+>
+  <Text style={styles.finishButtonText}>
+    Concluir viagem
+  </Text>
+</Pressable>
+
             {/* MODAL DO HORÁRIO */}
 
             <Modal
@@ -572,6 +582,7 @@ export default function ItineraryScreen() {
                 }
                 transparent
                 animationType="slide"
+                statusBarTranslucent
                 onRequestClose={() =>
                     setTimeModalVisible(
                         false
@@ -595,9 +606,10 @@ export default function ItineraryScreen() {
                     />
 
                     <View
-                        style={
-                            styles.timeModal
-                        }
+                        style={[
+                            styles.timeModal,
+                            { paddingBottom: Math.max(insets.bottom, 16) + 16 },
+                        ]}
                     >
                         <View
                             style={
@@ -815,15 +827,6 @@ export default function ItineraryScreen() {
                     </View>
                 </View>
             </Modal>
-            <Pressable
-  style={styles.finishButton}
-  disabled={tripFinished}
-  onPress={finishTrip}
->
-  <Text style={styles.finishButtonText}>
-    Concluir viagem
-  </Text>
-</Pressable>
 <TripInvitationModal
   visible={invitationVisible}
   invitation={createdInvitation}
@@ -833,7 +836,7 @@ export default function ItineraryScreen() {
     );
 }
 
-const createStyles = (palette: GlassPalette) => StyleSheet.create({
+const createStyles = (palette: GlassPalette, darkMode: boolean) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: glassColor("backgroundColor", "#f7f7f7", "container", palette),
@@ -1051,6 +1054,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
     modalOverlay: {
         flex: 1,
         justifyContent: "flex-end",
+        backgroundColor: darkMode ? "rgba(0,0,0,0.78)" : "rgba(0,0,0,0.40)",
     },
 
     modalBackground: {
@@ -1059,12 +1063,11 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: glassColor("backgroundColor", "rgba(0,0,0,0.25)", "modalBackground", palette),
+        backgroundColor: "transparent",
     },
 
     timeModal: {
-        ...glassDecoration("timeModal", palette),
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "timeModal", palette),
+        backgroundColor: darkMode ? "#242424" : "#FFFFFF",
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         paddingBottom: 35,
@@ -1075,7 +1078,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         height: 58,
         paddingHorizontal: 20,
         borderBottomWidth: 1,
-        borderBottomColor: glassColor("borderBottomColor", "#eeeeee", "modalHeader", palette),
+        borderBottomColor: darkMode ? "#444444" : "#E5E5E5",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
@@ -1084,18 +1087,18 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
     modalTitle: {
         fontSize: 15,
         fontWeight: "700",
-        color: glassColor("color", "#202020", "modalTitle", palette),
+        color: darkMode ? "#FFFFFF" : "#171717",
     },
 
     cancelText: {
         fontSize: 14,
-        color: glassColor("color", "#888888", "cancelText", palette),
+        color: darkMode ? "#D6D6D6" : "#555555",
     },
 
     confirmText: {
         fontSize: 14,
         fontWeight: "700",
-        color: glassColor("color", "#202020", "confirmText", palette),
+        color: darkMode ? "#FFFFFF" : "#171717",
     },
 
     selectedTimeDisplay: {
@@ -1107,7 +1110,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
     selectedTimeText: {
         fontSize: 28,
         fontWeight: "700",
-        color: glassColor("color", "#202020", "selectedTimeText", palette),
+        color: darkMode ? "#FFFFFF" : "#171717",
     },
 
     pickerWrapper: {
@@ -1132,19 +1135,19 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
     },
 
     pickerItemSelected: {
-        backgroundColor: glassColor("backgroundColor", "#f2f2f2", "pickerItemSelected", palette),
+        backgroundColor: darkMode ? "#EAEAEA" : "#171717",
         borderRadius: 12,
     },
 
     pickerItemText: {
         fontSize: 18,
-        color: glassColor("color", "#b5b5b5", "pickerItemText", palette),
+        color: darkMode ? "#C8C8C8" : "#555555",
         fontWeight: "400",
     },
 
     pickerItemTextSelected: {
         fontSize: 21,
-        color: glassColor("color", "#202020", "pickerItemTextSelected", palette),
+        color: darkMode ? "#171717" : "#FFFFFF",
         fontWeight: "700",
     },
 
@@ -1156,7 +1159,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
         height: ITEM_HEIGHT,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: glassColor("borderColor", "#e2e2e2", "selectionBox", palette),
+        borderColor: darkMode ? "#F0F0F0" : "#171717",
     },
 
     colonContainer: {
@@ -1169,7 +1172,7 @@ const createStyles = (palette: GlassPalette) => StyleSheet.create({
     colonText: {
         fontSize: 22,
         fontWeight: "700",
-        color: glassColor("color", "#303030", "colonText", palette),
+        color: darkMode ? "#FFFFFF" : "#171717",
     },
     finishButton: {
         marginTop: 12,
