@@ -62,6 +62,21 @@ const AVATAR_COLORS = [
   "#B45D63",
 ];
 
+function createUserFallback(firebaseUser: any): AxisUser {
+  const nameParts = (firebaseUser.displayName ?? "")
+    .trim()
+    .split(" ")
+    .filter(Boolean);
+
+  return {
+    id: firebaseUser.uid,
+    firstName: nameParts[0] ?? "",
+    lastName: nameParts.slice(1).join(" "),
+    email: firebaseUser.email ?? "",
+    avatarColor: AVATAR_COLORS[0],
+  };
+}
+
 export function AuthProvider({
   children,
 }: {
@@ -70,43 +85,40 @@ export function AuthProvider({
   const [user, setUser] = useState<AxisUser | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
         setUser(null);
         return;
       }
 
-      try {
-        const profileRef = doc(db, "users", firebaseUser.uid);
-        const profileSnapshot = await getDoc(profileRef);
+      // Libera o usuário imediatamente, sem esperar pelo Firestore.
+      const fallbackUser = createUserFallback(firebaseUser);
+      setUser(fallbackUser);
 
-        const profile = profileSnapshot.exists()
-          ? profileSnapshot.data()
-          : {};
+      // Carrega os dados completos em segundo plano.
+      const loadProfile = async () => {
+        try {
+          const profileRef = doc(db, "users", firebaseUser.uid);
+          const profileSnapshot = await getDoc(profileRef);
 
-        const nameParts = (firebaseUser.displayName ?? "").split(" ");
+          if (profileSnapshot.exists()) {
+            const profile = profileSnapshot.data();
 
-        setUser({
-          id: firebaseUser.uid,
-          firstName: profile.firstName ?? nameParts[0] ?? "",
-          lastName:
-            profile.lastName ?? nameParts.slice(1).join(" "),
-          email: firebaseUser.email ?? "",
-          avatarColor: profile.avatarColor ?? AVATAR_COLORS[0],
-        });
-      } catch (error) {
-        console.error("Erro ao carregar perfil:", error);
+            setUser({
+              ...fallbackUser,
+              firstName: profile.firstName ?? fallbackUser.firstName,
+              lastName: profile.lastName ?? fallbackUser.lastName,
+              email: profile.email ?? fallbackUser.email,
+              avatarColor:
+                profile.avatarColor ?? fallbackUser.avatarColor,
+            });
+          }
+        } catch (error) {
+          console.error("Erro ao carregar perfil:", error);
+        }
+      };
 
-        const nameParts = (firebaseUser.displayName ?? "").split(" ");
-
-        setUser({
-          id: firebaseUser.uid,
-          firstName: nameParts[0] ?? "",
-          lastName: nameParts.slice(1).join(" "),
-          email: firebaseUser.email ?? "",
-          avatarColor: AVATAR_COLORS[0],
-        });
-      }
+      void loadProfile();
     });
 
     return unsubscribe;
@@ -160,28 +172,60 @@ export function AuthProvider({
     const result = await signInWithPopup(auth, provider);
     const firebaseUser = result.user;
 
-    const profileRef = doc(db, "users", firebaseUser.uid);
+    // Atualiza o estado imediatamente após a autenticação.
+    const fallbackUser = createUserFallback(firebaseUser);
+    setUser(fallbackUser);
 
-    try {
-      const profileSnapshot = await getDoc(profileRef);
+    // Consulta e salva o perfil sem bloquear a navegação.
+    const saveProfile = async () => {
+      const profileRef = doc(db, "users", firebaseUser.uid);
 
-      if (!profileSnapshot.exists()) {
-        const nameParts = (firebaseUser.displayName ?? "").split(" ");
+      try {
+        const profileSnapshot = await getDoc(profileRef);
 
-        await setDoc(profileRef, {
+        if (profileSnapshot.exists()) {
+          const profile = profileSnapshot.data();
+
+          setUser({
+            ...fallbackUser,
+            firstName: profile.firstName ?? fallbackUser.firstName,
+            lastName: profile.lastName ?? fallbackUser.lastName,
+            email: profile.email ?? fallbackUser.email,
+            avatarColor:
+              profile.avatarColor ?? fallbackUser.avatarColor,
+          });
+
+          return;
+        }
+
+        const nameParts = (firebaseUser.displayName ?? "")
+          .trim()
+          .split(" ")
+          .filter(Boolean);
+
+        const newProfile = {
           firstName: nameParts[0] ?? "",
           lastName: nameParts.slice(1).join(" "),
           email: firebaseUser.email ?? "",
           avatarColor: AVATAR_COLORS[0],
           createdAt: new Date().toISOString(),
+        };
+
+        await setDoc(profileRef, newProfile);
+
+        setUser({
+          ...fallbackUser,
+          ...newProfile,
         });
+      } catch (error) {
+        console.error(
+          "Google autenticado, mas houve erro ao salvar o perfil:",
+          error
+        );
       }
-    } catch (error) {
-      console.error(
-        "Google autenticado, mas não foi possível carregar/salvar o perfil:",
-        error
-      );
-    }
+    };
+
+    void saveProfile();
   };
 
   const logout = async () => {
