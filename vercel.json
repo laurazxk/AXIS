@@ -1,5 +1,12 @@
+
 {
   "buildCommand": "npx expo export --platform web",
   "outputDirectory": "dist",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/__/auth/:path*",
+      "destination": "https://axis-7b0e9.web.app/__/auth/:path*"
+    }
+  ]
 }
