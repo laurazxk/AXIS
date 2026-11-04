@@ -13,6 +13,7 @@
     },
     "android": {
       "package": "com.axis.app",
+      "googleServicesFile": "./google-services.json",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -24,7 +25,8 @@
       "expo-image",
       "expo-status-bar",
       "expo-web-browser",
-      "expo-splash-screen"
+      "expo-splash-screen",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,

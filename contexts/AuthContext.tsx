@@ -7,15 +7,22 @@ import React, {
   useState,
 } from "react";
 
+import { Platform } from "react-native";
+
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithCredential,
   signOut,
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
+
+import {
+  GoogleSignin,
+} from "@react-native-google-signin/google-signin";
 
 import {
   doc,
@@ -111,7 +118,6 @@ export function AuthProvider({
 
             let avatarColor = profile.avatarColor;
 
-            // Corrige perfis antigos que ficaram com a cor rosa padrão.
             if (!avatarColor || avatarColor === "#C45A87") {
               avatarColor = getRandomAvatarColor();
 
@@ -177,76 +183,98 @@ export function AuthProvider({
   };
 
   const loginWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
+    let firebaseUser;
 
-    provider.setCustomParameters({
-      prompt: "select_account",
-    });
+    if (Platform.OS === "web") {
+      const provider = new GoogleAuthProvider();
 
-    const result = await signInWithPopup(auth, provider);
-    const firebaseUser = result.user;
+      provider.setCustomParameters({
+        prompt: "select_account",
+      });
+
+      const result = await signInWithPopup(auth, provider);
+      firebaseUser = result.user;
+    } else {
+      GoogleSignin.configure({
+        webClientId:
+          "47414449980-rsihs5ovb1clp1n9ehhsv9bad3h4fmvu.apps.googleusercontent.com",
+      });
+
+      const response = await GoogleSignin.signIn();
+
+      if (response.type !== "success") {
+        return;
+      }
+
+      const idToken = response.data.idToken;
+
+      if (!idToken) {
+        throw new Error("Não foi possível obter o token do Google.");
+      }
+
+      const credential = GoogleAuthProvider.credential(idToken);
+
+      const result = await signInWithCredential(auth, credential);
+      firebaseUser = result.user;
+    }
 
     const fallbackUser = createUserFallback(firebaseUser);
     setUser(fallbackUser);
 
-    const saveProfile = async () => {
-      const profileRef = doc(db, "users", firebaseUser.uid);
+    const profileRef = doc(db, "users", firebaseUser.uid);
 
-      try {
-        const profileSnapshot = await getDoc(profileRef);
+    try {
+      const profileSnapshot = await getDoc(profileRef);
 
-        if (profileSnapshot.exists()) {
-          const profile = profileSnapshot.data();
+      if (profileSnapshot.exists()) {
+        const profile = profileSnapshot.data();
 
-          let avatarColor = profile.avatarColor;
+        let avatarColor = profile.avatarColor;
 
-          if (!avatarColor || avatarColor === "#C45A87") {
-            avatarColor = getRandomAvatarColor();
+        if (!avatarColor || avatarColor === "#C45A87") {
+          avatarColor = getRandomAvatarColor();
 
-            await updateDoc(profileRef, {
-              avatarColor,
-            });
-          }
-
-          setUser({
-            ...fallbackUser,
-            firstName: profile.firstName ?? fallbackUser.firstName,
-            lastName: profile.lastName ?? fallbackUser.lastName,
-            email: profile.email ?? fallbackUser.email,
+          await updateDoc(profileRef, {
             avatarColor,
           });
-
-          return;
         }
-
-        const nameParts = (firebaseUser.displayName ?? "")
-          .trim()
-          .split(" ")
-          .filter(Boolean);
-
-        const newProfile = {
-          firstName: nameParts[0] ?? "",
-          lastName: nameParts.slice(1).join(" "),
-          email: firebaseUser.email ?? "",
-          avatarColor: getRandomAvatarColor(),
-          createdAt: new Date().toISOString(),
-        };
-
-        await setDoc(profileRef, newProfile);
 
         setUser({
           ...fallbackUser,
-          ...newProfile,
+          firstName: profile.firstName ?? fallbackUser.firstName,
+          lastName: profile.lastName ?? fallbackUser.lastName,
+          email: profile.email ?? fallbackUser.email,
+          avatarColor,
         });
-      } catch (error) {
-        console.error(
-          "Google autenticado, mas houve erro ao salvar o perfil:",
-          error
-        );
-      }
-    };
 
-    void saveProfile();
+        return;
+      }
+
+      const nameParts = (firebaseUser.displayName ?? "")
+        .trim()
+        .split(" ")
+        .filter(Boolean);
+
+      const newProfile = {
+        firstName: nameParts[0] ?? "",
+        lastName: nameParts.slice(1).join(" "),
+        email: firebaseUser.email ?? "",
+        avatarColor: getRandomAvatarColor(),
+        createdAt: new Date().toISOString(),
+      };
+
+      await setDoc(profileRef, newProfile);
+
+      setUser({
+        ...fallbackUser,
+        ...newProfile,
+      });
+    } catch (error) {
+      console.error(
+        "Google autenticado, mas houve erro ao salvar o perfil:",
+        error
+      );
+    }
   };
 
   const logout = async () => {
