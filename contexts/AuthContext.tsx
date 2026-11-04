@@ -1,23 +1,26 @@
 
 import React, {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
 
 import {
-    createUserWithEmailAndPassword,
-    onAuthStateChanged,
-    signInWithEmailAndPassword,
-    signOut,
-    updateProfile,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 
 import {
-    doc,
-    setDoc,
+  doc,
+  setDoc,
+  getDoc,
 } from "firebase/firestore";
 
 import { auth, db } from "../lib/firebase";
@@ -44,6 +47,7 @@ type AuthValue = {
   user: AxisUser | null;
   register: (data: Registration) => Promise<void>;
   login: (data: Credentials) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -74,31 +78,31 @@ export function AuthProvider({
 
       try {
         const profileRef = doc(db, "users", firebaseUser.uid);
-        const { getDoc } = await import("firebase/firestore");
         const profileSnapshot = await getDoc(profileRef);
+
         const profile = profileSnapshot.exists()
           ? profileSnapshot.data()
           : {};
 
         const nameParts = (firebaseUser.displayName ?? "").split(" ");
-        const firstName = profile.firstName ?? nameParts[0] ?? "";
-        const lastName =
-          profile.lastName ?? nameParts.slice(1).join(" ");
 
         setUser({
           id: firebaseUser.uid,
-          firstName,
-          lastName,
+          firstName: profile.firstName ?? nameParts[0] ?? "",
+          lastName:
+            profile.lastName ?? nameParts.slice(1).join(" "),
           email: firebaseUser.email ?? "",
           avatarColor: profile.avatarColor ?? AVATAR_COLORS[0],
         });
       } catch (error) {
         console.error("Erro ao carregar perfil:", error);
+
+        const nameParts = (firebaseUser.displayName ?? "").split(" ");
+
         setUser({
           id: firebaseUser.uid,
-          firstName: firebaseUser.displayName?.split(" ")[0] ?? "",
-          lastName:
-            firebaseUser.displayName?.split(" ").slice(1).join(" ") ?? "",
+          firstName: nameParts[0] ?? "",
+          lastName: nameParts.slice(1).join(" "),
           email: firebaseUser.email ?? "",
           avatarColor: AVATAR_COLORS[0],
         });
@@ -113,8 +117,11 @@ export function AuthProvider({
     const lastName = data.lastName.trim();
     const email = data.email.trim().toLowerCase();
     const fullName = `${firstName} ${lastName}`.trim();
+
     const avatarColor =
-      AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+      AVATAR_COLORS[
+        Math.floor(Math.random() * AVATAR_COLORS.length)
+      ];
 
     const credential = await createUserWithEmailAndPassword(
       auth,
@@ -143,12 +150,52 @@ export function AuthProvider({
     );
   };
 
+  const loginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
+
+    const result = await signInWithPopup(auth, provider);
+    const firebaseUser = result.user;
+
+    const profileRef = doc(db, "users", firebaseUser.uid);
+
+    try {
+      const profileSnapshot = await getDoc(profileRef);
+
+      if (!profileSnapshot.exists()) {
+        const nameParts = (firebaseUser.displayName ?? "").split(" ");
+
+        await setDoc(profileRef, {
+          firstName: nameParts[0] ?? "",
+          lastName: nameParts.slice(1).join(" "),
+          email: firebaseUser.email ?? "",
+          avatarColor: AVATAR_COLORS[0],
+          createdAt: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Google autenticado, mas não foi possível carregar/salvar o perfil:",
+        error
+      );
+    }
+  };
+
   const logout = async () => {
     await signOut(auth);
   };
 
   const value = useMemo(
-    () => ({ user, register, login, logout }),
+    () => ({
+      user,
+      register,
+      login,
+      loginWithGoogle,
+      logout,
+    }),
     [user]
   );
 
@@ -176,4 +223,3 @@ export function userInitials(user: AxisUser | null) {
       }`.toLocaleUpperCase("pt-BR")
     : "AX";
 }
-

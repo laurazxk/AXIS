@@ -23,7 +23,7 @@ export default function AuthScreen({
   variant: "login" | "register";
 }) {
   const { palette, darkMode } = useAxisTheme();
-  const { register, login } = useAxisAuth();
+  const { register, login, loginWithGoogle } = useAxisAuth();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -96,11 +96,22 @@ export default function AuthScreen({
     }
   };
 
-  const social = (provider: string) =>
-    Alert.alert(
-      `${provider} em preparação`,
-      "Este botão será conectado à autenticação real quando o backend estiver configurado."
-    );
+  
+const social = async (provider: string) => {
+  if (provider === "Google") {
+    try {
+      await loginWithGoogle();
+      router.replace("/logic/home");
+    } catch (error: any) {
+      console.error("Erro no login Google:", error);
+
+      Alert.alert(
+        "Erro ao entrar com Google",
+        error.message || "Não foi possível realizar o login."
+      );
+    }
+  }
+};
 
   const input = (
     label: string,
