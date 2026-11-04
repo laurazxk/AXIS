@@ -21,6 +21,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 import { auth, db } from "../lib/firebase";
@@ -62,6 +63,12 @@ const AVATAR_COLORS = [
   "#B45D63",
 ];
 
+function getRandomAvatarColor() {
+  return AVATAR_COLORS[
+    Math.floor(Math.random() * AVATAR_COLORS.length)
+  ];
+}
+
 function createUserFallback(firebaseUser: any): AxisUser {
   const nameParts = (firebaseUser.displayName ?? "")
     .trim()
@@ -73,7 +80,7 @@ function createUserFallback(firebaseUser: any): AxisUser {
     firstName: nameParts[0] ?? "",
     lastName: nameParts.slice(1).join(" "),
     email: firebaseUser.email ?? "",
-    avatarColor: AVATAR_COLORS[0],
+    avatarColor: getRandomAvatarColor(),
   };
 }
 
@@ -91,11 +98,9 @@ export function AuthProvider({
         return;
       }
 
-      // Libera o usuário imediatamente, sem esperar pelo Firestore.
       const fallbackUser = createUserFallback(firebaseUser);
       setUser(fallbackUser);
 
-      // Carrega os dados completos em segundo plano.
       const loadProfile = async () => {
         try {
           const profileRef = doc(db, "users", firebaseUser.uid);
@@ -104,14 +109,26 @@ export function AuthProvider({
           if (profileSnapshot.exists()) {
             const profile = profileSnapshot.data();
 
+            let avatarColor = profile.avatarColor;
+
+            // Corrige perfis antigos que ficaram com a cor rosa padrão.
+            if (!avatarColor || avatarColor === "#C45A87") {
+              avatarColor = getRandomAvatarColor();
+
+              await updateDoc(profileRef, {
+                avatarColor,
+              });
+            }
+
             setUser({
               ...fallbackUser,
               firstName: profile.firstName ?? fallbackUser.firstName,
               lastName: profile.lastName ?? fallbackUser.lastName,
               email: profile.email ?? fallbackUser.email,
-              avatarColor:
-                profile.avatarColor ?? fallbackUser.avatarColor,
+              avatarColor,
             });
+          } else {
+            setUser(fallbackUser);
           }
         } catch (error) {
           console.error("Erro ao carregar perfil:", error);
@@ -130,10 +147,7 @@ export function AuthProvider({
     const email = data.email.trim().toLowerCase();
     const fullName = `${firstName} ${lastName}`.trim();
 
-    const avatarColor =
-      AVATAR_COLORS[
-        Math.floor(Math.random() * AVATAR_COLORS.length)
-      ];
+    const avatarColor = getRandomAvatarColor();
 
     const credential = await createUserWithEmailAndPassword(
       auth,
@@ -172,11 +186,9 @@ export function AuthProvider({
     const result = await signInWithPopup(auth, provider);
     const firebaseUser = result.user;
 
-    // Atualiza o estado imediatamente após a autenticação.
     const fallbackUser = createUserFallback(firebaseUser);
     setUser(fallbackUser);
 
-    // Consulta e salva o perfil sem bloquear a navegação.
     const saveProfile = async () => {
       const profileRef = doc(db, "users", firebaseUser.uid);
 
@@ -186,13 +198,22 @@ export function AuthProvider({
         if (profileSnapshot.exists()) {
           const profile = profileSnapshot.data();
 
+          let avatarColor = profile.avatarColor;
+
+          if (!avatarColor || avatarColor === "#C45A87") {
+            avatarColor = getRandomAvatarColor();
+
+            await updateDoc(profileRef, {
+              avatarColor,
+            });
+          }
+
           setUser({
             ...fallbackUser,
             firstName: profile.firstName ?? fallbackUser.firstName,
             lastName: profile.lastName ?? fallbackUser.lastName,
             email: profile.email ?? fallbackUser.email,
-            avatarColor:
-              profile.avatarColor ?? fallbackUser.avatarColor,
+            avatarColor,
           });
 
           return;
@@ -207,7 +228,7 @@ export function AuthProvider({
           firstName: nameParts[0] ?? "",
           lastName: nameParts.slice(1).join(" "),
           email: firebaseUser.email ?? "",
-          avatarColor: AVATAR_COLORS[0],
+          avatarColor: getRandomAvatarColor(),
           createdAt: new Date().toISOString(),
         };
 
