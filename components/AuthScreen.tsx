@@ -365,33 +365,7 @@ const social = async (provider: string) => {
         </View>
 
         <View style={styles.socialRow}>
-          <Pressable
-            onPress={() => social("Apple")}
-            style={[
-              styles.social,
-              {
-                borderColor: palette.border,
-                backgroundColor:
-                  palette.surfaceStrong,
-              },
-            ]}
-          >
-            <MaterialIcons
-              name="apple"
-              size={24}
-              color={palette.text}
-            />
-
-            <Text
-              style={{
-                color: palette.text,
-                fontWeight: "600",
-              }}
-            >
-              Apple
-            </Text>
-          </Pressable>
-
+          
           <Pressable
             onPress={() => social("Google")}
             style={[
