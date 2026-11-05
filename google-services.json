@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "47414449980-t6vlg0dt3gfo1fidt5aho5f7lh8mnifr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.axis.app",
+            "certificate_hash": "4052f9b2ac9bcab67f0b98c3438390c133da211e"
+          }
+        },
+        {
           "client_id": "47414449980-rsihs5ovb1clp1n9ehhsv9bad3h4fmvu.apps.googleusercontent.com",
           "client_type": 3
         }
