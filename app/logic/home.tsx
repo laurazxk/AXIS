@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import GlassBackdrop from "../../components/GlassBackdrop";
 import UserAvatar from "../../components/UserAvatar";
 import { glassColor, glassDecoration, type GlassPalette } from "../../constants/glass";
@@ -23,6 +23,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import GlassBottomNav from "../../components/GlassBottomNav";
+import { checkAxisBackend } from "../../services/axisApi";
 
 
 /* =========================================================
@@ -365,6 +366,19 @@ export default function HomeScreen() {
     const router = useRouter();
 
     const insets = useSafeAreaInsets();
+
+    // Verifica a conexão com o Render sem interferir no Firebase ou na interface.
+    useEffect(() => {
+        let mounted = true;
+        checkAxisBackend()
+            .then((result) => {
+                if (mounted) console.log("AXIS Render conectado:", result);
+            })
+            .catch((error) => {
+                if (mounted) console.warn("AXIS Render indisponível:", error);
+            });
+        return () => { mounted = false; };
+    }, []);
 
     const [search, setSearch] = useState("");
 

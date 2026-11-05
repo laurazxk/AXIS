@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Alert } from "react-native";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../lib/firebase";
 import GlassBackdrop from "../../../components/GlassBackdrop";
 import TripInvitationModal from "../../../components/TripInvitationModal";
 import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
@@ -266,17 +268,34 @@ async function deleteActivity(id: string | number) {
     }
 }
 
-    function toggleActivity(id: string | number) {
-        setActivities(current =>
-            current.map(item =>
-                item.id === id
-                    ? {
-                          ...item,
-                          completed: !item.completed,
-                      }
-                    : item
-            )
-        );
+    async function toggleActivity(id: string | number) {
+        const currentActivity = activities.find(item => item.id === id);
+        if (!currentActivity) return;
+
+        const nextCompleted = !currentActivity.completed;
+
+        // Atualização otimista: o checkbox responde imediatamente.
+        setActivities(current => current.map(item =>
+            item.id === id ? { ...item, completed: nextCompleted } : item
+        ));
+
+        // Durante a criação, as atividades só são gravadas ao concluir a viagem.
+        // Atividades novas (id numérico) ainda não existem no Firestore.
+        if (!tripId || typeof id === "number") return;
+
+        try {
+            await updateDoc(
+                doc(db, "trips", tripId, "activities", String(id)),
+                { completed: nextCompleted }
+            );
+        } catch (error) {
+            console.error("Erro ao salvar checkbox no Firebase:", error);
+            // Reverte a alteração se o Firestore rejeitar a gravação.
+            setActivities(current => current.map(item =>
+                item.id === id ? { ...item, completed: currentActivity.completed } : item
+            ));
+            Alert.alert("Erro", "Não foi possível salvar a atividade. Tente novamente.");
+        }
     }
 
     function openTimePicker(activity: Activity) {
@@ -634,7 +653,7 @@ async function deleteActivity(id: string | number) {
                                         <MaterialIcons
                                             name="check"
                                             size={16}
-                                            color={axisPalette.accentText}
+                                            color={axisDarkMode ? "#171717" : "#FFFFFF"}
                                         />
                                     )}
                                 </View>
@@ -1143,19 +1162,19 @@ const createStyles = (palette: GlassPalette, darkMode: boolean) => StyleSheet.cr
     },
 
     checkBox: {
-        width: 21,
-        height: 21,
-        borderRadius: 6,
-        borderWidth: 1.5,
-        borderColor: glassColor("borderColor", "#bdbdbd", "checkBox", palette),
-        backgroundColor: glassColor("backgroundColor", "#ffffff", "checkBox", palette),
+        width: 25,
+        height: 25,
+        borderRadius: 7,
+        borderWidth: 2,
+        borderColor: darkMode ? "#E5E5E5" : "#555555",
+        backgroundColor: darkMode ? "#292929" : "#FFFFFF",
         alignItems: "center",
         justifyContent: "center",
     },
 
     checkBoxCompleted: {
-        backgroundColor: glassColor("backgroundColor", "#303030", "checkBoxCompleted", palette),
-        borderColor: glassColor("borderColor", "#303030", "checkBoxCompleted", palette),
+        backgroundColor: darkMode ? "#F5F5F5" : "#171717",
+        borderColor: darkMode ? "#F5F5F5" : "#171717",
     },
 
     deleteButton: {
