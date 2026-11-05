@@ -157,7 +157,7 @@ npm install
 
 4. Crie um arquivo chamado `.env` na raiz do projeto, no mesmo nível do `package.json`.
 
-5. Acesse https://www.invertexto.com/axisexpo, copie o conteúdo disponibilizado e cole no arquivo `.env`. Salve o arquivo. Não publique o `.env` no GitHub.
+5. Acesse https://www.invertexto.com/axisexpo, copie o conteúdo disponibilizado e cole no arquivo `.env`. Salve o arquivo.
 
 6. Inicie o Expo:
 
