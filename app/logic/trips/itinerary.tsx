@@ -1145,7 +1145,7 @@ const createStyles = (palette: GlassPalette, darkMode: boolean) => StyleSheet.cr
     activityInput: {
         minHeight: 33,
         paddingVertical: 6,
-        fontSize: 12,
+        fontSize: 16,
         color: glassColor("color", "#202020", "activityInput", palette),
     },
 
