@@ -20,8 +20,9 @@ const app = getApps().length > 0
 export const auth = getAuth(app);
 
 // No navegador, o long polling pode contornar problemas de conexão
-// com o canal de streaming do Firestore em algumas redes.
-// No Android/iOS, preservamos a inicialização já utilizada pelo Expo.
+
 export const db = Platform.OS === "web"
-  ? initializeFirestore(app, { experimentalForceLongPolling: true })
+  ? initializeFirestore(app, {
+      experimentalAutoDetectLongPolling: true,
+    })
   : getFirestore(app);
