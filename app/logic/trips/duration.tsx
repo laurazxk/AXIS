@@ -195,7 +195,7 @@ export default function DurationScreen() {
                     <View style={styles.headerSpace} />
                 </View>
 
-                <Text style={styles.step}>ETAPA 2 DE 4</Text>
+                <Text style={styles.step}>ETAPA 1 DE 3</Text>
 
                 <Text style={styles.title}>
                     Quando você{"\n"}pretende viajar?
