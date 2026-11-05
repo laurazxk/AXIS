@@ -19,10 +19,7 @@ const app = getApps().length > 0
 
 export const auth = getAuth(app);
 
-// No navegador, o long polling pode contornar problemas de conexão
 
 export const db = Platform.OS === "web"
-  ? initializeFirestore(app, {
-      experimentalAutoDetectLongPolling: true,
-    })
+  ? initializeFirestore(app, { experimentalForceLongPolling: true })
   : getFirestore(app);
