@@ -25,7 +25,6 @@
       "expo-status-bar",
       "expo-web-browser",
       "expo-splash-screen",
-      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,
