@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "axis",
@@ -12,7 +13,6 @@
     },
     "android": {
       "package": "com.axis.app",
-      "googleServicesFile": "./google-services.json",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -24,7 +24,7 @@
       "expo-image",
       "expo-status-bar",
       "expo-web-browser",
-      "expo-splash-screen",
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true,
