@@ -22,7 +22,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
 
-import { savedTrips } from "../../../stores/tripStore";
+import type { SavedTrip } from "../../../stores/tripStore";
+import { subscribeToUserTrips } from "../../../stores/tripFirestore";
 
 export default function ExpensesScreen() {
     const { user } = useAxisAuth();
@@ -32,7 +33,37 @@ export default function ExpensesScreen() {
 
     const insets = useSafeAreaInsets();
 
-    const hasTrips = savedTrips.length > 0;
+    const [trips, setTrips] = React.useState<SavedTrip[]>([]);
+    const [loadingTrips, setLoadingTrips] = React.useState(true);
+    const [tripsError, setTripsError] = React.useState(false);
+
+    React.useEffect(() => {
+        if (!user?.id) {
+            setTrips([]);
+            setLoadingTrips(false);
+            setTripsError(false);
+            return;
+        }
+
+        setLoadingTrips(true);
+        setTripsError(false);
+
+        return subscribeToUserTrips(
+            user.id,
+            (updatedTrips) => {
+                setTrips(updatedTrips);
+                setLoadingTrips(false);
+                setTripsError(false);
+            },
+            (error) => {
+                console.error("Erro ao carregar viagens em Despesas:", error);
+                setLoadingTrips(false);
+                setTripsError(true);
+            }
+        );
+    }, [user?.id]);
+
+    const hasTrips = trips.length > 0;
 
     const router = useRouter();
 
@@ -90,7 +121,11 @@ export default function ExpensesScreen() {
                     </Text>
 
 
-                    {hasTrips ? (
+                    {loadingTrips ? (
+                        <Text style={styles.sectionDescription}>Carregando viagens...</Text>
+                    ) : tripsError ? (
+                        <Text style={styles.sectionDescription}>Não foi possível carregar as viagens. Tente novamente.</Text>
+                    ) : hasTrips ? (
 
                         <>
 
@@ -106,7 +141,7 @@ export default function ExpensesScreen() {
 
                             <View style={styles.tripsContainer}>
 
-                                {savedTrips.map((trip) => (
+                                {trips.map((trip) => (
 
                                     <Pressable
                                         key={trip.id}

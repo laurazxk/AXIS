@@ -28,10 +28,8 @@ import {
     type GlassPalette,
 } from "../../../constants/glass";
 
-import {
-    addTripExpense,
-    savedTrips,
-} from "../../../stores/tripStore";
+import type { SavedTrip } from "../../../stores/tripStore";
+import { addExpenseToFirestore, subscribeToTrip } from "../../../stores/tripFirestore";
 
 function ColorCheck() {
     return (
@@ -64,7 +62,12 @@ export default function NewExpenseScreen() {
     const router = useRouter();
     const { id } = useLocalSearchParams<{ id: string }>();
 
-    const trip = savedTrips.find((item) => item.id === id);
+    const tripId = Array.isArray(id) ? id[0] : id;
+    const [trip, setTrip] = useState<SavedTrip | null>(null);
+    useEffect(() => {
+        if (!tripId) return;
+        return subscribeToTrip(tripId, setTrip, (error) => console.error("Erro ao carregar viagem:", error));
+    }, [tripId]);
 
     const localCurrency = (
         trip?.localCurrency || "BRL"
@@ -153,7 +156,7 @@ export default function NewExpenseScreen() {
         setValue(number);
     }
 
-    function handleAddExpense() {
+    async function handleAddExpense() {
         if (saving) return;
 
         if (!trip) {
@@ -218,17 +221,7 @@ export default function NewExpenseScreen() {
         setSaving(true);
 
         try {
-            const added = addTripExpense(trip.id, expense);
-
-            if (!added) {
-                setSaving(false);
-
-                Alert.alert(
-                    "Não foi possível adicionar",
-                    "A viagem não foi encontrada. Volte para a lista de viagens e tente novamente."
-                );
-                return;
-            }
+            await addExpenseToFirestore(trip.id, expense);
 
             Alert.alert(
                 "Despesa adicionada!",

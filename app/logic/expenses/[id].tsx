@@ -1,4 +1,3 @@
-
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -18,10 +17,8 @@ import {
   type GlassPalette,
 } from "../../../constants/glass";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
-import {
-  savedTrips,
-  subscribeToTrips,
-} from "../../../stores/tripStore";
+import type { SavedTrip, Expense } from "../../../stores/tripStore";
+import { subscribeToTrip, subscribeToTripExpenses } from "../../../stores/tripFirestore";
 
 type ExpenseValue = {
   name: string;
@@ -216,21 +213,16 @@ export default function ExpenseTripScreen() {
     id: string;
   }>();
 
-  const [, setTripsVersion] = useState(0);
+  const tripId = Array.isArray(id) ? id[0] : id;
+  const [trip, setTrip] = useState<SavedTrip | null>(null);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
 
-useEffect(() => {
-  const unsubscribe = subscribeToTrips(() => {
-    setTripsVersion((current) => current + 1);
-  });
-
-  return unsubscribe;
-}, []);
-
-  const trip = savedTrips.find(
-    (item) => item.id === id
-  );
-
-  const expenses = (trip?.expenses ?? []) as ExpenseValue[];
+  useEffect(() => {
+    if (!tripId) return;
+    const stopTrip = subscribeToTrip(tripId, setTrip, (error) => console.error("Erro ao carregar viagem:", error));
+    const stopExpenses = subscribeToTripExpenses(tripId, setExpenses, (error) => console.error("Erro ao carregar despesas:", error));
+    return () => { stopTrip(); stopExpenses(); };
+  }, [tripId]);
 
   const initialBudget = Number(trip?.budget) || 0;
 
