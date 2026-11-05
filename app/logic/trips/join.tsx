@@ -12,6 +12,7 @@ import {
     StatusBar,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from "react-native";
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,6 +22,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import GlassBottomNav from "../../../components/GlassBottomNav";
+
+import { joinTripByInvitationCode } from "../../../stores/tripFirestore";
 
 
 export default function JoinTripScreen() {
@@ -34,15 +37,43 @@ export default function JoinTripScreen() {
 
     const [code, setCode] = useState("");
 
+    const [joining, setJoining] = useState(false);
+
+    const handleJoinTrip = async () => {
+    if (!code.trim() || joining) return;
+
+    try {
+        setJoining(true);
+
+        await joinTripByInvitationCode(code);
+
+        router.replace("/logic/trips");
+
+    } catch (error) {
+        console.error("Erro ao entrar na viagem:", error);
+
+        const message =
+            error instanceof Error
+                ? error.message
+                : "Não foi possível entrar na viagem.";
+
+        Alert.alert("Erro ao entrar na viagem", message);
+
+    } finally {
+        setJoining(false);
+    }
+};
+
     return (
 
         <View style={styles.container}>
             <GlassBackdrop />
 
     <StatusBar
-        barStyle={axisDarkMode ? "light-content" : "dark-content"}
-        backgroundColor="#f7f7f7"
-    />
+    
+  barStyle={axisDarkMode ? "light-content" : "dark-content"}
+/>
+    
 
     <KeyboardAvoidingView
         style={[
@@ -126,21 +157,26 @@ export default function JoinTripScreen() {
                         placeholderTextColor={axisPalette.muted}
                         autoCapitalize="characters"
                         style={styles.input}
-                        maxLength={10}
+                        maxLength={14}
                     />
 
 
                     <Pressable
-                        style={[
-                            styles.button,
-                            !code.trim() &&
-                            styles.buttonDisabled,
-                        ]}
-                    >
+                
+    style={[
+        styles.button,
+        (!code.trim() || joining) &&
+        styles.buttonDisabled,
+    ]}
+    onPress={handleJoinTrip}
+    disabled={!code.trim() || joining}
+>
+                    
 
-                        <Text style={styles.buttonText}>
-                            Entrar na viagem
-                        </Text>
+                       <Text style={styles.buttonText}>
+    {joining ? "Entrando..." : "Entrar na viagem"}
+</Text>
+                       
 
 
                         <MaterialIcons

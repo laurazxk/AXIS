@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Alert } from "react-native";
 import GlassBackdrop from "../../../components/GlassBackdrop";
 import TripInvitationModal from "../../../components/TripInvitationModal";
 import { glassColor, glassDecoration, type GlassPalette } from "../../../constants/glass";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
+import { useAxisAuth } from "../../../contexts/AuthContext";
 import type { TripInvitation } from "../../../utils/tripInvitation";
 
 import {
@@ -15,17 +17,27 @@ import {
     Text,
     TextInput,
     View,
+    
 } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { tripDraft } from "../../../stores/tripDraft";
-import { saveTrip } from "../../../stores/tripStore";
+import {
+  tripDraft,
+  resetTripDraft,
+} from "../../../stores/tripDraft";
+import {
+  createTripInFirestore,
+  addActivitiesToExistingTrip,
+  getTripActivities,
+    getTripDuration,
+  deleteActivityFromFirestore,
+} from "../../../stores/tripFirestore";
 
 type Activity = {
-    id: number;
+    id: string | number;
     day: number;
     time: string;
     title: string;
@@ -45,21 +57,33 @@ const MINUTES = Array.from(
 const ITEM_HEIGHT = 44;
 
 export default function ItineraryScreen() {
+    
     const { palette: axisPalette, darkMode: axisDarkMode, setDarkMode: setAxisDarkMode } = useAxisTheme();
     const styles = React.useMemo(() => createStyles(axisPalette, axisDarkMode), [axisPalette, axisDarkMode]);
 
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const params = useLocalSearchParams<{ tripId?: string | string[] }>();
+
+const tripId = Array.isArray(params.tripId)
+    ? params.tripId[0]
+    : params.tripId;
+
+    const { user } = useAxisAuth();
+
+    const [savingTrip, setSavingTrip] = useState(false);
 
     const [selectedDay, setSelectedDay] = useState(1);
 
     const [activities, setActivities] = useState<Activity[]>([]);
+    const [savedTripDuration, setSavedTripDuration] =
+    useState<number | null>(null);
 
     const [timeModalVisible, setTimeModalVisible] =
         useState(false);
 
     const [selectedActivityId, setSelectedActivityId] =
-        useState<number | null>(null);
+    useState<string | number | null>(null);
 
     const [pickerHour, setPickerHour] = useState(9);
     const [pickerMinute, setPickerMinute] = useState(0);
@@ -69,14 +93,102 @@ export default function ItineraryScreen() {
         useState<TripInvitation | null>(null);
     const [tripFinished, setTripFinished] = useState(false);
 
-    function finishTrip() {
-        if (tripFinished) return;
+   useEffect(() => {
+     
 
-        const trip = saveTrip();
-        setTripFinished(true);
-        setCreatedInvitation(trip.invitation);
-        setInvitationVisible(true);
+    if (!tripId) {
+       
+        return;
     }
+
+    const currentTripId: string = tripId;
+    let active = true;
+
+    async function loadTripData() {
+        try {
+            const [savedActivities, savedDuration] =
+                await Promise.all([
+                    getTripActivities(currentTripId),
+                    getTripDuration(currentTripId),
+                ]);
+                
+
+            if (active) {
+                setActivities(savedActivities);
+                setSavedTripDuration(savedDuration);
+            }
+        } catch (error) {
+            console.error("Erro ao carregar dados da viagem:", error);
+
+            Alert.alert(
+                "Erro",
+                "Não foi possível carregar os dados da viagem."
+            );
+        }
+    }
+
+    loadTripData();
+
+    return () => {
+        active = false;
+    };
+}, [tripId]);
+    async function finishTrip() {
+  if (tripFinished || savingTrip) return;
+
+  if (!user) {
+    Alert.alert(
+      "Atenção",
+      "Você precisa estar conectado para salvar a viagem."
+    );
+    return;
+  }
+
+  try {
+    setSavingTrip(true);
+
+    // Se estiver em uma viagem existente, salva nela.
+    if (tripId) {
+      await addActivitiesToExistingTrip(tripId, activities);
+
+      setTripFinished(true);
+
+      Alert.alert(
+        "Atividades salvas!",
+        "As atividades foram adicionadas à viagem existente.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/logic/trips"),
+          },
+        ]
+      );
+
+      return;
+    }
+
+    // Se não houver tripId, cria uma viagem nova.
+    const result = await createTripInFirestore(user.id, activities);
+
+    resetTripDraft();
+    setCreatedInvitation(result.invitation);
+    setTripFinished(true);
+    setInvitationVisible(true);
+
+  } catch (error) {
+    console.error("Erro ao concluir viagem:", error);
+
+    Alert.alert(
+      "Erro",
+      error instanceof Error
+        ? error.message
+        : "Não foi possível salvar a viagem."
+    );
+
+  } finally {
+    setSavingTrip(false);
+  }
+}
 
     function closeInvitation() {
         setInvitationVisible(false);
@@ -84,16 +196,22 @@ export default function ItineraryScreen() {
     }
 
     const totalDays = Math.max(
-        1,
-        Math.floor(Number(tripDraft.duration) || 1)
-    );
+    1,
+    Math.floor(
+        Number(
+            tripId
+                ? savedTripDuration
+                : tripDraft.duration
+        ) || 1
+    )
+);
 
     const dayActivities = activities.filter(
         item => item.day === selectedDay
     );
 
     function updateActivity(
-        id: number,
+       id: string | number,
         field: "time" | "title",
         value: string
     ) {
@@ -123,14 +241,32 @@ export default function ItineraryScreen() {
             newActivity,
         ]);
     }
+async function deleteActivity(id: string | number) {
+    try {
+        // Se for uma viagem existente, exclui também do Firebase.
+        if (tripId) {
+            await deleteActivityFromFirestore(
+                tripId,
+                String(id)
+            );
+        }
 
-    function deleteActivity(id: number) {
+        // Atualiza a tela após a exclusão.
         setActivities(current =>
             current.filter(item => item.id !== id)
         );
-    }
 
-    function toggleActivity(id: number) {
+    } catch (error) {
+        console.error("Erro ao excluir atividade:", error);
+
+        Alert.alert(
+            "Erro",
+            "Não foi possível excluir esta atividade."
+        );
+    }
+}
+
+    function toggleActivity(id: string | number) {
         setActivities(current =>
             current.map(item =>
                 item.id === id
@@ -564,14 +700,17 @@ export default function ItineraryScreen() {
                 )}
             </ScrollView>
 
-            <Pressable
-  style={styles.finishButton}
-  disabled={tripFinished}
-  onPress={finishTrip}
+           <Pressable
+    style={[
+        styles.finishButton,
+        savingTrip && { opacity: 0.6 },
+    ]}
+    disabled={tripFinished || savingTrip}
+    onPress={finishTrip}
 >
-  <Text style={styles.finishButtonText}>
-    Concluir viagem
-  </Text>
+    <Text style={styles.finishButtonText}>
+        {savingTrip ? "Salvando viagem..." : "Concluir viagem"}
+    </Text>
 </Pressable>
 
             {/* MODAL DO HORÁRIO */}

@@ -43,7 +43,7 @@ export default function DurationScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
 
-    const wheelRef = useRef<ScrollView>(null);
+   const wheelRef = useRef<React.ElementRef<typeof ScrollView>>(null);
 
     useEffect(() => {
         if (mode === "duration") {
@@ -166,7 +166,7 @@ export default function DurationScreen() {
             <GlassBackdrop />
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor="#f7f7f7"
+               
             />
 
             <ScrollView
@@ -307,16 +307,7 @@ export default function DurationScreen() {
                                             )
                                         );
                                     }}
-                                    ref={ref => {
-                                        if (ref && days > 1) {
-                                            ref.scrollTo({
-                                                y:
-                                                    (days - 1) *
-                                                    56,
-                                                animated: false,
-                                            });
-                                        }
-                                    }}
+                                    ref={wheelRef}
                                 >
                                     {Array.from(
                                         { length: 60 },

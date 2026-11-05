@@ -69,7 +69,7 @@ export default function Preferences() {
             <GlassBackdrop />
             <StatusBar
                 barStyle={axisDarkMode ? "light-content" : "dark-content"}
-                backgroundColor="#f7f7f7"
+              
             />
 
             {/* TELA INTEIRA COM ROLAGEM */}
