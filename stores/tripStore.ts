@@ -33,11 +33,11 @@ export type TripActivity = {
 
 export type SavedTrip = TripDraft & {
   id: string;
+  ownerId?: string;
   expenses: Expense[];
   activities: TripActivity[];
   invitation: TripInvitation;
 };
-
 export const savedTrips: SavedTrip[] = [];
 
 const listeners = new Set<() => void>();

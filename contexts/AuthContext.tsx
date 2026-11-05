@@ -129,7 +129,21 @@ export function AuthProvider({
               avatarColor,
             });
           } else {
-            setUser(fallbackUser);
+  await setDoc(profileRef, {
+    firstName: fallbackUser.firstName,
+    lastName: fallbackUser.lastName,
+    email: fallbackUser.email,
+    avatarColor: fallbackUser.avatarColor,
+    createdAt: new Date().toISOString(),
+  });
+
+  setUser(fallbackUser);
+
+  console.log(
+    "PERFIL ANTIGO CRIADO NO FIRESTORE:",
+    firebaseUser.uid
+  );
+
           }
         } catch (error) {
           console.error("Erro ao carregar perfil:", error);
@@ -167,15 +181,23 @@ export function AuthProvider({
       avatarColor,
       createdAt: new Date().toISOString(),
     });
+    console.log("PERFIL SALVO NO FIRESTORE:", credential.user.uid);
   };
 
-  const login = async ({ email, password }: Credentials) => {
-    await signInWithEmailAndPassword(
-      auth,
-      email.trim().toLowerCase(),
-      password
-    );
-  };
+
+  
+
+ const login = async ({ email, password }: Credentials) => {
+  console.log("FUNÇÃO LOGIN EXECUTADA");
+
+  const credential = await signInWithEmailAndPassword(
+    auth,
+    email.trim().toLowerCase(),
+    password
+  );
+
+  console.log("UID DO USUÁRIO LOGADO:", credential.user.uid);
+};
 
   const loginWithGoogle = async () => {
     if (Platform.OS !== "web") {

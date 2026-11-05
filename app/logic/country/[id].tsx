@@ -259,11 +259,7 @@ export default function CountryScreen() {
         <View style={styles.container}>
             <GlassBackdrop />
 
-            <StatusBar
-                barStyle="light-content"
-                backgroundColor={axisPalette.text}
-            />
-
+           <StatusBar barStyle="light-content" />
 
             <ScrollView
                 showsVerticalScrollIndicator={false}

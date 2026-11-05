@@ -32,7 +32,7 @@ export default function SplashScreen() {
 
             <StatusBar
                 barStyle="dark-content"
-                backgroundColor="#ffffff"
+              
             />
 
             <View style={styles.logoContainer}>
