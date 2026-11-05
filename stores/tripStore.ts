@@ -2,6 +2,7 @@
 import { createTripInvitation, type TripInvitation } from "../utils/tripInvitation";
 import { tripDraft, type TripDraft } from "./tripDraft";
 
+
 export type Expense = {
   id: string;
   name: string;

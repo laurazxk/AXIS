@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 import {
+    Alert,
     Modal,
     Pressable,
     StyleSheet,
@@ -84,6 +85,7 @@ export default function NewExpenseScreen() {
     const [showCustomColorPicker, setShowCustomColorPicker] =
         useState(false);
     const [customColor, setCustomColor] = useState("#8B5CF6");
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         let isActive = true;
@@ -152,11 +154,49 @@ export default function NewExpenseScreen() {
     }
 
     function handleAddExpense() {
-        if (!trip || !name.trim() || value <= 0) {
+        if (saving) return;
+
+        if (!trip) {
+            Alert.alert(
+                "Erro",
+                "Não foi possível encontrar esta viagem."
+            );
             return;
         }
 
-        if (rateLoading || exchangeRate === null) {
+        if (!name.trim()) {
+            Alert.alert(
+                "Nome obrigatório",
+                "Informe o nome da despesa para continuar."
+            );
+            return;
+        }
+
+        if (!Number.isFinite(value) || value <= 0) {
+            Alert.alert(
+                "Valor inválido",
+                "Informe um valor maior que zero."
+            );
+            return;
+        }
+
+        if (rateLoading) {
+            Alert.alert(
+                "Aguarde",
+                "Estamos consultando a cotação da moeda. Tente novamente em instantes."
+            );
+            return;
+        }
+
+        if (
+            exchangeRate === null ||
+            !Number.isFinite(exchangeRate) ||
+            exchangeRate <= 0
+        ) {
+            Alert.alert(
+                "Cotação indisponível",
+                "Não foi possível obter a cotação. Verifique sua conexão e tente novamente."
+            );
             return;
         }
 
@@ -175,8 +215,41 @@ export default function NewExpenseScreen() {
             perPersonBRL: valueBRL / people,
         };
 
-        addTripExpense(trip.id, expense);
-        router.back();
+        setSaving(true);
+
+        try {
+            const added = addTripExpense(trip.id, expense);
+
+            if (!added) {
+                setSaving(false);
+
+                Alert.alert(
+                    "Não foi possível adicionar",
+                    "A viagem não foi encontrada. Volte para a lista de viagens e tente novamente."
+                );
+                return;
+            }
+
+            Alert.alert(
+                "Despesa adicionada!",
+                "Sua despesa foi registrada com sucesso.",
+                [
+                    {
+                        text: "OK",
+                        onPress: () => router.back(),
+                    },
+                ],
+                { cancelable: false }
+            );
+        } catch (error) {
+            console.error("Erro ao adicionar despesa:", error);
+            setSaving(false);
+
+            Alert.alert(
+                "Erro ao adicionar despesa",
+                "Não foi possível registrar a despesa. Tente novamente."
+            );
+        }
     }
 
     function handleSaveCustomColor() {
@@ -215,13 +288,12 @@ export default function NewExpenseScreen() {
 
                 <Pressable
                     onPress={handleAddExpense}
-                    disabled={rateLoading || exchangeRate === null}
+                    disabled={saving}
                 >
                     <Text
                         style={[
                             styles.addText,
-                            (rateLoading || exchangeRate === null) &&
-                                styles.disabledAddText,
+                            saving && styles.disabledAddText,
                         ]}
                     >
                         Adicionar
@@ -248,14 +320,14 @@ export default function NewExpenseScreen() {
                             style={[
                                 styles.currencyButton,
                                 currency === "BRL" &&
-                                    styles.selectedCurrency,
+                                styles.selectedCurrency,
                             ]}
                         >
                             <Text
                                 style={[
                                     styles.currencyText,
                                     currency === "BRL" &&
-                                        styles.selectedCurrencyText,
+                                    styles.selectedCurrencyText,
                                 ]}
                             >
                                 BRL
@@ -268,14 +340,14 @@ export default function NewExpenseScreen() {
                                 style={[
                                     styles.currencyButton,
                                     currency === localCurrency &&
-                                        styles.selectedCurrency,
+                                    styles.selectedCurrency,
                                 ]}
                             >
                                 <Text
                                     style={[
                                         styles.currencyText,
                                         currency === localCurrency &&
-                                            styles.selectedCurrencyText,
+                                        styles.selectedCurrencyText,
                                     ]}
                                 >
                                     {localCurrency}
@@ -323,7 +395,7 @@ export default function NewExpenseScreen() {
                                 styles.color,
                                 item.style,
                                 selectedColor === item.id &&
-                                    styles.selectedColor,
+                                styles.selectedColor,
                             ]}
                         >
                             {selectedColor === item.id && <ColorCheck />}
@@ -379,7 +451,7 @@ export default function NewExpenseScreen() {
                                                 styles.popupColor,
                                                 item.style,
                                                 isSelected &&
-                                                    styles.selectedPopupColor,
+                                                styles.selectedPopupColor,
                                             ]}
                                         >
                                             {isSelected && <ColorCheck />}
@@ -420,7 +492,7 @@ export default function NewExpenseScreen() {
                                                                 backgroundColor: color,
                                                             },
                                                             isSelected &&
-                                                                styles.selectedPopupColor,
+                                                            styles.selectedPopupColor,
                                                         ]}
                                                     >
                                                         {isSelected && (

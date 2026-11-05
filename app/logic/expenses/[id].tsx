@@ -1,3 +1,6 @@
+
+import { MaterialIcons } from "@expo/vector-icons";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Pressable,
@@ -6,8 +9,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import Svg, { Path } from "react-native-svg";
 
 import GlassBackdrop from "../../../components/GlassBackdrop";
@@ -17,7 +18,10 @@ import {
   type GlassPalette,
 } from "../../../constants/glass";
 import { useAxisTheme } from "../../../contexts/ThemeContext";
-import { savedTrips } from "../../../stores/tripStore";
+import {
+  savedTrips,
+  subscribeToTrips,
+} from "../../../stores/tripStore";
 
 type ExpenseValue = {
   name: string;
@@ -50,6 +54,28 @@ function getColor(color: string): string {
   return PIE_COLORS[color] || "#999999";
 }
 
+// Formatação dos valores principais em reais.
+// Remove as casas decimais sem arredondar para cima.
+function formatMainCurrency(
+  value: number,
+  currency = "BRL"
+): string {
+  const truncatedValue = Math.trunc(value);
+
+  try {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(truncatedValue);
+  } catch {
+    return `${currency} ${truncatedValue.toLocaleString("pt-BR")}`;
+  }
+}
+
+// Formatação dos valores secundários.
+// Mantém duas casas decimais.
 function formatMoney(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     minimumFractionDigits: 2,
@@ -189,6 +215,16 @@ export default function ExpenseTripScreen() {
   const { id } = useLocalSearchParams<{
     id: string;
   }>();
+
+  const [, setTripsVersion] = useState(0);
+
+useEffect(() => {
+  const unsubscribe = subscribeToTrips(() => {
+    setTripsVersion((current) => current + 1);
+  });
+
+  return unsubscribe;
+}, []);
 
   const trip = savedTrips.find(
     (item) => item.id === id
@@ -434,7 +470,7 @@ export default function ExpenseTripScreen() {
 
           <Text style={styles.budgetValue}>
             {hasBudget
-              ? formatCurrency(
+              ? formatMainCurrency(
                   initialBudget,
                   "BRL"
                 )
@@ -471,7 +507,7 @@ export default function ExpenseTripScreen() {
               minimumFontScale={0.75}
             >
               {hasBudget
-                ? formatCurrency(
+                ? formatMainCurrency(
                     remainingBudget,
                     "BRL"
                   )
@@ -510,7 +546,7 @@ export default function ExpenseTripScreen() {
               minimumFontScale={0.75}
             >
               {dailyAverage !== null
-                ? formatCurrency(
+                ? formatMainCurrency(
                     dailyAverage,
                     "BRL"
                   )
@@ -547,7 +583,7 @@ export default function ExpenseTripScreen() {
               adjustsFontSizeToFit
               minimumFontScale={0.75}
             >
-              {formatCurrency(
+              {formatMainCurrency(
                 totalSpent,
                 "BRL"
               )}
@@ -699,7 +735,7 @@ export default function ExpenseTripScreen() {
                         <Text
                           style={styles.legendValue}
                         >
-                          {formatCurrency(
+                          {formatMainCurrency(
                             expense.value,
                             "BRL"
                           )}
