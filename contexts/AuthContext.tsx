@@ -13,16 +13,11 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithCredential,
   signOut,
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-
-import {
-  GoogleSignin,
-} from "@react-native-google-signin/google-signin";
 
 import {
   doc,
@@ -183,40 +178,20 @@ export function AuthProvider({
   };
 
   const loginWithGoogle = async () => {
-    let firebaseUser;
-
-    if (Platform.OS === "web") {
-      const provider = new GoogleAuthProvider();
-
-      provider.setCustomParameters({
-        prompt: "select_account",
-      });
-
-      const result = await signInWithPopup(auth, provider);
-      firebaseUser = result.user;
-    } else {
-      GoogleSignin.configure({
-        webClientId:
-          "47414449980-rsihs5ovb1clp1n9ehhsv9bad3h4fmvu.apps.googleusercontent.com",
-      });
-
-      const response = await GoogleSignin.signIn();
-
-      if (response.type !== "success") {
-        return;
-      }
-
-      const idToken = response.data.idToken;
-
-      if (!idToken) {
-        throw new Error("Não foi possível obter o token do Google.");
-      }
-
-      const credential = GoogleAuthProvider.credential(idToken);
-
-      const result = await signInWithCredential(auth, credential);
-      firebaseUser = result.user;
+    if (Platform.OS !== "web") {
+      throw new Error(
+        "O login com Google está disponível apenas na versão Web."
+      );
     }
+
+    const provider = new GoogleAuthProvider();
+
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
+
+    const result = await signInWithPopup(auth, provider);
+    const firebaseUser = result.user;
 
     const fallbackUser = createUserFallback(firebaseUser);
     setUser(fallbackUser);
@@ -252,8 +227,7 @@ export function AuthProvider({
 
       const nameParts = (firebaseUser.displayName ?? "")
         .trim()
-        .split(" ")
-        .filter(Boolean);
+        .split(" ");
 
       const newProfile = {
         firstName: nameParts[0] ?? "",
